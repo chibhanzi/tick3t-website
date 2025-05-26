@@ -7,88 +7,88 @@ const FeaturedEvents = () => {
   const events = [
     {
       id: "1",
-      title: "🎵 Bass Drop Festival 2024",
-      date: "March 15, 2024 • 9:00 PM",
-      location: "🌴 Miami Beach Arena",
+      title: "Tech Innovation Summit 2024",
+      date: "March 15, 2024 • 9:00 AM",
+      location: "San Francisco Convention Center",
       price: "0.05 ETH",
-      image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
       attendees: 2500,
-      category: "🎶 Music Festival",
+      category: "Technology",
       available: 150,
       total: 500
     },
     {
       id: "2",
-      title: "🎨 Digital Art Rave",
-      date: "March 22, 2024 • 10:00 PM",
-      location: "🏙️ Brooklyn Warehouse, NYC",
+      title: "Digital Art Exhibition",
+      date: "March 22, 2024 • 6:00 PM",
+      location: "Brooklyn Museum, NYC",
       price: "0.02 ETH",
-      image: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=300&fit=crop",
       attendees: 800,
-      category: "🎭 Art & Culture",
+      category: "Art & Culture",
       available: 0,
       total: 200
     },
     {
       id: "3",
-      title: "🚀 Web3 Party Conference",
-      date: "April 5, 2024 • 6:00 PM",
-      location: "🇬🇧 London Excel Centre",
+      title: "Business Networking Gala",
+      date: "April 5, 2024 • 7:00 PM",
+      location: "London Excel Centre",
       price: "0.08 ETH",
-      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop",
       attendees: 1200,
-      category: "💼 Tech & Networking",
+      category: "Business",
       available: 75,
       total: 300
     },
     {
       id: "4",
-      title: "🎮 GameFi Meetup & Party",
-      date: "April 12, 2024 • 7:00 PM",
-      location: "🇩🇪 Berlin Tech Hub",
+      title: "Music Festival Summer",
+      date: "May 20, 2024 • 3:00 PM",
+      location: "Central Park, NYC",
+      price: "0.12 ETH",
+      image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=300&fit=crop",
+      attendees: 5000,
+      category: "Music",
+      available: 800,
+      total: 2000
+    },
+    {
+      id: "5",
+      title: "Startup Pitch Competition",
+      date: "April 28, 2024 • 2:00 PM",
+      location: "Silicon Valley Hub",
       price: "Free",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=300&fit=crop",
       attendees: 400,
-      category: "🎮 Gaming",
+      category: "Business",
       available: 120,
       total: 150
     },
     {
-      id: "5",
-      title: "🌊 Crypto Beach Festival",
-      date: "May 1, 2024 • 2:00 PM",
-      location: "🏖️ Malibu Beach",
-      price: "0.15 ETH",
-      image: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=400&h=300&fit=crop",
-      attendees: 3000,
-      category: "🏖️ Beach Party",
-      available: 500,
-      total: 1000
-    },
-    {
       id: "6",
-      title: "👗 Metaverse Fashion Week",
-      date: "May 20, 2024 • 8:00 PM",
-      location: "🌐 Virtual Reality Space",
-      price: "0.03 ETH",
-      image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=300&fit=crop",
-      attendees: 1800,
-      category: "👠 Fashion",
-      available: 300,
-      total: 600
+      title: "Wellness & Mindfulness Retreat",
+      date: "June 10, 2024 • 9:00 AM",
+      location: "Malibu Retreat Center",
+      price: "0.15 ETH",
+      image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+      attendees: 200,
+      category: "Wellness",
+      available: 50,
+      total: 100
     }
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-white via-purple-50 to-pink-50">
+    <section className="py-20 bg-gradient-to-br from-white via-blue-50 to-purple-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
-            🔥 Hottest Events Right Now
+            Featured Events
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            From underground raves to exclusive galas - find your tribe and create memories that last forever! 
-            Each ticket is a unique NFT designed by the event creators. 🎨✨
+            Discover amazing events across all categories. From business conferences 
+            to music festivals - find what inspires you.
           </p>
         </div>
         
@@ -105,9 +105,10 @@ const FeaturedEvents = () => {
             <Button 
               variant="outline" 
               size="lg"
-              className="px-8 py-4 text-lg border-2 border-purple-300 hover:bg-purple-50 text-purple-600"
+              className="px-8 py-4 text-lg border-2 border-blue-300 hover:bg-blue-50 text-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-lg group"
             >
-              🎪 Explore All Events
+              <span className="group-hover:scale-110 transition-transform inline-block">🎪</span>
+              <span className="ml-2">Explore All Events</span>
             </Button>
           </Link>
         </div>

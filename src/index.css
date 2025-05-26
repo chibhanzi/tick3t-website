@@ -100,14 +100,53 @@
   }
   
   .neon-border {
-    @apply border border-neon-500 shadow-lg shadow-neon-500/25;
+    @apply border border-blue-500 shadow-lg shadow-blue-500/25;
   }
   
   .blockchain-gradient-text {
-    @apply bg-gradient-to-r from-blockchain-600 to-blockchain-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
   }
   
   .ticket-card {
     @apply bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02];
   }
+
+  /* Premium Button Animations */
+  .btn-premium {
+    @apply relative overflow-hidden transition-all duration-300;
+  }
+  
+  .btn-premium::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 transition-opacity duration-300;
+  }
+  
+  .btn-premium:hover::before {
+    @apply opacity-20;
+  }
+  
+  .btn-premium:hover {
+    @apply transform scale-105 shadow-xl;
+  }
+
+  /* Smooth hover animations */
+  .hover-lift {
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25;
+  }
+}
+
+/* Custom keyframes for advanced animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
