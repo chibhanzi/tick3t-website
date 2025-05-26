@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
 import MyTickets from "./pages/MyTickets";
+import Marketplace from "./pages/Marketplace";
 import Auth from "./pages/Auth";
 import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/my-tickets" element={<MyTickets />} />
+          <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/event/:id" element={<EventDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
