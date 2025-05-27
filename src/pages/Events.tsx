@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -6,7 +5,8 @@ import EventCard from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Calendar, MapPin, Users } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Search, Calendar, MapPin, Users, TrendingUp } from "lucide-react";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -107,11 +107,9 @@ const Events = () => {
     return matchesSearch && matchesCategory && matchesPrice;
   });
 
-  const stats = {
-    totalEvents: events.length,
-    totalAttendees: events.reduce((sum, event) => sum + event.attendees, 0),
-    availableTickets: events.reduce((sum, event) => sum + event.available, 0)
-  };
+  const liveEventsCount = events.length;
+  const totalTicketsAvailable = events.reduce((sum, event) => sum + event.available, 0);
+  const totalRevenue = events.reduce((sum, event) => sum + (parseFloat(event.price.replace(" ETH", "")) * (event.total - event.available)), 0).toFixed(2);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -128,81 +126,96 @@ const Events = () => {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 text-center shadow-sm border">
-            <Calendar className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold">{stats.totalEvents}</div>
-            <div className="text-sm text-muted-foreground">Live Events</div>
-          </div>
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 text-center shadow-sm border">
-            <Users className="h-8 w-8 text-green-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold">{stats.totalAttendees.toLocaleString()}</div>
-            <div className="text-sm text-muted-foreground">Total Attendees</div>
-          </div>
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 text-center shadow-sm border">
-            <MapPin className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold">{stats.availableTickets}</div>
-            <div className="text-sm text-muted-foreground">Tickets Available</div>
-          </div>
+        {/* Improved Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="border-blue-200 dark:border-slate-700">
+            <CardContent className="p-4 text-center">
+              <Calendar className="h-6 w-6 text-blue-500 mx-auto mb-2" />
+              <div className="text-xl font-bold text-foreground">{liveEventsCount}</div>
+              <div className="text-xs text-muted-foreground">Live Events</div>
+            </CardContent>
+          </Card>
+          <Card className="border-green-200 dark:border-slate-700">
+            <CardContent className="p-4 text-center">
+              <Users className="h-6 w-6 text-green-500 mx-auto mb-2" />
+              <div className="text-xl font-bold text-foreground">{totalTicketsAvailable}</div>
+              <div className="text-xs text-muted-foreground">Tickets Available</div>
+            </CardContent>
+          </Card>
+          <Card className="border-purple-200 dark:border-slate-700">
+            <CardContent className="p-4 text-center">
+              <TrendingUp className="h-6 w-6 text-purple-500 mx-auto mb-2" />
+              <div className="text-xl font-bold text-foreground">{totalRevenue} ETH</div>
+              <div className="text-xs text-muted-foreground">Total Revenue</div>
+            </CardContent>
+          </Card>
+          <Card className="border-orange-200 dark:border-slate-700">
+            <CardContent className="p-4 text-center">
+              <MapPin className="h-6 w-6 text-orange-500 mx-auto mb-2" />
+              <div className="text-xl font-bold text-foreground">6</div>
+              <div className="text-xs text-muted-foreground">Cities</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 mb-8 shadow-sm border">
-          <div className="flex flex-col gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search events, locations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-12"
-              />
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">Category</label>
-                <div className="flex gap-2 flex-wrap">
-                  {categories.map((category) => (
-                    <Badge
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
-                      className={`cursor-pointer transition-all ${
-                        selectedCategory === category 
-                          ? "bg-blue-500 hover:bg-blue-600" 
-                          : "hover:bg-muted"
-                      }`}
-                      onClick={() => setSelectedCategory(category)}
-                    >
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
+        <Card className="mb-8 border-slate-200 dark:border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex flex-col gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search events, locations..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-12"
+                />
               </div>
               
-              <div className="sm:w-48">
-                <label className="text-sm font-medium mb-2 block">Price Range</label>
-                <div className="flex flex-col gap-1">
-                  {priceRanges.map((range) => (
-                    <Badge
-                      key={range}
-                      variant={priceFilter === range ? "default" : "outline"}
-                      className={`cursor-pointer text-center transition-all ${
-                        priceFilter === range 
-                          ? "bg-blue-500 hover:bg-blue-600" 
-                          : "hover:bg-muted"
-                      }`}
-                      onClick={() => setPriceFilter(range)}
-                    >
-                      {range}
-                    </Badge>
-                  ))}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <label className="text-sm font-medium mb-2 block text-foreground">Category</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {categories.map((category) => (
+                      <Badge
+                        key={category}
+                        variant={selectedCategory === category ? "default" : "outline"}
+                        className={`cursor-pointer transition-all ${
+                          selectedCategory === category 
+                            ? "bg-blue-500 hover:bg-blue-600 text-white" 
+                            : "hover:bg-muted border-slate-300 dark:border-slate-600"
+                        }`}
+                        onClick={() => setSelectedCategory(category)}
+                      >
+                        {category}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="sm:w-48">
+                  <label className="text-sm font-medium mb-2 block text-foreground">Price Range</label>
+                  <div className="flex flex-col gap-1">
+                    {priceRanges.map((range) => (
+                      <Badge
+                        key={range}
+                        variant={priceFilter === range ? "default" : "outline"}
+                        className={`cursor-pointer text-center transition-all ${
+                          priceFilter === range 
+                            ? "bg-blue-500 hover:bg-blue-600 text-white" 
+                            : "hover:bg-muted border-slate-300 dark:border-slate-600"
+                        }`}
+                        onClick={() => setPriceFilter(range)}
+                      >
+                        {range}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Events Grid - 2 cards per row on mobile, 3 on desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">
