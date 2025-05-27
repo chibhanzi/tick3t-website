@@ -5,93 +5,207 @@ import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, Filter, Calendar, MapPin, Users } from "lucide-react";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [priceFilter, setPriceFilter] = useState("All");
 
   const events = [
     {
       id: "1",
-      title: "🎵 Bass Drop Festival 2024",
+      title: "Bass Drop Festival 2024",
       date: "March 15, 2024 • 9:00 PM",
-      location: "🌴 Miami Beach Arena",
+      location: "Miami Beach Arena",
       price: "0.05 ETH",
       image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=300&fit=crop",
       attendees: 2500,
-      category: "🎶 Music Festival",
+      category: "Music Festival",
       available: 150,
       total: 500
     },
     {
       id: "2",
-      title: "🎨 Digital Art Rave",
+      title: "Digital Art Rave",
       date: "March 22, 2024 • 10:00 PM",
-      location: "🏙️ Brooklyn Warehouse, NYC",
+      location: "Brooklyn Warehouse, NYC",
       price: "0.02 ETH",
       image: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop",
       attendees: 800,
-      category: "🎭 Art & Culture",
+      category: "Art & Culture",
       available: 0,
       total: 200
     },
-    // Add more events as needed
+    {
+      id: "3",
+      title: "Tech Innovation Summit",
+      date: "March 28, 2024 • 9:00 AM",
+      location: "Silicon Valley Convention Center",
+      price: "0.1 ETH",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
+      attendees: 1200,
+      category: "Tech & Networking",
+      available: 300,
+      total: 400
+    },
+    {
+      id: "4",
+      title: "Gaming Championship",
+      date: "April 5, 2024 • 2:00 PM",
+      location: "Los Angeles Arena",
+      price: "0.03 ETH",
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop",
+      attendees: 5000,
+      category: "Gaming",
+      available: 800,
+      total: 1000
+    },
+    {
+      id: "5",
+      title: "Beach Party Sunset",
+      date: "April 12, 2024 • 6:00 PM",
+      location: "Malibu Beach Club",
+      price: "0.025 ETH",
+      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
+      attendees: 300,
+      category: "Beach Party",
+      available: 50,
+      total: 150
+    },
+    {
+      id: "6",
+      title: "Fashion Week Gala",
+      date: "April 20, 2024 • 8:00 PM",
+      location: "Manhattan Design Center",
+      price: "0.15 ETH",
+      image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=300&fit=crop",
+      attendees: 600,
+      category: "Fashion",
+      available: 25,
+      total: 100
+    }
   ];
 
-  const categories = ["All", "🎶 Music Festival", "🎭 Art & Culture", "💼 Tech & Networking", "🎮 Gaming", "🏖️ Beach Party", "👠 Fashion"];
+  const categories = ["All", "Music Festival", "Art & Culture", "Tech & Networking", "Gaming", "Beach Party", "Fashion"];
+  const priceRanges = ["All", "Under 0.05 ETH", "0.05 - 0.1 ETH", "Over 0.1 ETH"];
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          event.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || event.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    
+    let matchesPrice = true;
+    if (priceFilter !== "All") {
+      const price = parseFloat(event.price.replace(" ETH", ""));
+      if (priceFilter === "Under 0.05 ETH") matchesPrice = price < 0.05;
+      else if (priceFilter === "0.05 - 0.1 ETH") matchesPrice = price >= 0.05 && price <= 0.1;
+      else if (priceFilter === "Over 0.1 ETH") matchesPrice = price > 0.1;
+    }
+    
+    return matchesSearch && matchesCategory && matchesPrice;
   });
 
+  const stats = {
+    totalEvents: events.length,
+    totalAttendees: events.reduce((sum, event) => sum + event.attendees, 0),
+    availableTickets: events.reduce((sum, event) => sum + event.available, 0)
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            🎉 Discover Epic Events
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Discover Amazing Events
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            From underground raves to exclusive experiences - find your perfect vibe! 🔥
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            From music festivals to tech conferences - find your perfect event experience
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search events, locations, vibes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-purple-200 focus:border-purple-400"
-            />
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 text-center shadow-sm border">
+            <Calendar className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold">{stats.totalEvents}</div>
+            <div className="text-sm text-muted-foreground">Live Events</div>
           </div>
-          
-          <div className="flex gap-2 flex-wrap">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category 
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white" 
-                  : "border-purple-200 hover:bg-purple-50"
-                }
-              >
-                {category}
-              </Button>
-            ))}
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 text-center shadow-sm border">
+            <Users className="h-8 w-8 text-green-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold">{stats.totalAttendees.toLocaleString()}</div>
+            <div className="text-sm text-muted-foreground">Total Attendees</div>
+          </div>
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 text-center shadow-sm border">
+            <MapPin className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold">{stats.availableTickets}</div>
+            <div className="text-sm text-muted-foreground">Tickets Available</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Search and Filters */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 mb-8 shadow-sm border">
+          <div className="flex flex-col gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search events, locations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-12"
+              />
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Category</label>
+                <div className="flex gap-2 flex-wrap">
+                  {categories.map((category) => (
+                    <Badge
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      className={`cursor-pointer transition-all ${
+                        selectedCategory === category 
+                          ? "bg-blue-500 hover:bg-blue-600" 
+                          : "hover:bg-muted"
+                      }`}
+                      onClick={() => setSelectedCategory(category)}
+                    >
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="sm:w-48">
+                <label className="text-sm font-medium mb-2 block">Price Range</label>
+                <div className="flex flex-col gap-1">
+                  {priceRanges.map((range) => (
+                    <Badge
+                      key={range}
+                      variant={priceFilter === range ? "default" : "outline"}
+                      className={`cursor-pointer text-center transition-all ${
+                        priceFilter === range 
+                          ? "bg-blue-500 hover:bg-blue-600" 
+                          : "hover:bg-muted"
+                      }`}
+                      onClick={() => setPriceFilter(range)}
+                    >
+                      {range}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Events Grid - 2 cards per row on mobile, 3 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">
           {filteredEvents.map((event) => (
             <EventCard key={event.id} {...event} />
           ))}
@@ -99,8 +213,9 @@ const Events = () => {
 
         {filteredEvents.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-xl text-gray-500 mb-4">😢 No events match your search</p>
-            <p className="text-gray-400">Try adjusting your filters or search terms</p>
+            <div className="text-6xl mb-4">🔍</div>
+            <p className="text-xl text-muted-foreground mb-4">No events match your search</p>
+            <p className="text-muted-foreground">Try adjusting your filters or search terms</p>
           </div>
         )}
       </main>

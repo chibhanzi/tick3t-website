@@ -33,69 +33,68 @@ const EventCard = ({
   const soldOut = available === 0;
   
   return (
-    <Card className="overflow-hidden group bg-gradient-to-br from-white to-purple-50 border border-purple-200 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
-      <div className="relative h-48 overflow-hidden">
+    <Card className="overflow-hidden group bg-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] h-full flex flex-col">
+      <div className="relative h-32 lg:h-48 overflow-hidden">
         <img 
           src={image} 
           alt={title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
         />
-        <div className="absolute top-4 left-4">
-          <Badge variant="secondary" className="bg-white/90 text-gray-700 font-medium">
+        <div className="absolute top-2 left-2">
+          <Badge variant="secondary" className="bg-background/90 text-xs">
             {category}
           </Badge>
         </div>
         {soldOut && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <Badge variant="destructive" className="text-lg px-4 py-2">
-              😭 Sold Out
+            <Badge variant="destructive" className="text-sm px-3 py-1">
+              Sold Out
             </Badge>
           </div>
         )}
       </div>
       
-      <CardContent className="p-6">
-        <h3 className="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+      <CardContent className="p-3 lg:p-6 flex-1 flex flex-col">
+        <h3 className="font-bold text-sm lg:text-xl mb-2 lg:mb-3 text-foreground line-clamp-2 flex-shrink-0">
           {title}
         </h3>
         
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center text-gray-600">
-            <Calendar className="h-4 w-4 mr-2" />
-            <span className="text-sm">{date}</span>
+        <div className="space-y-1 lg:space-y-2 mb-3 lg:mb-4 flex-1">
+          <div className="flex items-center text-muted-foreground">
+            <Calendar className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2 flex-shrink-0" />
+            <span className="text-xs lg:text-sm truncate">{date}</span>
           </div>
-          <div className="flex items-center text-gray-600">
-            <MapPin className="h-4 w-4 mr-2" />
-            <span className="text-sm">{location}</span>
+          <div className="flex items-center text-muted-foreground">
+            <MapPin className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2 flex-shrink-0" />
+            <span className="text-xs lg:text-sm truncate">{location}</span>
           </div>
-          <div className="flex items-center text-gray-600">
+          <div className="hidden lg:flex items-center text-muted-foreground">
             <Users className="h-4 w-4 mr-2" />
-            <span className="text-sm">{attendees} party people going!</span>
+            <span className="text-sm">{attendees} attending</span>
           </div>
         </div>
         
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3 lg:mb-4 flex-shrink-0">
           <div className="flex items-center">
-            <Ticket className="h-4 w-4 mr-1 text-purple-600" />
-            <span className="text-sm text-gray-600">
-              {available}/{total} tickets left
+            <Ticket className="h-3 w-3 lg:h-4 lg:w-4 mr-1 text-blue-600 flex-shrink-0" />
+            <span className="text-xs lg:text-sm text-muted-foreground">
+              {available}/{total}
             </span>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{price}</div>
-            <div className="text-xs text-gray-500">per ticket</div>
+            <div className="text-lg lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{price}</div>
           </div>
         </div>
         
-        <Link to={`/event/${id}`}>
+        <Link to={`/event/${id}`} className="flex-shrink-0">
           <Button 
-            className={`w-full ${soldOut 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
-            } text-white`}
+            className={`w-full text-xs lg:text-sm h-8 lg:h-10 ${soldOut 
+              ? 'bg-muted cursor-not-allowed text-muted-foreground' 
+              : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white'
+            }`}
             disabled={soldOut}
           >
-            {soldOut ? '😭 Sold Out' : '🎫 Get My Ticket!'}
+            {soldOut ? 'Sold Out' : 'Get Ticket'}
           </Button>
         </Link>
       </CardContent>
