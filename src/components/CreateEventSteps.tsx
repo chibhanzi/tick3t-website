@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -114,7 +114,10 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       <Card className="mb-6 border-slate-200 dark:border-slate-700">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-            {React.createElement(steps[currentStep - 1].icon, { className: "h-5 w-5" })}
+            {(() => {
+              const IconComponent = steps[currentStep - 1].icon;
+              return <IconComponent className="h-5 w-5" />;
+            })()}
             Step {currentStep}: {steps[currentStep - 1].title}
           </CardTitle>
         </CardHeader>
