@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QrCode, Shield, Clock, MapPin, Users, Star, Gift, Zap } from "lucide-react";
 
-export interface TicketFeatures {
+export interface TicketFeaturesConfig {
   hasQrCode: boolean;
   hasTransferProtection: boolean;
   hasTimelock: boolean;
@@ -24,12 +24,12 @@ export interface TicketFeatures {
 }
 
 interface TicketFeaturesProps {
-  features: TicketFeatures;
-  onFeaturesChange: (features: TicketFeatures) => void;
+  features: TicketFeaturesConfig;
+  onFeaturesChange: (features: TicketFeaturesConfig) => void;
 }
 
 const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => {
-  const updateFeature = (key: keyof TicketFeatures, value: any) => {
+  const updateFeature = (key: keyof TicketFeaturesConfig, value: any) => {
     onFeaturesChange({ ...features, [key]: value });
   };
 

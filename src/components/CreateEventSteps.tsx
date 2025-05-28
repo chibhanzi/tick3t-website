@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Check, Calendar, MapPin, Palette, Rocket, Wallet, Zap } from "lucide-react";
 import TicketTemplates, { TicketTemplate } from "./TicketTemplates";
 import LayeredTicketDesigner from "./LayeredTicketDesigner";
-import TicketFeatures, { TicketFeatures } from "./TicketFeatures";
+import TicketFeatures, { TicketFeaturesConfig } from "./TicketFeatures";
 import WalletIntegration, { WalletConfig } from "./WalletIntegration";
 
 interface EventData {
@@ -21,7 +22,7 @@ interface EventData {
   totalTickets: string;
   category: string;
   ticketDesign?: any;
-  ticketFeatures?: TicketFeatures;
+  ticketFeatures?: TicketFeaturesConfig;
   walletConfig?: WalletConfig;
 }
 
@@ -33,7 +34,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<TicketTemplate | undefined>();
   const [ticketLayers, setTicketLayers] = useState<any[]>([]);
-  const [ticketFeatures, setTicketFeatures] = useState<TicketFeatures>({
+  const [ticketFeatures, setTicketFeatures] = useState<TicketFeaturesConfig>({
     hasQrCode: true,
     hasTransferProtection: false,
     hasTimelock: false,
