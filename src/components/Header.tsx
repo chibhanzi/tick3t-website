@@ -13,15 +13,12 @@ const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-3">
+            <Link to="/" className="flex items-center">
               <img 
-                src="/lovable-uploads/f1df5c68-487c-4d11-8c3f-d1f4ac22fc55.png" 
+                src="/lovable-uploads/ec067a0f-a119-4f95-a148-9ca1d5b161d0.png" 
                 alt="Tick3rt Logo" 
-                className="h-10 w-10"
+                className="h-12 w-auto"
               />
-              <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Tick3rt
-              </span>
             </Link>
           </div>
 

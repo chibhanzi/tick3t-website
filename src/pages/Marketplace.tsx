@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, TrendingUp, Shield, Calendar, MapPin, Star, Clock, Users, Filter, Eye } from "lucide-react";
+import { Search, TrendingUp, Shield, Calendar, MapPin, Star, Clock, Users, Filter, Eye, Activity, DollarSign, Award } from "lucide-react";
 
 const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,34 +135,49 @@ const Marketplace = () => {
         </div>
 
         {/* Enhanced Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="border-blue-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{marketStats.activeListings}</div>
-              <div className="text-sm text-muted-foreground">Active Listings</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+          <Card className="relative overflow-hidden group bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
+            <CardContent className="p-6 text-center relative z-10">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Activity className="h-8 w-8 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">{marketStats.activeListings}</div>
+              <div className="text-sm font-medium text-blue-600/80 dark:text-blue-400/80">Active Listings</div>
             </CardContent>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </Card>
-          <Card className="border-green-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-            <CardContent className="p-4 text-center">
-              <Shield className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{marketStats.verifiedSellers}%</div>
-              <div className="text-sm text-muted-foreground">Verified Sellers</div>
+
+          <Card className="relative overflow-hidden group bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
+            <CardContent className="p-6 text-center relative z-10">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Shield className="h-8 w-8 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">{marketStats.verifiedSellers}%</div>
+              <div className="text-sm font-medium text-emerald-600/80 dark:text-emerald-400/80">Verified Sellers</div>
             </CardContent>
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </Card>
-          <Card className="border-purple-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-            <CardContent className="p-4 text-center">
-              <Calendar className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{marketStats.totalVolume}</div>
-              <div className="text-sm text-muted-foreground">Total Volume</div>
+
+          <Card className="relative overflow-hidden group bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
+            <CardContent className="p-6 text-center relative z-10">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <DollarSign className="h-8 w-8 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">{marketStats.totalVolume}</div>
+              <div className="text-sm font-medium text-purple-600/80 dark:text-purple-400/80">Total Volume</div>
             </CardContent>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </Card>
-          <Card className="border-orange-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-            <CardContent className="p-4 text-center">
-              <Star className="h-8 w-8 text-orange-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{marketStats.avgPrice}</div>
-              <div className="text-sm text-muted-foreground">Average Price</div>
+
+          <Card className="relative overflow-hidden group bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
+            <CardContent className="p-6 text-center relative z-10">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Award className="h-8 w-8 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-1">{marketStats.avgPrice}</div>
+              <div className="text-sm font-medium text-orange-600/80 dark:text-orange-400/80">Average Price</div>
             </CardContent>
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-400/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </Card>
         </div>
 
