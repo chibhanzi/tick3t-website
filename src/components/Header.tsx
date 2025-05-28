@@ -4,9 +4,16 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
 import WalletConnect from "./WalletConnect";
 import ThemeToggle from "./ThemeToggle";
+import { useTheme } from "next-themes";
 
 const Header = () => {
   const isMobile = useIsMobile();
+  const { theme, resolvedTheme } = useTheme();
+  
+  // Use the new logo for light mode, original for dark mode
+  const logoSrc = resolvedTheme === 'dark' 
+    ? "/lovable-uploads/ec067a0f-a119-4f95-a148-9ca1d5b161d0.png"
+    : "/lovable-uploads/f7d2a757-01f4-4216-8a2d-98095d3ae53c.png";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -15,9 +22,9 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center">
               <img 
-                src="/lovable-uploads/ec067a0f-a119-4f95-a148-9ca1d5b161d0.png" 
+                src={logoSrc}
                 alt="Tick3rt Logo" 
-                className="h-12 w-auto"
+                className="h-10 w-auto"
               />
             </Link>
           </div>

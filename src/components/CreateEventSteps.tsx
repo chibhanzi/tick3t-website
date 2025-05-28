@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,9 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Calendar, MapPin, Palette, Rocket } from "lucide-react";
+import { Check, Calendar, MapPin, Palette, Rocket, Wallet, Zap } from "lucide-react";
 import TicketTemplates, { TicketTemplate } from "./TicketTemplates";
 import LayeredTicketDesigner from "./LayeredTicketDesigner";
+import TicketFeatures, { TicketFeatures } from "./TicketFeatures";
+import WalletIntegration, { WalletConfig } from "./WalletIntegration";
 
 interface EventData {
   title: string;
@@ -20,6 +21,8 @@ interface EventData {
   totalTickets: string;
   category: string;
   ticketDesign?: any;
+  ticketFeatures?: TicketFeatures;
+  walletConfig?: WalletConfig;
 }
 
 interface CreateEventStepsProps {
@@ -30,6 +33,27 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<TicketTemplate | undefined>();
   const [ticketLayers, setTicketLayers] = useState<any[]>([]);
+  const [ticketFeatures, setTicketFeatures] = useState<TicketFeatures>({
+    hasQrCode: true,
+    hasTransferProtection: false,
+    hasTimelock: false,
+    timelockHours: 24,
+    hasLocationVerification: false,
+    hasCapacityLimit: false,
+    capacityLimit: 5,
+    hasRoyalties: false,
+    royaltyPercentage: 2.5,
+    hasBonusRewards: false,
+    hasEarlyAccess: false,
+    earlyAccessHours: 24
+  });
+  const [walletConfig, setWalletConfig] = useState<WalletConfig>({
+    paymentWallet: "",
+    mintingWallet: "",
+    network: "polygon",
+    mintingFeePercentage: 2.5,
+    gasOptimization: true
+  });
   const [eventData, setEventData] = useState<EventData>({
     title: "",
     date: "",
@@ -45,7 +69,9 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     { id: 1, title: "Basic Info", icon: Calendar, description: "Event details" },
     { id: 2, title: "Pricing", icon: MapPin, description: "Tickets & pricing" },
     { id: 3, title: "Design", icon: Palette, description: "Customize tickets" },
-    { id: 4, title: "Launch", icon: Rocket, description: "Review & publish" }
+    { id: 4, title: "Features", icon: Zap, description: "Advanced features" },
+    { id: 5, title: "Wallet", icon: Wallet, description: "Payment setup" },
+    { id: 6, title: "Launch", icon: Rocket, description: "Review & publish" }
   ];
 
   const currencies = [
@@ -54,7 +80,11 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     { value: "USDT", label: "USDT", symbol: "$" },
     { value: "DAI", label: "DAI", symbol: "$" },
     { value: "MATIC", label: "MATIC", symbol: "◊" },
-    { value: "BTC", label: "BTC", symbol: "₿" }
+    { value: "BTC", label: "BTC", symbol: "₿" },
+    { value: "BNB", label: "BNB", symbol: "BNB" },
+    { value: "SOL", label: "SOL", symbol: "◎" },
+    { value: "AVAX", label: "AVAX", symbol: "▲" },
+    { value: "DOT", label: "DOT", symbol: "●" }
   ];
 
   const handleInputChange = (field: keyof EventData, value: string) => {
@@ -82,6 +112,10 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       case 3:
         return true; // Design step is optional
       case 4:
+        return true; // Features step is optional
+      case 5:
+        return walletConfig.paymentWallet && walletConfig.mintingWallet;
+      case 6:
         return true; // Review step
       default:
         return false;
@@ -91,7 +125,9 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   const handleComplete = () => {
     onComplete({
       ...eventData,
-      ticketDesign: { template: selectedTemplate, layers: ticketLayers }
+      ticketDesign: { template: selectedTemplate, layers: ticketLayers },
+      ticketFeatures,
+      walletConfig
     });
   };
 
@@ -101,9 +137,9 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     <div className="max-w-6xl mx-auto">
       {/* Progress Steps */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 overflow-x-auto pb-2">
           {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
+            <div key={step.id} className="flex items-center flex-shrink-0">
               <div className={`
                 flex items-center justify-center w-12 h-12 rounded-full border-3 transition-all duration-300
                 ${currentStep >= step.id 
@@ -119,7 +155,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
               </div>
               {index < steps.length - 1 && (
                 <div className={`
-                  h-1 w-20 mx-3 rounded-full transition-all duration-300
+                  h-1 w-16 mx-3 rounded-full transition-all duration-300
                   ${currentStep > step.id ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-slate-300 dark:bg-slate-600'}
                 `} />
               )}
@@ -144,6 +180,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-8 p-8">
+          {/* Step 1: Basic Info */}
           {currentStep === 1 && (
             <>
               <div>
@@ -193,6 +230,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
             </>
           )}
 
+          {/* Step 2: Pricing */}
           {currentStep === 2 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -266,7 +304,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
 
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 p-6 rounded-xl">
                 <h3 className="font-bold text-lg mb-4 text-foreground">💰 Revenue Estimation</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="text-center">
                     <div className="text-sm text-muted-foreground mb-1">Total Revenue</div>
                     <div className="text-2xl font-bold text-foreground">
@@ -277,10 +315,19 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-sm text-muted-foreground mb-1">Platform Fee (2.5%)</div>
+                    <div className="text-sm text-muted-foreground mb-1">Platform Fee (2%)</div>
                     <div className="text-2xl font-bold text-orange-600">
                       {eventData.price && eventData.totalTickets 
-                        ? `${selectedCurrency?.symbol}${(parseFloat(eventData.price) * parseInt(eventData.totalTickets) * 0.025).toFixed(3)}`
+                        ? `${selectedCurrency?.symbol}${(parseFloat(eventData.price) * parseInt(eventData.totalTickets) * 0.02).toFixed(3)}`
+                        : `${selectedCurrency?.symbol}0`
+                      }
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground mb-1">Minting Fee ({walletConfig.mintingFeePercentage}%)</div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {eventData.price && eventData.totalTickets 
+                        ? `${selectedCurrency?.symbol}${(parseFloat(eventData.price) * parseInt(eventData.totalTickets) * (walletConfig.mintingFeePercentage / 100)).toFixed(3)}`
                         : `${selectedCurrency?.symbol}0`
                       }
                     </div>
@@ -289,7 +336,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
                     <div className="text-sm text-muted-foreground mb-1">Your Earnings</div>
                     <div className="text-2xl font-bold text-green-600">
                       {eventData.price && eventData.totalTickets 
-                        ? `${selectedCurrency?.symbol}${(parseFloat(eventData.price) * parseInt(eventData.totalTickets) * 0.975).toFixed(3)}`
+                        ? `${selectedCurrency?.symbol}${(parseFloat(eventData.price) * parseInt(eventData.totalTickets) * (0.98 - walletConfig.mintingFeePercentage / 100)).toFixed(3)}`
                         : `${selectedCurrency?.symbol}0`
                       }
                     </div>
@@ -299,6 +346,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
             </>
           )}
 
+          {/* Step 3: Design */}
           {currentStep === 3 && (
             <div className="space-y-6">
               {!selectedTemplate ? (
@@ -327,7 +375,24 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
             </div>
           )}
 
+          {/* Step 4: Features */}
           {currentStep === 4 && (
+            <TicketFeatures 
+              features={ticketFeatures}
+              onFeaturesChange={setTicketFeatures}
+            />
+          )}
+
+          {/* Step 5: Wallet */}
+          {currentStep === 5 && (
+            <WalletIntegration 
+              config={walletConfig}
+              onConfigChange={setWalletConfig}
+            />
+          )}
+
+          {/* Step 6: Launch */}
+          {currentStep === 6 && (
             <div className="space-y-8">
               <div className="text-center py-6">
                 <Rocket className="h-20 w-20 text-green-500 mx-auto mb-4" />
@@ -351,32 +416,55 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
 
                 <Card className="border-slate-200 dark:border-slate-700">
                   <CardHeader>
-                    <CardTitle className="text-lg text-muted-foreground">💰 Pricing Details</CardTitle>
+                    <CardTitle className="text-lg text-muted-foreground">💰 Financial Summary</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div><strong>Price:</strong> {selectedCurrency?.symbol}{eventData.price} {eventData.currency}</div>
                     <div><strong>Total Tickets:</strong> {eventData.totalTickets}</div>
-                    <div><strong>Total Revenue:</strong> {selectedCurrency?.symbol}{(parseFloat(eventData.price || "0") * parseInt(eventData.totalTickets || "0")).toFixed(3)} {eventData.currency}</div>
-                    <div><strong>Your Earnings:</strong> {selectedCurrency?.symbol}{(parseFloat(eventData.price || "0") * parseInt(eventData.totalTickets || "0") * 0.975).toFixed(3)} {eventData.currency}</div>
+                    <div><strong>Minting Fee:</strong> {walletConfig.mintingFeePercentage}%</div>
+                    <div><strong>Your Earnings:</strong> {selectedCurrency?.symbol}{(parseFloat(eventData.price || "0") * parseInt(eventData.totalTickets || "0") * (0.98 - walletConfig.mintingFeePercentage / 100)).toFixed(3)} {eventData.currency}</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-slate-200 dark:border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-muted-foreground">⚡ Ticket Features</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {Object.entries(ticketFeatures).map(([key, value]) => {
+                      if (typeof value === 'boolean' && value) {
+                        const labels = {
+                          hasQrCode: '🔍 QR Verification',
+                          hasTransferProtection: '🛡️ Transfer Protection',
+                          hasTimelock: '⏰ Time Lock',
+                          hasLocationVerification: '📍 Location Check',
+                          hasCapacityLimit: '👥 Capacity Control',
+                          hasRoyalties: '💰 Royalties',
+                          hasBonusRewards: '🎁 Rewards',
+                          hasEarlyAccess: '⚡ Early Access'
+                        };
+                        return (
+                          <Badge key={key} variant="outline" className="mr-2 mb-2">
+                            {labels[key as keyof typeof labels]}
+                          </Badge>
+                        );
+                      }
+                      return null;
+                    })}
+                  </CardContent>
+                </Card>
+
+                <Card className="border-slate-200 dark:border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-muted-foreground">💳 Wallet Configuration</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div><strong>Network:</strong> {walletConfig.network}</div>
+                    <div><strong>Payment Wallet:</strong> {walletConfig.paymentWallet ? `${walletConfig.paymentWallet.slice(0, 6)}...${walletConfig.paymentWallet.slice(-4)}` : 'Not set'}</div>
+                    <div><strong>Minting Wallet:</strong> {walletConfig.mintingWallet ? `${walletConfig.mintingWallet.slice(0, 6)}...${walletConfig.mintingWallet.slice(-4)}` : 'Not set'}</div>
                   </CardContent>
                 </Card>
               </div>
-
-              {selectedTemplate && (
-                <Card className="border-slate-200 dark:border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-muted-foreground">🎨 Ticket Design</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-2">Selected Template: <strong>{selectedTemplate.name}</strong></p>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-slate-700 dark:text-blue-300">
-                        ✨ Custom Design Applied
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           )}
         </CardContent>
