@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Check, Calendar, MapPin, Palette, Rocket, Wallet, Zap, Settings } from "lucide-react";
 import TicketTemplates, { TicketTemplate } from "./TicketTemplates";
-import LayeredTicketDesigner from "./LayeredTicketDesigner";
+import EnhancedTicketDesigner from "./EnhancedTicketDesigner";
 import TicketFeatures, { TicketFeaturesConfig } from "./TicketFeatures";
 import WalletIntegration, { WalletConfig } from "./WalletIntegration";
 import TicketGenerationMethods, { TicketGenerationConfig } from "./TicketGenerationMethods";
@@ -36,7 +36,24 @@ interface CreateEventStepsProps {
 const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<TicketTemplate | undefined>();
-  const [ticketLayers, setTicketLayers] = useState<any[]>([]);
+  const [enhancedDesign, setEnhancedDesign] = useState({
+    template: "modern-gradient",
+    primaryColor: "#667eea",
+    secondaryColor: "#ffffff",
+    accentColor: "#764ba2",
+    gradientDirection: "135deg",
+    fontFamily: "inter",
+    fontSize: 16,
+    backgroundPattern: "none",
+    borderStyle: "solid",
+    cornerRadius: 12,
+    shadow: "soft",
+    holographicEffect: false,
+    metallic: false,
+    texture: "none",
+    animation: "none"
+  });
+
   const [ticketFeatures, setTicketFeatures] = useState<TicketFeaturesConfig>({
     hasQrCode: true,
     hasTransferProtection: false,
@@ -142,7 +159,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   const handleComplete = () => {
     onComplete({
       ...eventData,
-      ticketDesign: { template: selectedTemplate, layers: ticketLayers },
+      ticketDesign: { enhanced: enhancedDesign, template: selectedTemplate },
       ticketFeatures,
       walletConfig,
       generationConfig,
@@ -365,7 +382,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
             </>
           )}
 
-          {/* Step 3: Design */}
+          {/* Step 3: Enhanced Design */}
           {currentStep === 3 && (
             <div className="space-y-6">
               <BackgroundImageUploader 
@@ -373,29 +390,13 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
                 onConfigChange={setBackgroundImage}
               />
               
-              {!selectedTemplate ? (
-                <TicketTemplates onSelectTemplate={setSelectedTemplate} />
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-foreground">🎨 Design Your Ticket</h3>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setSelectedTemplate(undefined)}
-                      className="border-blue-200 hover:bg-blue-50 dark:border-slate-600 dark:hover:bg-slate-700"
-                    >
-                      Choose Different Template
-                    </Button>
-                  </div>
-                  <LayeredTicketDesigner
-                    eventTitle={eventData.title || "Your Event Title"}
-                    eventDate={eventData.date || "Event Date"}
-                    eventLocation={eventData.location || "Event Location"}
-                    template={selectedTemplate}
-                    onDesignChange={setTicketLayers}
-                  />
-                </div>
-              )}
+              <EnhancedTicketDesigner
+                eventTitle={eventData.title || "Your Event Title"}
+                eventDate={eventData.date || "Event Date"}
+                eventLocation={eventData.location || "Event Location"}
+                design={enhancedDesign}
+                onDesignChange={setEnhancedDesign}
+              />
             </div>
           )}
 
