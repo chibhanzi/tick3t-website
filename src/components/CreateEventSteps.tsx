@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,11 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Calendar, MapPin, Palette, Rocket, Wallet, Zap } from "lucide-react";
+import { Check, Calendar, MapPin, Palette, Rocket, Wallet, Zap, Settings } from "lucide-react";
 import TicketTemplates, { TicketTemplate } from "./TicketTemplates";
 import LayeredTicketDesigner from "./LayeredTicketDesigner";
 import TicketFeatures, { TicketFeaturesConfig } from "./TicketFeatures";
 import WalletIntegration, { WalletConfig } from "./WalletIntegration";
+import TicketGenerationMethods, { TicketGenerationConfig } from "./TicketGenerationMethods";
+import BackgroundImageUploader, { BackgroundImageConfig } from "./BackgroundImageUploader";
 
 interface EventData {
   title: string;
@@ -24,6 +25,8 @@ interface EventData {
   ticketDesign?: any;
   ticketFeatures?: TicketFeaturesConfig;
   walletConfig?: WalletConfig;
+  generationConfig?: TicketGenerationConfig;
+  backgroundImage?: BackgroundImageConfig;
 }
 
 interface CreateEventStepsProps {
@@ -55,6 +58,16 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     mintingFeePercentage: 2.5,
     gasOptimization: true
   });
+  const [generationConfig, setGenerationConfig] = useState<TicketGenerationConfig>({
+    method: 'batch',
+    realtimeBuffer: 5,
+    limitedQuantity: 50
+  });
+  const [backgroundImage, setBackgroundImage] = useState<BackgroundImageConfig>({
+    opacity: 80,
+    blur: 0,
+    overlay: 'none'
+  });
   const [eventData, setEventData] = useState<EventData>({
     title: "",
     date: "",
@@ -71,8 +84,9 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     { id: 2, title: "Pricing", icon: MapPin, description: "Tickets & pricing" },
     { id: 3, title: "Design", icon: Palette, description: "Customize tickets" },
     { id: 4, title: "Features", icon: Zap, description: "Advanced features" },
-    { id: 5, title: "Wallet", icon: Wallet, description: "Payment setup" },
-    { id: 6, title: "Launch", icon: Rocket, description: "Review & publish" }
+    { id: 5, title: "Generation", icon: Settings, description: "Ticket generation" },
+    { id: 6, title: "Wallet", icon: Wallet, description: "Payment setup" },
+    { id: 7, title: "Launch", icon: Rocket, description: "Review & publish" }
   ];
 
   const currencies = [
@@ -111,13 +125,15 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       case 2:
         return eventData.price && eventData.currency && eventData.totalTickets && eventData.category;
       case 3:
-        return true; // Design step is optional
+        return true;
       case 4:
-        return true; // Features step is optional
+        return true;
       case 5:
-        return walletConfig.paymentWallet && walletConfig.mintingWallet;
+        return true;
       case 6:
-        return true; // Review step
+        return walletConfig.paymentWallet && walletConfig.mintingWallet;
+      case 7:
+        return true;
       default:
         return false;
     }
@@ -128,7 +144,9 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       ...eventData,
       ticketDesign: { template: selectedTemplate, layers: ticketLayers },
       ticketFeatures,
-      walletConfig
+      walletConfig,
+      generationConfig,
+      backgroundImage
     });
   };
 
@@ -350,6 +368,11 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
           {/* Step 3: Design */}
           {currentStep === 3 && (
             <div className="space-y-6">
+              <BackgroundImageUploader 
+                config={backgroundImage}
+                onConfigChange={setBackgroundImage}
+              />
+              
               {!selectedTemplate ? (
                 <TicketTemplates onSelectTemplate={setSelectedTemplate} />
               ) : (
@@ -384,16 +407,24 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
             />
           )}
 
-          {/* Step 5: Wallet */}
+          {/* Step 5: Generation Methods */}
           {currentStep === 5 && (
+            <TicketGenerationMethods
+              config={generationConfig}
+              onConfigChange={setGenerationConfig}
+            />
+          )}
+
+          {/* Step 6: Wallet */}
+          {currentStep === 6 && (
             <WalletIntegration 
               config={walletConfig}
               onConfigChange={setWalletConfig}
             />
           )}
 
-          {/* Step 6: Launch */}
-          {currentStep === 6 && (
+          {/* Step 7: Launch */}
+          {currentStep === 7 && (
             <div className="space-y-8">
               <div className="text-center py-6">
                 <Rocket className="h-20 w-20 text-green-500 mx-auto mb-4" />
@@ -422,6 +453,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
                   <CardContent className="space-y-3">
                     <div><strong>Price:</strong> {selectedCurrency?.symbol}{eventData.price} {eventData.currency}</div>
                     <div><strong>Total Tickets:</strong> {eventData.totalTickets}</div>
+                    <div><strong>Generation:</strong> {generationConfig.method}</div>
                     <div><strong>Minting Fee:</strong> {walletConfig.mintingFeePercentage}%</div>
                     <div><strong>Your Earnings:</strong> {selectedCurrency?.symbol}{(parseFloat(eventData.price || "0") * parseInt(eventData.totalTickets || "0") * (0.98 - walletConfig.mintingFeePercentage / 100)).toFixed(3)} {eventData.currency}</div>
                   </CardContent>
