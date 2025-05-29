@@ -216,7 +216,7 @@ const EnhancedTicketDesigner = ({
   };
 
   const renderTicketPreview = () => (
-    <div className="relative p-6 h-64 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+    <div className="relative p-3 sm:p-6 h-48 sm:h-64 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
       <div 
         className="absolute inset-0 rounded-xl"
         style={getTicketPreviewStyle()}
@@ -238,33 +238,33 @@ const EnhancedTicketDesigner = ({
         )}
 
         {/* Content */}
-        <div className="relative z-10 p-6 h-full flex flex-col justify-between">
+        <div className="relative z-10 p-3 sm:p-6 h-full flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className={`text-xl font-bold mb-1 ${design.fontFamily === 'serif' ? 'font-serif' : 'font-sans'}`}>
+            <div className="flex justify-between items-start mb-2 sm:mb-4">
+              <div className="flex-1 pr-2">
+                <h3 className={`text-sm sm:text-xl font-bold mb-1 ${design.fontFamily === 'serif' ? 'font-serif' : 'font-sans'} truncate`}>
                   {eventTitle || "Amazing Event"}
                 </h3>
-                <p className="text-sm opacity-90">{eventDate || "Dec 25, 2024"}</p>
-                <p className="text-sm opacity-90">{eventLocation || "Paradise Venue"}</p>
+                <p className="text-xs sm:text-sm opacity-90 truncate">{eventDate || "Dec 25, 2024"}</p>
+                <p className="text-xs sm:text-sm opacity-90 truncate">{eventLocation || "Paradise Venue"}</p>
               </div>
-              <div className="text-right">
-                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+              <div className="text-right flex-shrink-0">
+                <div className="w-8 h-8 sm:w-16 sm:h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                   <div className="text-xs">QR</div>
                 </div>
-                <p className="text-xs mt-1 opacity-70">NFT #001</p>
+                <p className="text-xs mt-1 opacity-70 hidden sm:block">NFT #001</p>
               </div>
             </div>
           </div>
           
           <div className="flex justify-between items-end">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">Tick3rt</span>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm font-medium">Tick3rt</span>
             </div>
             <div className="text-right">
-              <p className="text-lg font-bold">0.05 ETH</p>
-              <p className="text-xs opacity-70">Blockchain Verified</p>
+              <p className="text-sm sm:text-lg font-bold">0.05 ETH</p>
+              <p className="text-xs opacity-70 hidden sm:block">Blockchain Verified</p>
             </div>
           </div>
         </div>
@@ -285,25 +285,25 @@ const EnhancedTicketDesigner = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Enhanced Preview */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5 text-purple-500" />
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
             Premium Ticket Preview
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6">
           {renderTicketPreview()}
-          <div className="flex gap-2 mt-4">
-            <Button size="sm" variant="outline" className="flex items-center gap-1">
+          <div className="flex gap-2 mt-3 sm:mt-4">
+            <Button size="sm" variant="outline" className="flex items-center gap-1 text-xs">
               <Download className="h-3 w-3" />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </Button>
-            <Button size="sm" variant="outline" className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="flex items-center gap-1 text-xs">
               <Zap className="h-3 w-3" />
-              Preview 3D
+              <span className="hidden sm:inline">Preview 3D</span>
             </Button>
           </div>
         </CardContent>
@@ -311,43 +311,43 @@ const EnhancedTicketDesigner = ({
 
       {/* Design Controls */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Palette className="h-5 w-5 text-purple-500" />
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Palette className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
             Professional Design Studio
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="templates" className="text-xs">Templates</TabsTrigger>
-              <TabsTrigger value="colors" className="text-xs">Colors</TabsTrigger>
-              <TabsTrigger value="typography" className="text-xs">Typography</TabsTrigger>
-              <TabsTrigger value="effects" className="text-xs">Effects</TabsTrigger>
-              <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 mb-4">
+              <TabsTrigger value="templates" className="text-xs p-2">Templates</TabsTrigger>
+              <TabsTrigger value="colors" className="text-xs p-2">Colors</TabsTrigger>
+              <TabsTrigger value="typography" className="text-xs p-2 hidden sm:flex">Typography</TabsTrigger>
+              <TabsTrigger value="effects" className="text-xs p-2">Effects</TabsTrigger>
+              <TabsTrigger value="advanced" className="text-xs p-2 hidden sm:flex">Advanced</TabsTrigger>
             </TabsList>
 
             <TabsContent value="templates" className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {premiumTemplates.map((template) => (
                   <Card 
                     key={template.id} 
                     className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
                     onClick={() => applyTemplate(template)}
                   >
-                    <CardContent className="p-3">
+                    <CardContent className="p-2 sm:p-3">
                       <div 
-                        className="h-20 rounded-lg mb-2 relative overflow-hidden"
+                        className="h-16 sm:h-20 rounded-lg mb-2 relative overflow-hidden"
                         style={{ background: template.preview }}
                       >
                         {template.isPremium && (
                           <Badge className="absolute top-1 right-1 bg-yellow-500 text-black text-xs">
                             <Crown className="h-2 w-2 mr-1" />
-                            Premium
+                            <span className="hidden sm:inline">Premium</span>
                           </Badge>
                         )}
                       </div>
-                      <h5 className="font-medium text-sm">{template.name}</h5>
+                      <h5 className="font-medium text-xs sm:text-sm truncate">{template.name}</h5>
                       <p className="text-xs text-muted-foreground">{template.category}</p>
                     </CardContent>
                   </Card>
@@ -356,43 +356,43 @@ const EnhancedTicketDesigner = ({
             </TabsContent>
 
             <TabsContent value="colors" className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
-                  <Label className="text-sm font-medium">Primary Color</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Primary Color</Label>
                   <Input
                     type="color"
                     value={design.primaryColor}
                     onChange={(e) => onDesignChange({ ...design, primaryColor: e.target.value })}
-                    className="h-12 w-full"
+                    className="h-10 sm:h-12 w-full"
                   />
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Secondary Color</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Secondary Color</Label>
                   <Input
                     type="color"
                     value={design.secondaryColor}
                     onChange={(e) => onDesignChange({ ...design, secondaryColor: e.target.value })}
-                    className="h-12 w-full"
+                    className="h-10 sm:h-12 w-full"
                   />
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Accent Color</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Accent Color</Label>
                   <Input
                     type="color"
                     value={design.accentColor}
                     onChange={(e) => onDesignChange({ ...design, accentColor: e.target.value })}
-                    className="h-12 w-full"
+                    className="h-10 sm:h-12 w-full"
                   />
                 </div>
               </div>
               
               <div>
-                <Label className="text-sm font-medium mb-2 block">Gradient Direction</Label>
+                <Label className="text-xs sm:text-sm font-medium mb-2 block">Gradient Direction</Label>
                 <Select 
                   value={design.gradientDirection} 
                   onValueChange={(value) => onDesignChange({ ...design, gradientDirection: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10 sm:h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -408,7 +408,7 @@ const EnhancedTicketDesigner = ({
 
             <TabsContent value="typography" className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-2 block">Font Family</Label>
+                <Label className="text-xs sm:text-sm font-medium mb-2 block">Font Family</Label>
                 <Select 
                   value={design.fontFamily} 
                   onValueChange={(value) => onDesignChange({ ...design, fontFamily: value })}
@@ -427,7 +427,7 @@ const EnhancedTicketDesigner = ({
               </div>
               
               <div>
-                <Label className="text-sm font-medium">Font Size: {design.fontSize}px</Label>
+                <Label className="text-xs sm:text-sm font-medium">Font Size: {design.fontSize}px</Label>
                 <input
                   type="range"
                   min="12"
@@ -441,7 +441,7 @@ const EnhancedTicketDesigner = ({
 
             <TabsContent value="effects" className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-2 block">Background Pattern</Label>
+                <Label className="text-xs sm:text-sm font-medium mb-2 block">Background Pattern</Label>
                 <Select 
                   value={design.backgroundPattern} 
                   onValueChange={(value) => onDesignChange({ ...design, backgroundPattern: value })}
@@ -460,7 +460,7 @@ const EnhancedTicketDesigner = ({
               </div>
 
               <div>
-                <Label className="text-sm font-medium mb-2 block">Animation</Label>
+                <Label className="text-xs sm:text-sm font-medium mb-2 block">Animation</Label>
                 <Select 
                   value={design.animation} 
                   onValueChange={(value) => onDesignChange({ ...design, animation: value })}
@@ -480,7 +480,7 @@ const EnhancedTicketDesigner = ({
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Holographic Effect</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Holographic Effect</Label>
                   <input
                     type="checkbox"
                     checked={design.holographicEffect}
@@ -489,7 +489,7 @@ const EnhancedTicketDesigner = ({
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Metallic Finish</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Metallic Finish</Label>
                   <input
                     type="checkbox"
                     checked={design.metallic}
@@ -502,7 +502,7 @@ const EnhancedTicketDesigner = ({
 
             <TabsContent value="advanced" className="space-y-4">
               <div>
-                <Label className="text-sm font-medium">Corner Radius: {design.cornerRadius}px</Label>
+                <Label className="text-xs sm:text-sm font-medium">Corner Radius: {design.cornerRadius}px</Label>
                 <input
                   type="range"
                   min="0"
@@ -514,7 +514,7 @@ const EnhancedTicketDesigner = ({
               </div>
 
               <div>
-                <Label className="text-sm font-medium mb-2 block">Border Style</Label>
+                <Label className="text-xs sm:text-sm font-medium mb-2 block">Border Style</Label>
                 <Select 
                   value={design.borderStyle} 
                   onValueChange={(value) => onDesignChange({ ...design, borderStyle: value })}
@@ -534,7 +534,7 @@ const EnhancedTicketDesigner = ({
               </div>
 
               <div>
-                <Label className="text-sm font-medium mb-2 block">Shadow Effect</Label>
+                <Label className="text-xs sm:text-sm font-medium mb-2 block">Shadow Effect</Label>
                 <Select 
                   value={design.shadow} 
                   onValueChange={(value) => onDesignChange({ ...design, shadow: value })}

@@ -29,12 +29,12 @@ const CreateEvent = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
       <Header />
       
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-12">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
             Create Your Event
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             Design unique NFT tickets and bring your vision to life
           </p>
         </div>
@@ -42,17 +42,17 @@ const CreateEvent = () => {
         {!isCompleted ? (
           <CreateEventSteps onComplete={handleEventComplete} />
         ) : (
-          <Card className="max-w-2xl mx-auto text-center border-green-200 dark:border-green-800 bg-white dark:bg-slate-900">
-            <CardContent className="p-12">
-              <Sparkles className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold text-green-600 dark:text-green-400 mb-4">
+          <Card className="max-w-2xl mx-auto text-center border-green-200 dark:border-green-800 bg-white dark:bg-slate-900 mx-4">
+            <CardContent className="p-6 sm:p-12">
+              <Sparkles className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto mb-4 sm:mb-6" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mb-2 sm:mb-4">
                 Event Created Successfully!
               </h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">
                 Your event has been published to the blockchain. Tickets are now available for purchase.
               </p>
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                <p className="text-sm text-green-700 dark:text-green-300">
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-lg">
+                <p className="text-xs sm:text-sm text-green-700 dark:text-green-300">
                   Your event will appear on the events page within a few minutes.
                 </p>
               </div>
