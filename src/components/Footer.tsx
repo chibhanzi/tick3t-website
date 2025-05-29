@@ -1,5 +1,6 @@
 
 import { Link } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -9,7 +10,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-6">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
               <span className="font-bold text-xl text-white">
                 Tick3rt
