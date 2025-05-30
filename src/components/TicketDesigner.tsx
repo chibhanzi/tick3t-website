@@ -82,7 +82,7 @@ const TicketDesigner = ({
               <span className="text-sm font-medium">Tick3rt</span>
             </div>
             <div className="text-right">
-              <p className="text-lg font-bold">0.05 ETH</p>
+              <p className="text-lg font-bold">$89.00</p>
               <p className="text-xs opacity-70">Blockchain Verified</p>
             </div>
           </div>

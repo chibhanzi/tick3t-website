@@ -32,6 +32,17 @@ const EventCard = ({
 }: EventCardProps) => {
   const soldOut = available === 0;
   
+  // Convert ETH price to USD if needed
+  const formatPrice = (priceStr: string) => {
+    if (priceStr.includes('ETH')) {
+      // Convert ETH to approximate USD (this would normally come from an API)
+      const ethAmount = parseFloat(priceStr.replace(' ETH', ''));
+      const usdAmount = ethAmount * 2400; // Approximate ETH price
+      return `$${usdAmount.toFixed(0)}`;
+    }
+    return priceStr.startsWith('$') ? priceStr : `$${priceStr}`;
+  };
+  
   return (
     <Card className="overflow-hidden group bg-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] h-full flex flex-col">
       <div className="relative h-32 lg:h-48 overflow-hidden">
@@ -82,7 +93,9 @@ const EventCard = ({
             </span>
           </div>
           <div className="text-right">
-            <div className="text-lg lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{price}</div>
+            <div className="text-lg lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              {formatPrice(price)}
+            </div>
           </div>
         </div>
         

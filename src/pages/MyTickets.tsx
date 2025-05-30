@@ -5,8 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QrCode, Calendar, MapPin, Download, Shield, Clock, Star } from "lucide-react";
+import { useState } from "react";
+import QRCodeLib from "qrcode";
 
 const MyTickets = () => {
+  const [showQR, setShowQR] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+
   const tickets = [
     {
       id: "1",
@@ -14,6 +19,7 @@ const MyTickets = () => {
       eventDate: "March 15, 2024 • 9:00 PM",
       eventLocation: "🌴 Miami Beach Arena",
       ticketNumber: "NFT #00142",
+      price: "$89.00",
       status: "valid",
       qrCode: "QR_CODE_DATA_HERE",
       backgroundColor: "#7c3aed",
@@ -35,6 +41,7 @@ const MyTickets = () => {
       eventDate: "March 22, 2024 • 10:00 PM",
       eventLocation: "🏙️ Brooklyn Warehouse, NYC",
       ticketNumber: "NFT #00089",
+      price: "$125.00",
       status: "used",
       qrCode: "QR_CODE_DATA_HERE",
       backgroundColor: "#0ea5e9",
@@ -51,6 +58,36 @@ const MyTickets = () => {
       network: "Ethereum"
     }
   ];
+
+  const generateQRCode = async (ticketId: string) => {
+    try {
+      const ticket = tickets.find(t => t.id === ticketId);
+      if (!ticket) return;
+
+      const qrData = JSON.stringify({
+        ticketId: ticket.id,
+        ticketNumber: ticket.ticketNumber,
+        eventTitle: ticket.eventTitle,
+        eventDate: ticket.eventDate,
+        verificationHash: `VERIFY_${ticket.id}_${Date.now()}`,
+        timestamp: new Date().toISOString()
+      });
+
+      const qrDataUrl = await QRCodeLib.toDataURL(qrData, {
+        width: 256,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+
+      setQrDataUrl(qrDataUrl);
+      setShowQR(ticketId);
+    } catch (error) {
+      console.error('Failed to generate QR code:', error);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     if (status === "valid") {
@@ -84,6 +121,23 @@ const MyTickets = () => {
             Your collection of epic memories and upcoming adventures! 🌟
           </p>
         </div>
+
+        {showQR && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowQR(null)}>
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-bold mb-4 text-center">Ticket QR Code</h3>
+              <div className="flex justify-center mb-4">
+                <img src={qrDataUrl} alt="Ticket QR Code" className="border rounded" />
+              </div>
+              <p className="text-sm text-muted-foreground text-center mb-4">
+                Show this QR code at the event entrance
+              </p>
+              <Button onClick={() => setShowQR(null)} className="w-full">
+                Close
+              </Button>
+            </div>
+          </div>
+        )}
 
         {tickets.length === 0 ? (
           <div className="text-center py-16">
@@ -139,6 +193,7 @@ const MyTickets = () => {
                       </Badge>
                     </div>
                     <div className="text-right">
+                      <div className="text-lg font-bold text-green-300 mb-1">{ticket.price}</div>
                       {getStatusBadge(ticket.status)}
                     </div>
                   </div>
@@ -166,6 +221,7 @@ const MyTickets = () => {
                         variant="outline" 
                         size="sm" 
                         className="border-purple-200 hover:bg-purple-50 dark:border-slate-600 dark:hover:bg-slate-700"
+                        onClick={() => generateQRCode(ticket.id)}
                       >
                         <QrCode className="h-4 w-4 mr-1" />
                         Show QR
