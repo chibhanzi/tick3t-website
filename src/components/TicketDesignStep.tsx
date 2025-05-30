@@ -1,9 +1,9 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Palette, Image, Sparkles, Layers, Wand2 } from "lucide-react";
+import { Palette, Wand2, Layers, Image, Zap } from "lucide-react";
+import AdvancedTicketDesigner from "./AdvancedTicketDesigner";
 import EnhancedTicketDesigner from "./EnhancedTicketDesigner";
 import LayeredTicketDesigner from "./LayeredTicketDesigner";
 import BackgroundImageUploader from "./BackgroundImageUploader";
@@ -15,7 +15,7 @@ interface TicketDesignStepProps {
 }
 
 const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignStepProps) => {
-  const [designMode, setDesignMode] = useState<'enhanced' | 'layered' | 'background'>('enhanced');
+  const [designMode, setDesignMode] = useState<'advanced' | 'enhanced' | 'layered' | 'background'>('advanced');
   const [backgroundImage, setBackgroundImage] = useState<string>('');
 
   const handleDesignChange = (newDesign: any) => {
@@ -34,6 +34,16 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
             Professional Ticket Designer
           </CardTitle>
           <div className="flex flex-wrap gap-2 mt-4">
+            <Button
+              variant={designMode === 'advanced' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setDesignMode('advanced')}
+              className="flex items-center gap-1 text-xs"
+            >
+              <Zap className="h-3 w-3" />
+              <span className="hidden sm:inline">Advanced Designer</span>
+              <span className="sm:hidden">Advanced</span>
+            </Button>
             <Button
               variant={designMode === 'enhanced' ? 'default' : 'outline'}
               size="sm"
@@ -66,7 +76,17 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6">
+        <CardContent className="p-2 sm:p-6">
+          {designMode === 'advanced' && (
+            <AdvancedTicketDesigner
+              eventTitle={eventData.title}
+              eventDate={eventData.date}
+              eventLocation={eventData.location}
+              design={design}
+              onDesignChange={handleDesignChange}
+            />
+          )}
+          
           {designMode === 'enhanced' && (
             <EnhancedTicketDesigner
               eventTitle={eventData.title}
@@ -109,7 +129,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
                       <p className="text-xs sm:text-sm opacity-90">{eventData.date || "Event Date"}</p>
                       <p className="text-xs sm:text-sm opacity-90">{eventData.location || "Event Location"}</p>
                       <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 flex items-center gap-2">
-                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span className="text-xs sm:text-sm">Tick3rt</span>
                       </div>
                     </div>
