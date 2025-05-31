@@ -31,15 +31,46 @@ export const useAuth = () => {
   return context;
 };
 
+// Safe localStorage wrapper
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.warn('localStorage getItem failed:', error);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.warn('localStorage setItem failed:', error);
+    }
+  },
+  removeItem: (key: string): void => {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.warn('localStorage removeItem failed:', error);
+    }
+  }
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
-    const savedUser = localStorage.getItem('tick3rt_user');
+    // Check for existing session with safe localStorage access
+    const savedUser = safeLocalStorage.getItem('tick3rt_user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.warn('Failed to parse saved user data:', error);
+        safeLocalStorage.removeItem('tick3rt_user');
+      }
     }
     setIsLoading(false);
   }, []);
@@ -62,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(mockUser);
-      localStorage.setItem('tick3rt_user', JSON.stringify(mockUser));
+      safeLocalStorage.setItem('tick3rt_user', JSON.stringify(mockUser));
       return true;
     } catch (error) {
       console.error('Login failed:', error);
@@ -89,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(newUser);
-      localStorage.setItem('tick3rt_user', JSON.stringify(newUser));
+      safeLocalStorage.setItem('tick3rt_user', JSON.stringify(newUser));
       return true;
     } catch (error) {
       console.error('Registration failed:', error);
@@ -101,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('tick3rt_user');
+    safeLocalStorage.removeItem('tick3rt_user');
   };
 
   const value: AuthContextType = {
