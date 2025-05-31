@@ -6,6 +6,7 @@ import { CheckCircle, Circle, ArrowRight, ArrowLeft, Sparkles } from "lucide-rea
 import EventBasicInfo from "./EventBasicInfo";
 import TicketDesignStep from "./TicketDesignStep";
 import TicketGenerationMethods, { TicketGenerationConfig } from "./TicketGenerationMethods";
+import TicketFeatures, { TicketFeaturesConfig } from "./TicketFeatures";
 import EventPricingStep from "./EventPricingStep";
 import EventReviewStep from "./EventReviewStep";
 
@@ -36,7 +37,35 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   });
   const [ticketDesign, setTicketDesign] = useState<any>({});
   const [generationConfig, setGenerationConfig] = useState<TicketGenerationConfig>({
-    method: 'batch'
+    method: 'batch',
+    vouchIntegration: {
+      enabled: true,
+      validatorWallets: [],
+      multiSigRequired: false,
+      biometricAuth: false,
+      qrCodeValidation: true,
+      offlineValidation: false
+    },
+    blockchainSecurity: {
+      smartContractValidation: true,
+      merkleTreeProof: false,
+      timestampValidation: true,
+      walletSignatureRequired: true
+    }
+  });
+  const [ticketFeatures, setTicketFeatures] = useState<TicketFeaturesConfig>({
+    hasQrCode: true,
+    hasTransferProtection: true,
+    hasTimelock: false,
+    timelockHours: 24,
+    hasLocationVerification: false,
+    hasCapacityLimit: false,
+    capacityLimit: 1,
+    hasRoyalties: false,
+    royaltyPercentage: 2.5,
+    hasBonusRewards: false,
+    hasEarlyAccess: false,
+    earlyAccessHours: 2
   });
   const [pricingData, setPricingData] = useState({
     currency: 'USD',
@@ -50,8 +79,9 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     { id: 1, title: "Event Details", description: "Basic event information" },
     { id: 2, title: "Ticket Design", description: "Create stunning ticket designs" },
     { id: 3, title: "Generation Method", description: "Choose how tickets are created" },
-    { id: 4, title: "Pricing & Payments", description: "Set pricing and payment options" },
-    { id: 5, title: "Review & Publish", description: "Final review and launch" }
+    { id: 4, title: "Security Features", description: "Configure advanced security" },
+    { id: 5, title: "Pricing & Payments", description: "Set pricing and payment options" },
+    { id: 6, title: "Review & Publish", description: "Final review and launch" }
   ];
 
   const nextStep = () => {
@@ -102,13 +132,20 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
         );
       case 4:
         return (
+          <TicketFeatures
+            features={ticketFeatures}
+            onFeaturesChange={setTicketFeatures}
+          />
+        );
+      case 5:
+        return (
           <EventPricingStep 
             pricingData={pricingData}
             onPricingChange={setPricingData}
             generationConfig={generationConfig}
           />
         );
-      case 5:
+      case 6:
         return (
           <EventReviewStep 
             eventData={eventData}

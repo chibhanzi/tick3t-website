@@ -1,217 +1,255 @@
 
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Menu, X, User, LogOut, Settings } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import ThemeToggle from "./ThemeToggle";
-import WalletConnect from "./WalletConnect";
-import { useTheme } from "next-themes";
-import { useAuth } from "@/contexts/AuthContext";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
+import { 
+  Menu, 
+  X, 
+  User, 
+  Settings, 
+  LogOut, 
+  Calendar, 
+  Ticket,
+  LayoutDashboard,
+  Plus,
+  Sparkles
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface NavigationItem {
+  name: string;
+  href: string;
+  badge?: string;
+}
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
-  const { theme } = useTheme();
-  const { user, isAuthenticated, isOrganizer, logout } = useAuth();
-
-  const getNavigation = () => {
-    const baseNavigation = [
-      { name: "Home", href: "/" },
-      { name: "Events", href: "/events" },
-      { name: "Marketplace", href: "/marketplace" },
-    ];
-
-    if (isAuthenticated) {
-      if (isOrganizer) {
-        return [
-          ...baseNavigation,
-          { name: "Create Event", href: "/create-event", badge: "New" },
-          { name: "Organizer Dashboard", href: "/organizer-dashboard" },
-        ];
-      } else {
-        return [
-          ...baseNavigation,
-          { name: "My Tickets", href: "/my-tickets" },
-          { name: "Dashboard", href: "/dashboard" },
-        ];
-      }
-    }
-
-    return baseNavigation;
-  };
-
-  const navigation = getNavigation();
-
-  const isActive = (href: string) => {
-    return location.pathname === href;
-  };
-
-  const logoSrc = theme === 'light' 
-    ? "/lovable-uploads/f7d2a757-01f4-4216-8a2d-98095d3ae53c.png" 
-    : "/lovable-uploads/ec067a0f-a119-4f95-a148-9ca1d5b161d0.png";
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, logout, isAuthenticated, isOrganizer } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    setIsMenuOpen(false);
+    navigate('/');
   };
 
+  const navigation: NavigationItem[] = [
+    { name: 'Events', href: '/events' },
+    { name: 'Marketplace', href: '/marketplace', badge: 'New' },
+  ];
+
+  const userNavigation: NavigationItem[] = isAuthenticated 
+    ? [
+        { name: 'Dashboard', href: '/dashboard' },
+        { name: 'My Tickets', href: '/my-tickets' },
+        ...(isOrganizer ? [
+          { name: 'Organizer Dashboard', href: '/organizer-dashboard', badge: 'Pro' },
+          { name: 'Create Event', href: '/create-event' }
+        ] : [
+          { name: 'Become Organizer', href: '/upgrade-to-organizer', badge: 'Upgrade' }
+        ])
+      ]
+    : [];
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+    <header className="bg-white dark:bg-slate-900 shadow-lg border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <img 
-              src={logoSrc}
-              alt="Tick3rt Logo" 
-              className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
-            />
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+              <Ticket className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Tick3rt
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                  isActive(item.href)
-                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
-                }`}
-              >
-                {item.name}
-                {item.badge && (
-                  <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                    {item.badge}
-                  </Badge>
-                )}
-              </Link>
+              <div key={item.name} className="relative">
+                <Link
+                  to={item.href}
+                  className="text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-200 flex items-center gap-2"
+                >
+                  {item.name}
+                  {item.badge && (
+                    <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </Link>
+              </div>
             ))}
           </nav>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-3">
-            <ThemeToggle />
-            <WalletConnect />
-            
+          {/* User Actions */}
+          <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <img 
-                      src={user?.profilePicture} 
-                      alt={user?.name}
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <span className="text-sm">{user?.name}</span>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.profilePicture} alt={user?.name} />
+                      <AvatarFallback>
+                        {user?.name?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard" className="flex items-center">
-                      <User className="h-4 w-4 mr-2" />
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  {isOrganizer && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/organizer-dashboard" className="flex items-center">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Organizer Dashboard
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{user?.name}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {user?.email}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={user?.role === 'organizer' ? 'default' : 'secondary'} className="text-xs">
+                          {user?.role === 'organizer' ? '👑 Organizer' : '🎫 User'}
+                        </Badge>
+                        {user?.isVerified && (
+                          <Badge variant="outline" className="text-xs">
+                            ✅ Verified
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  
+                  {userNavigation.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link to={item.href} className="flex items-center justify-between w-full">
+                        <div className="flex items-center">
+                          {item.name === 'Dashboard' && <LayoutDashboard className="mr-2 h-4 w-4" />}
+                          {item.name === 'My Tickets' && <Ticket className="mr-2 h-4 w-4" />}
+                          {item.name === 'Organizer Dashboard' && <Settings className="mr-2 h-4 w-4" />}
+                          {item.name === 'Create Event' && <Plus className="mr-2 h-4 w-4" />}
+                          {item.name === 'Become Organizer' && <Sparkles className="mr-2 h-4 w-4" />}
+                          {item.name}
+                        </div>
+                        {item.badge && (
+                          <Badge variant="secondary" className="text-xs">
+                            {item.badge}
+                          </Badge>
+                        )}
                       </Link>
                     </DropdownMenuItem>
-                  )}
+                  ))}
+                  
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="flex items-center text-red-600">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                asChild
-                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white border-0"
-              >
-                <Link to="/auth">Sign In</Link>
-              </Button>
+              <div className="flex items-center space-x-3">
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+                <Button asChild size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                  <Link to="/auth?mode=register">Get Started</Link>
+                </Button>
+              </div>
             )}
-          </div>
 
-          {/* Mobile menu button */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-slate-600 dark:text-slate-300"
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle navigation"
+              >
+                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-slate-200 dark:border-slate-800">
-            <nav className="flex flex-col space-y-2">
+        {isOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-slate-200 dark:border-slate-700">
               {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    isActive(item.href)
-                      ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    {item.name}
+                <div key={item.name}>
+                  <Link
+                    to={item.href}
+                    className="text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 block px-3 py-2 text-base font-medium transition-colors duration-200 flex items-center justify-between"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span>{item.name}</span>
                     {item.badge && (
-                      <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                      <Badge variant="secondary" className="text-xs">
                         {item.badge}
                       </Badge>
                     )}
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               ))}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
-                <WalletConnect />
-                {isAuthenticated ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 px-4 py-2">
-                      <img 
-                        src={user?.profilePicture} 
-                        alt={user?.name}
-                        className="w-6 h-6 rounded-full"
-                      />
-                      <span className="text-sm">{user?.name}</span>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={handleLogout}
+              
+              {isAuthenticated && (
+                <>
+                  <div className="border-t border-slate-200 dark:border-slate-700 my-2"></div>
+                  {userNavigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className="text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 block px-3 py-2 text-base font-medium transition-colors duration-200 flex items-center justify-between"
+                      onClick={() => setIsOpen(false)}
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </div>
-                ) : (
-                  <Button 
-                    asChild
-                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white"
-                    onClick={() => setIsMenuOpen(false)}
+                      <span>{item.name}</span>
+                      {item.badge && (
+                        <Badge variant="secondary" className="text-xs">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  ))}
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    className="text-slate-700 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 block px-3 py-2 text-base font-medium transition-colors duration-200 w-full text-left"
                   >
-                    <Link to="/auth">Sign In</Link>
-                  </Button>
-                )}
-              </div>
-            </nav>
+                    Sign Out
+                  </button>
+                </>
+              )}
+              
+              {!isAuthenticated && (
+                <>
+                  <div className="border-t border-slate-200 dark:border-slate-700 my-2"></div>
+                  <Link
+                    to="/auth"
+                    className="text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 block px-3 py-2 text-base font-medium"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/auth?mode=register"
+                    className="text-purple-600 hover:text-purple-700 block px-3 py-2 text-base font-medium"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
