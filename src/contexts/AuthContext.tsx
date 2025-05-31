@@ -66,7 +66,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedUser = safeLocalStorage.getItem('tick3rt_user');
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsedUser = JSON.parse(savedUser);
+        console.log('Loaded user from localStorage:', parsedUser);
+        setUser(parsedUser);
       } catch (error) {
         console.warn('Failed to parse saved user data:', error);
         safeLocalStorage.removeItem('tick3rt_user');
@@ -81,17 +83,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Determine role based on email or explicit organizer keywords
+      const isOrganizerEmail = email.includes('organizer') || email.includes('admin') || email.includes('event');
+      
       // Mock user data - in real app, this would come from your auth service
       const mockUser: User = {
-        id: '1',
+        id: Date.now().toString(),
         email,
         name: email.split('@')[0],
-        role: email.includes('organizer') ? 'organizer' : 'user',
+        role: isOrganizerEmail ? 'organizer' : 'user',
         isVerified: true,
         memberSince: new Date().toISOString(),
         profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`
       };
       
+      console.log('Creating user with role:', mockUser.role, 'for email:', email);
       setUser(mockUser);
       safeLocalStorage.setItem('tick3rt_user', JSON.stringify(mockUser));
       return true;
@@ -144,6 +150,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: !!user,
     isOrganizer: user?.role === 'organizer' || user?.role === 'admin'
   };
+
+  console.log('AuthContext values:', {
+    isAuthenticated: !!user,
+    isOrganizer: user?.role === 'organizer' || user?.role === 'admin',
+    userRole: user?.role,
+    userEmail: user?.email
+  });
 
   return (
     <AuthContext.Provider value={value}>

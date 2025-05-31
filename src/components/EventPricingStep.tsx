@@ -43,17 +43,17 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
     { code: 'USD', name: 'US Dollar', symbol: '$' },
     { code: 'EUR', name: 'Euro', symbol: '€' },
     { code: 'GBP', name: 'British Pound', symbol: '£' },
-    { code: 'ETH', name: 'Ethereum', symbol: 'Ξ' },
-    { code: 'BTC', name: 'Bitcoin', symbol: '₿' }
+    { code: 'ETH', name: 'Ethereum (Advanced)', symbol: 'Ξ' },
+    { code: 'BTC', name: 'Bitcoin (Advanced)', symbol: '₿' }
   ];
 
   const paymentMethods = [
-    { id: 'ETH', name: 'Ethereum', icon: '⟐' },
-    { id: 'USDC', name: 'USDC', icon: '💰' },
     { id: 'Credit Card', name: 'Credit/Debit Card', icon: '💳' },
     { id: 'PayPal', name: 'PayPal', icon: '🅿️' },
     { id: 'Apple Pay', name: 'Apple Pay', icon: '🍎' },
-    { id: 'Google Pay', name: 'Google Pay', icon: '🔍' }
+    { id: 'Google Pay', name: 'Google Pay', icon: '🔍' },
+    { id: 'ETH', name: 'Ethereum', icon: '⟐' },
+    { id: 'USDC', name: 'USDC', icon: '💰' }
   ];
 
   return (

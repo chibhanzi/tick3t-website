@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -19,7 +20,7 @@ const Events = () => {
       title: "Bass Drop Festival 2024",
       date: "March 15, 2024 • 9:00 PM",
       location: "Miami Beach Arena",
-      price: "0.05 ETH",
+      price: "$120",
       image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=300&fit=crop",
       attendees: 2500,
       category: "Music Festival",
@@ -31,7 +32,7 @@ const Events = () => {
       title: "Digital Art Rave",
       date: "March 22, 2024 • 10:00 PM",
       location: "Brooklyn Warehouse, NYC",
-      price: "0.02 ETH",
+      price: "$48",
       image: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop",
       attendees: 800,
       category: "Art & Culture",
@@ -43,7 +44,7 @@ const Events = () => {
       title: "Tech Innovation Summit",
       date: "March 28, 2024 • 9:00 AM",
       location: "Silicon Valley Convention Center",
-      price: "0.1 ETH",
+      price: "$240",
       image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
       attendees: 1200,
       category: "Tech & Networking",
@@ -55,7 +56,7 @@ const Events = () => {
       title: "Gaming Championship",
       date: "April 5, 2024 • 2:00 PM",
       location: "Los Angeles Arena",
-      price: "0.03 ETH",
+      price: "$72",
       image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop",
       attendees: 5000,
       category: "Gaming",
@@ -67,7 +68,7 @@ const Events = () => {
       title: "Beach Party Sunset",
       date: "April 12, 2024 • 6:00 PM",
       location: "Malibu Beach Club",
-      price: "0.025 ETH",
+      price: "$60",
       image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
       attendees: 300,
       category: "Beach Party",
@@ -79,7 +80,7 @@ const Events = () => {
       title: "Fashion Week Gala",
       date: "April 20, 2024 • 8:00 PM",
       location: "Manhattan Design Center",
-      price: "0.15 ETH",
+      price: "$360",
       image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=300&fit=crop",
       attendees: 600,
       category: "Fashion",
@@ -89,7 +90,7 @@ const Events = () => {
   ];
 
   const categories = ["All", "Music Festival", "Art & Culture", "Tech & Networking", "Gaming", "Beach Party", "Fashion"];
-  const priceRanges = ["All", "Under 0.05 ETH", "0.05 - 0.1 ETH", "Over 0.1 ETH"];
+  const priceRanges = ["All", "Under $100", "$100 - $200", "Over $200"];
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,10 +99,10 @@ const Events = () => {
     
     let matchesPrice = true;
     if (priceFilter !== "All") {
-      const price = parseFloat(event.price.replace(" ETH", ""));
-      if (priceFilter === "Under 0.05 ETH") matchesPrice = price < 0.05;
-      else if (priceFilter === "0.05 - 0.1 ETH") matchesPrice = price >= 0.05 && price <= 0.1;
-      else if (priceFilter === "Over 0.1 ETH") matchesPrice = price > 0.1;
+      const price = parseFloat(event.price.replace("$", ""));
+      if (priceFilter === "Under $100") matchesPrice = price < 100;
+      else if (priceFilter === "$100 - $200") matchesPrice = price >= 100 && price <= 200;
+      else if (priceFilter === "Over $200") matchesPrice = price > 200;
     }
     
     return matchesSearch && matchesCategory && matchesPrice;
@@ -109,7 +110,7 @@ const Events = () => {
 
   const liveEventsCount = events.length;
   const totalTicketsAvailable = events.reduce((sum, event) => sum + event.available, 0);
-  const totalRevenue = events.reduce((sum, event) => sum + (parseFloat(event.price.replace(" ETH", "")) * (event.total - event.available)), 0).toFixed(2);
+  const totalRevenue = events.reduce((sum, event) => sum + (parseFloat(event.price.replace("$", "")) * (event.total - event.available)), 0).toFixed(0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -145,7 +146,7 @@ const Events = () => {
           <Card className="border-purple-200 dark:border-slate-700">
             <CardContent className="p-4 text-center">
               <TrendingUp className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-              <div className="text-xl font-bold text-foreground">{totalRevenue} ETH</div>
+              <div className="text-xl font-bold text-foreground">${totalRevenue}</div>
               <div className="text-xs text-muted-foreground">Total Revenue</div>
             </CardContent>
           </Card>

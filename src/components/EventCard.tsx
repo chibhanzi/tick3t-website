@@ -32,15 +32,17 @@ const EventCard = ({
 }: EventCardProps) => {
   const soldOut = available === 0;
   
-  // Convert ETH price to USD if needed
+  // Format price to ensure it displays correctly
   const formatPrice = (priceStr: string) => {
-    if (priceStr.includes('ETH')) {
-      // Convert ETH to approximate USD (this would normally come from an API)
-      const ethAmount = parseFloat(priceStr.replace(' ETH', ''));
-      const usdAmount = ethAmount * 2400; // Approximate ETH price
-      return `$${usdAmount.toFixed(0)}`;
+    // If it's already in USD format, return as is
+    if (priceStr.startsWith('$')) {
+      return priceStr;
     }
-    return priceStr.startsWith('$') ? priceStr : `$${priceStr}`;
+    // If it's a number, add $ prefix
+    if (!isNaN(parseFloat(priceStr))) {
+      return `$${priceStr}`;
+    }
+    return priceStr;
   };
   
   return (
