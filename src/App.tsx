@@ -32,8 +32,8 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
+        <BrowserRouter>
+          <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/events" element={<Events />} />
@@ -80,8 +80,8 @@ const App = () => (
               
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
