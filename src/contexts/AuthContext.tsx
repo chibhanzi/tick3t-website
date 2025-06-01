@@ -1,159 +1,108 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-// Safe localStorage wrapper
-const safeLocalStorage = {
-  getItem: (key: string): string | null => {
-    try {
-      return typeof window !== 'undefined' && window.localStorage ? localStorage.getItem(key) : null;
-    } catch (error) {
-      console.warn('localStorage access failed:', error);
-      return null;
-    }
-  },
-  setItem: (key: string, value: string): void => {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem(key, value);
-      }
-    } catch (error) {
-      console.warn('localStorage write failed:', error);
-    }
-  },
-  removeItem: (key: string): void => {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.removeItem(key);
-      }
-    } catch (error) {
-      console.warn('localStorage remove failed:', error);
-    }
-  }
-};
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   id: string;
-  email: string;
   name: string;
-  role: 'user' | 'organizer';
-  profilePicture?: string;
-  isVerified?: boolean;
+  email: string;
+  isOrganizer: boolean;
+  profilePicture: string;
 }
 
-interface AuthContextType {
+interface AuthContextProps {
   user: User | null;
+  isLoading: boolean;
   isAuthenticated: boolean;
   isOrganizer: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string) => Promise<boolean>;
+  login: (email: string, password: string) => void;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+
+export const useAuth = (): AuthContextProps => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
+
+const getStoredUser = (): User | null => {
+  try {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) as User : null;
+  } catch (error) {
+    console.error('Error parsing stored user:', error);
+    return null;
+  }
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for existing session on app load
-    const savedUser = safeLocalStorage.getItem('user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error('Failed to parse saved user:', error);
-        safeLocalStorage.removeItem('user');
-      }
+    const storedUser = getStoredUser();
+    if (storedUser) {
+      setUser(storedUser);
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Determine user role based on email patterns
-    const isOrganizerEmail = email.toLowerCase().includes('organizer') || 
-                           email.toLowerCase().includes('admin') || 
-                           email.toLowerCase().includes('event') ||
-                           email.toLowerCase().includes('host') ||
-                           email.toLowerCase().includes('creator');
-    
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: email.split('@')[0].replace(/[0-9]/g, '').replace(/[._-]/g, ' '),
-      role: isOrganizerEmail ? 'organizer' : 'user',
-      profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      isVerified: true
-    };
-    
-    setUser(mockUser);
-    safeLocalStorage.setItem('user', JSON.stringify(mockUser));
-    setIsLoading(false);
-    
-    return true;
-  };
-
-  const register = async (email: string, password: string, name: string): Promise<boolean> => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Determine user role based on email patterns
-    const isOrganizerEmail = email.toLowerCase().includes('organizer') || 
-                           email.toLowerCase().includes('admin') || 
-                           email.toLowerCase().includes('event') ||
-                           email.toLowerCase().includes('host') ||
-                           email.toLowerCase().includes('creator');
-    
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name,
-      role: isOrganizerEmail ? 'organizer' : 'user',
-      profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      isVerified: false
-    };
-    
-    setUser(mockUser);
-    safeLocalStorage.setItem('user', JSON.stringify(mockUser));
-    setIsLoading(false);
-    
-    return true;
+  const login = (email: string, password: string) => {
+    try {
+      // Mock user creation
+      const mockUser: User = {
+        id: '1',
+        name: 'John Doe',
+        email: email,
+        isOrganizer: email === 'organizer@example.com',
+        profilePicture: 'https://via.placeholder.com/150'
+      };
+      
+      setUser(mockUser);
+      
+      try {
+        localStorage.setItem('user', JSON.stringify(mockUser));
+      } catch (error) {
+        console.warn('localStorage write failed:', error);
+      }
+      
+      // Fixed: Navigate to correct dashboard route
+      if (mockUser.isOrganizer) {
+        navigate('/organizer-dashboard');
+      } else {
+        navigate('/dashboard'); // Changed from '/user-dashboard' to '/dashboard'
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
   const logout = () => {
     setUser(null);
-    safeLocalStorage.removeItem('user');
+    try {
+      localStorage.removeItem('user');
+    } catch (error) {
+      console.warn('localStorage write failed:', error);
+    }
+    navigate('/auth');
   };
 
-  const value: AuthContextType = {
+  const contextValue: AuthContextProps = {
     user,
-    isAuthenticated: !!user,
-    isOrganizer: user?.role === 'organizer',
     isLoading,
+    isAuthenticated: !!user,
+    isOrganizer: !!user?.isOrganizer,
     login,
-    register,
     logout,
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

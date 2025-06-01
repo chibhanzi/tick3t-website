@@ -134,53 +134,6 @@ const Marketplace = () => {
           </p>
         </div>
 
-        {/* Enhanced Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          <Card className="relative overflow-hidden group bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
-            <CardContent className="p-6 text-center relative z-10">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Activity className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">{marketStats.activeListings}</div>
-              <div className="text-sm font-medium text-blue-600/80 dark:text-blue-400/80">Active Listings</div>
-            </CardContent>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </Card>
-
-          <Card className="relative overflow-hidden group bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
-            <CardContent className="p-6 text-center relative z-10">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Shield className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">{marketStats.verifiedSellers}%</div>
-              <div className="text-sm font-medium text-emerald-600/80 dark:text-emerald-400/80">Verified Sellers</div>
-            </CardContent>
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </Card>
-
-          <Card className="relative overflow-hidden group bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
-            <CardContent className="p-6 text-center relative z-10">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <DollarSign className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">{marketStats.totalVolume}</div>
-              <div className="text-sm font-medium text-purple-600/80 dark:text-purple-400/80">Total Volume</div>
-            </CardContent>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </Card>
-
-          <Card className="relative overflow-hidden group bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-700 hover:shadow-2xl transition-all duration-500 hover:scale-105">
-            <CardContent className="p-6 text-center relative z-10">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Award className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-1">{marketStats.avgPrice}</div>
-              <div className="text-sm font-medium text-orange-600/80 dark:text-orange-400/80">Average Price</div>
-            </CardContent>
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-400/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </Card>
-        </div>
-
         {/* Enhanced Search and Filters */}
         <Card className="mb-8 border-slate-200 dark:border-slate-700 shadow-lg">
           <CardContent className="p-6">
