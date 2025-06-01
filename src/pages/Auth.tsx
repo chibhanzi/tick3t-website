@@ -42,15 +42,12 @@ const Auth = () => {
           title: isLogin ? "Welcome back!" : "Account created!",
           description: isLogin ? "You have successfully logged in." : "Your account has been created successfully.",
         });
-        
-        // Check if user should go to organizer dashboard
-        const isOrganizerEmail = email.toLowerCase().includes('organizer') || 
-                               email.toLowerCase().includes('admin') || 
-                               email.toLowerCase().includes('event') ||
-                               email.toLowerCase().includes('host') ||
-                               email.toLowerCase().includes('creator');
-        
-        navigate(isOrganizerEmail ? "/organizer-dashboard" : "/user-dashboard");
+      } else {
+        toast({
+          title: "Error",
+          description: "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({

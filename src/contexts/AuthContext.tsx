@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +8,8 @@ interface User {
   email: string;
   isOrganizer: boolean;
   profilePicture: string;
+  role?: string;
+  isVerified?: boolean;
 }
 
 interface AuthContextProps {
@@ -14,8 +17,9 @@ interface AuthContextProps {
   isLoading: boolean;
   isAuthenticated: boolean;
   isOrganizer: boolean;
-  login: (email: string, password: string) => void;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  register: (email: string, password: string, name: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -51,15 +55,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
-  const login = (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      // Check if user should be an organizer
+      const isOrganizerEmail = email.toLowerCase().includes('organizer') || 
+                             email.toLowerCase().includes('admin') || 
+                             email.toLowerCase().includes('event') ||
+                             email.toLowerCase().includes('host') ||
+                             email.toLowerCase().includes('creator');
+
       // Mock user creation
       const mockUser: User = {
         id: '1',
         name: 'John Doe',
         email: email,
-        isOrganizer: email === 'organizer@example.com',
-        profilePicture: 'https://via.placeholder.com/150'
+        isOrganizer: isOrganizerEmail,
+        profilePicture: 'https://via.placeholder.com/150',
+        role: isOrganizerEmail ? 'organizer' : 'user',
+        isVerified: true
       };
       
       setUser(mockUser);
@@ -70,14 +83,59 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.warn('localStorage write failed:', error);
       }
       
-      // Fixed: Navigate to correct dashboard route
+      // Navigate to correct dashboard
       if (mockUser.isOrganizer) {
         navigate('/organizer-dashboard');
       } else {
-        navigate('/dashboard'); // Changed from '/user-dashboard' to '/dashboard'
+        navigate('/dashboard');
       }
+      
+      return true;
     } catch (error) {
       console.error('Login failed:', error);
+      return false;
+    }
+  };
+
+  const register = async (email: string, password: string, name: string): Promise<boolean> => {
+    try {
+      // Check if user should be an organizer
+      const isOrganizerEmail = email.toLowerCase().includes('organizer') || 
+                             email.toLowerCase().includes('admin') || 
+                             email.toLowerCase().includes('event') ||
+                             email.toLowerCase().includes('host') ||
+                             email.toLowerCase().includes('creator');
+
+      // Mock user creation
+      const mockUser: User = {
+        id: '1',
+        name: name,
+        email: email,
+        isOrganizer: isOrganizerEmail,
+        profilePicture: 'https://via.placeholder.com/150',
+        role: isOrganizerEmail ? 'organizer' : 'user',
+        isVerified: true
+      };
+      
+      setUser(mockUser);
+      
+      try {
+        localStorage.setItem('user', JSON.stringify(mockUser));
+      } catch (error) {
+        console.warn('localStorage write failed:', error);
+      }
+      
+      // Navigate to correct dashboard
+      if (mockUser.isOrganizer) {
+        navigate('/organizer-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Registration failed:', error);
+      return false;
     }
   };
 
@@ -98,6 +156,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     isOrganizer: !!user?.isOrganizer,
     login,
     logout,
+    register,
   };
 
   return (
