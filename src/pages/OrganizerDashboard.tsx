@@ -9,6 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Calendar, Users, DollarSign, TrendingUp, Plus, BarChart3, Eye, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
+import AnalyticsKPIs from "@/components/analytics/AnalyticsKPIs";
+import RevenueChart from "@/components/analytics/RevenueChart";
+import TicketSalesChart from "@/components/analytics/TicketSalesChart";
+import AudienceInsights from "@/components/analytics/AudienceInsights";
+import EventPerformanceTable from "@/components/analytics/EventPerformanceTable";
 
 const OrganizerDashboard = () => {
   const { user } = useAuth();
@@ -110,10 +115,11 @@ const OrganizerDashboard = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="events">My Events</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -198,16 +204,42 @@ const OrganizerDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics">
-            <Card>
-              <CardHeader>
-                <CardTitle>Detailed Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">Coming soon: Advanced analytics and insights</p>
-                <Button variant="outline">View Reports</Button>
-              </CardContent>
-            </Card>
+          <TabsContent value="analytics" className="space-y-6">
+            <AnalyticsKPIs />
+            
+            <div className="grid lg:grid-cols-2 gap-6">
+              <RevenueChart />
+              <TicketSalesChart />
+            </div>
+            
+            <div className="grid lg:grid-cols-2 gap-6">
+              <AudienceInsights />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Metrics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                      <span className="font-medium">Average Event Capacity</span>
+                      <span className="text-xl font-bold">87%</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                      <span className="font-medium">Customer Satisfaction</span>
+                      <span className="text-xl font-bold">4.8/5</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                      <span className="font-medium">Repeat Purchase Rate</span>
+                      <span className="text-xl font-bold">35%</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="insights">
+            <EventPerformanceTable />
           </TabsContent>
 
           <TabsContent value="settings">
