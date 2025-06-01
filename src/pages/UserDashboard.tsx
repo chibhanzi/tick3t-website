@@ -7,11 +7,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { Calendar, MapPin, Star, Trophy, Clock, Ticket, Users, TrendingUp } from "lucide-react";
+import { Calendar, MapPin, Star, Trophy, Clock, Ticket, Users, TrendingUp, Upload, Camera } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const upcomingEvents = [
     {
@@ -58,17 +72,34 @@ const UserDashboard = () => {
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
-            <img 
-              src={user?.profilePicture} 
-              alt={user?.name}
-              className="w-16 h-16 rounded-full border-4 border-white shadow-lg"
-            />
+            <div className="relative">
+              <img 
+                src={profileImage} 
+                alt={user?.name}
+                className="w-16 h-16 rounded-full border-4 border-white shadow-lg object-cover"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0"
+                onClick={() => document.getElementById('profile-upload')?.click()}
+              >
+                <Camera className="h-3 w-3" />
+              </Button>
+              <input
+                id="profile-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </div>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Welcome back, {user?.name}! 👋
               </h1>
               <p className="text-muted-foreground">
-                Member since {new Date(user?.memberSince || '').toLocaleDateString()}
+                Member since 2024
               </p>
             </div>
           </div>
@@ -208,9 +239,16 @@ const UserDashboard = () => {
               <CardHeader>
                 <CardTitle>Account Settings</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">Manage your account preferences and settings</p>
-                <Button variant="outline">Edit Profile</Button>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input id="name" defaultValue={user?.name} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" defaultValue={user?.email} disabled />
+                </div>
+                <Button variant="outline">Save Changes</Button>
               </CardContent>
             </Card>
           </TabsContent>

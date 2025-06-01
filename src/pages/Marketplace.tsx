@@ -23,8 +23,8 @@ const Marketplace = () => {
       eventDate: "March 15, 2024",
       eventTime: "9:00 PM",
       eventLocation: "Miami Beach Arena",
-      originalPrice: "0.05 ETH",
-      currentPrice: "0.08 ETH",
+      originalPrice: "$125.00",
+      currentPrice: "$200.00",
       seller: "0x1234...5678",
       sellerRating: 4.9,
       verified: true,
@@ -43,8 +43,8 @@ const Marketplace = () => {
       eventDate: "March 20, 2024",
       eventTime: "9:00 AM",
       eventLocation: "Convention Center, SF",
-      originalPrice: "0.1 ETH",
-      currentPrice: "0.12 ETH",
+      originalPrice: "$250.00",
+      currentPrice: "$300.00",
       seller: "0x9876...4321",
       sellerRating: 4.7,
       verified: true,
@@ -63,8 +63,8 @@ const Marketplace = () => {
       eventDate: "March 18, 2024",
       eventTime: "6:00 PM",
       eventLocation: "Downtown Gallery, NYC",
-      originalPrice: "0.03 ETH",
-      currentPrice: "0.025 ETH",
+      originalPrice: "$75.00",
+      currentPrice: "$62.50",
       seller: "0x5555...7777",
       sellerRating: 4.8,
       verified: false,
@@ -86,10 +86,10 @@ const Marketplace = () => {
     
     let matchesPrice = true;
     if (priceRange !== "all") {
-      const price = parseFloat(listing.currentPrice.replace(" ETH", ""));
-      if (priceRange === "under-0.05") matchesPrice = price < 0.05;
-      else if (priceRange === "0.05-0.1") matchesPrice = price >= 0.05 && price <= 0.1;
-      else if (priceRange === "over-0.1") matchesPrice = price > 0.1;
+      const price = parseFloat(listing.currentPrice.replace("$", ""));
+      if (priceRange === "under-100") matchesPrice = price < 100;
+      else if (priceRange === "100-250") matchesPrice = price >= 100 && price <= 250;
+      else if (priceRange === "over-250") matchesPrice = price > 250;
     }
     
     return matchesSearch && matchesCategory && matchesPrice;
@@ -98,9 +98,9 @@ const Marketplace = () => {
   const sortedListings = [...filteredListings].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
-        return parseFloat(a.currentPrice.replace(" ETH", "")) - parseFloat(b.currentPrice.replace(" ETH", ""));
+        return parseFloat(a.currentPrice.replace("$", "")) - parseFloat(b.currentPrice.replace("$", ""));
       case "price-high":
-        return parseFloat(b.currentPrice.replace(" ETH", "")) - parseFloat(a.currentPrice.replace(" ETH", ""));
+        return parseFloat(b.currentPrice.replace("$", "")) - parseFloat(a.currentPrice.replace("$", ""));
       case "rating":
         return b.sellerRating - a.sellerRating;
       case "ending":
@@ -114,8 +114,8 @@ const Marketplace = () => {
 
   const marketStats = {
     activeListings: listings.length,
-    totalVolume: "127.8 ETH",
-    avgPrice: "0.068 ETH",
+    totalVolume: "$32,850",
+    avgPrice: "$170.83",
     verifiedSellers: Math.round(listings.filter(l => l.verified).length / listings.length * 100)
   };
 
@@ -226,9 +226,9 @@ const Marketplace = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Prices</SelectItem>
-                      <SelectItem value="under-0.05">💸 Under 0.05 ETH</SelectItem>
-                      <SelectItem value="0.05-0.1">💰 0.05 - 0.1 ETH</SelectItem>
-                      <SelectItem value="over-0.1">💎 Over 0.1 ETH</SelectItem>
+                      <SelectItem value="under-100">💸 Under $100</SelectItem>
+                      <SelectItem value="100-250">💰 $100 - $250</SelectItem>
+                      <SelectItem value="over-250">💎 Over $250</SelectItem>
                     </SelectContent>
                   </Select>
 
