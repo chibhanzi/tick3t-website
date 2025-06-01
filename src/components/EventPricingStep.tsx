@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,11 +39,11 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
   };
 
   const currencies = [
-    { code: 'USD', name: 'US Dollar', symbol: '$' },
+    { code: 'USD', name: 'US Dollar (Primary)', symbol: '$' },
     { code: 'EUR', name: 'Euro', symbol: '€' },
     { code: 'GBP', name: 'British Pound', symbol: '£' },
-    { code: 'ETH', name: 'Ethereum (Advanced)', symbol: 'Ξ' },
-    { code: 'BTC', name: 'Bitcoin (Advanced)', symbol: '₿' }
+    { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+    { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' }
   ];
 
   const paymentMethods = [
@@ -52,8 +51,9 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
     { id: 'PayPal', name: 'PayPal', icon: '🅿️' },
     { id: 'Apple Pay', name: 'Apple Pay', icon: '🍎' },
     { id: 'Google Pay', name: 'Google Pay', icon: '🔍' },
-    { id: 'ETH', name: 'Ethereum', icon: '⟐' },
-    { id: 'USDC', name: 'USDC', icon: '💰' }
+    { id: 'Bank Transfer', name: 'Bank Transfer', icon: '🏦' },
+    { id: 'ETH', name: 'Ethereum (Crypto)', icon: '⟐' },
+    { id: 'USDC', name: 'USDC (Crypto)', icon: '💰' }
   ];
 
   return (
@@ -68,7 +68,7 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="currency" className="text-sm font-medium">Primary Currency *</Label>
-            <Select value={pricingData.currency} onValueChange={(value) => handleChange('currency', value)}>
+            <Select value={pricingData.currency || 'USD'} onValueChange={(value) => handleChange('currency', value)}>
               <SelectTrigger className="h-11">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
@@ -83,13 +83,16 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              USD is recommended for international events. Crypto options are available as payment methods.
+            </p>
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="price" className="text-sm font-medium">Ticket Price *</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                {currencies.find(c => c.code === pricingData.currency)?.symbol || '$'}
+                {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol || '$'}
               </span>
               <Input
                 id="price"
@@ -112,7 +115,7 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
             </Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                {currencies.find(c => c.code === pricingData.currency)?.symbol || '$'}
+                {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol || '$'}
               </span>
               <Input
                 id="earlyBirdPrice"
@@ -155,6 +158,9 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
               </div>
             ))}
           </div>
+          <p className="text-xs text-muted-foreground">
+            Crypto payments are processed at current exchange rates and converted to your primary currency.
+          </p>
         </div>
 
         {generationConfig.method === 'realtime' && (
@@ -175,9 +181,9 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
           <div className="text-sm">
             <div className="font-medium mb-2">💰 Revenue Summary</div>
             <div className="space-y-1 text-muted-foreground">
-              <div>Base price: {currencies.find(c => c.code === pricingData.currency)?.symbol}{pricingData.price || '0.00'}</div>
+              <div>Base price: {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol}{pricingData.price || '0.00'}</div>
               {pricingData.earlyBirdPrice && (
-                <div>Early bird: {currencies.find(c => c.code === pricingData.currency)?.symbol}{pricingData.earlyBirdPrice}</div>
+                <div>Early bird: {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol}{pricingData.earlyBirdPrice}</div>
               )}
               <div className="pt-2 border-t">
                 <Badge variant="outline" className="text-xs">

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -127,7 +126,6 @@ const Events = () => {
           </p>
         </div>
 
-        {/* Improved Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Card className="border-blue-200 dark:border-slate-700">
             <CardContent className="p-4 text-center">
@@ -159,7 +157,6 @@ const Events = () => {
           </Card>
         </div>
 
-        {/* Search and Filters */}
         <Card className="mb-8 border-slate-200 dark:border-slate-700">
           <CardContent className="p-6">
             <div className="flex flex-col gap-4">
