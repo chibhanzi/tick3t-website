@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
-import { Settings, User, Bell, Shield, CreditCard } from "lucide-react";
+import { User, Bell, Shield } from "lucide-react";
+import PaymentMethodsCard from "./PaymentMethodsCard";
 
 const OrganizerSettings = () => {
   const { user } = useAuth();
@@ -97,23 +98,7 @@ const OrganizerSettings = () => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Payment Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Manage your payment methods and billing information
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline">Add Payment Method</Button>
-            <Button variant="outline">View Billing History</Button>
-          </div>
-        </CardContent>
-      </Card>
+      <PaymentMethodsCard />
     </div>
   );
 };

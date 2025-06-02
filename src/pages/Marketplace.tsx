@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, TrendingUp, Shield, Calendar, MapPin, Star, Clock, Users, Filter, Eye, Activity, DollarSign, Award } from "lucide-react";
+import MarketplaceActions from "@/components/marketplace/MarketplaceActions";
 
 const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -344,6 +345,7 @@ const Marketplace = () => {
         </div>
       </main>
 
+      <MarketplaceActions />
       <Footer />
     </div>
   );

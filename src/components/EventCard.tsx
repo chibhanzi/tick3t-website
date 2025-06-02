@@ -32,17 +32,24 @@ const EventCard = ({
 }: EventCardProps) => {
   const soldOut = available === 0;
   
-  // Format price to ensure it displays correctly
+  // Enhanced price formatting to ensure USD display
   const formatPrice = (priceStr: string) => {
-    // If it's already in USD format, return as is
+    // Remove any existing currency symbols and whitespace
+    const cleanPrice = priceStr.replace(/[^\d.,]/g, '');
+    
+    // If it's a valid number, format as USD
+    if (!isNaN(parseFloat(cleanPrice))) {
+      const numericPrice = parseFloat(cleanPrice);
+      return `$${numericPrice.toFixed(2)}`;
+    }
+    
+    // If it already has $ prefix, return as is
     if (priceStr.startsWith('$')) {
       return priceStr;
     }
-    // If it's a number, add $ prefix
-    if (!isNaN(parseFloat(priceStr))) {
-      return `$${priceStr}`;
-    }
-    return priceStr;
+    
+    // Default fallback
+    return `$${priceStr}`;
   };
   
   return (

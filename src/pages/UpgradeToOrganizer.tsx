@@ -1,12 +1,32 @@
-
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Users, Calendar, BarChart3, Shield } from "lucide-react";
+import { Check, Star, Users, Calendar, BarChart3, Shield, Loader2 } from "lucide-react";
 
 const UpgradeToOrganizer = () => {
+  const navigate = useNavigate();
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true);
+    
+    // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // In a real app, this would integrate with Stripe for payment processing
+    console.log("Processing organizer upgrade...");
+    
+    // Show success and redirect to organizer dashboard
+    alert("Upgrade successful! Welcome to the organizer platform!");
+    navigate("/organizer");
+    
+    setIsUpgrading(false);
+  };
+
   const features = [
     { icon: Calendar, title: "Unlimited Events", description: "Create and manage unlimited events" },
     { icon: Users, title: "Advanced Analytics", description: "Detailed insights on attendees and sales" },
@@ -76,8 +96,19 @@ const UpgradeToOrganizer = () => {
                 ))}
               </div>
               
-              <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
-                Upgrade to Organizer
+              <Button 
+                onClick={handleUpgrade}
+                disabled={isUpgrading}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              >
+                {isUpgrading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Upgrade to Organizer'
+                )}
               </Button>
               
               <p className="text-xs text-center text-muted-foreground">

@@ -1,11 +1,12 @@
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, CreditCard, Coins, Calendar, Info } from "lucide-react";
+import { DollarSign, Calendar, Info } from "lucide-react";
 import { TicketGenerationConfig } from "./TicketGenerationMethods";
+import CurrencySelector from "./pricing/CurrencySelector";
+import PaymentMethodsSelector from "./pricing/PaymentMethodsSelector";
 
 interface PricingData {
   currency: string;
@@ -29,32 +30,17 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
     });
   };
 
-  const handlePaymentToggle = (payment: string, checked: boolean) => {
-    const current = pricingData.acceptedPayments;
-    if (checked) {
-      handleChange('acceptedPayments', [...current, payment]);
-    } else {
-      handleChange('acceptedPayments', current.filter(p => p !== payment));
-    }
-  };
-
   const currencies = [
-    { code: 'USD', name: 'US Dollar (Primary)', symbol: '$' },
-    { code: 'EUR', name: 'Euro', symbol: '€' },
-    { code: 'GBP', name: 'British Pound', symbol: '£' },
-    { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-    { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' }
+    { code: 'USD', symbol: '$' },
+    { code: 'EUR', symbol: '€' },
+    { code: 'GBP', symbol: '£' },
+    { code: 'CAD', symbol: 'C$' },
+    { code: 'AUD', symbol: 'A$' }
   ];
 
-  const paymentMethods = [
-    { id: 'Credit Card', name: 'Credit/Debit Card', icon: '💳' },
-    { id: 'PayPal', name: 'PayPal', icon: '🅿️' },
-    { id: 'Apple Pay', name: 'Apple Pay', icon: '🍎' },
-    { id: 'Google Pay', name: 'Google Pay', icon: '🔍' },
-    { id: 'Bank Transfer', name: 'Bank Transfer', icon: '🏦' },
-    { id: 'ETH', name: 'Ethereum (Crypto)', icon: '⟐' },
-    { id: 'USDC', name: 'USDC (Crypto)', icon: '💰' }
-  ];
+  const getCurrencySymbol = (code: string) => {
+    return currencies.find(c => c.code === code)?.symbol || '$';
+  };
 
   return (
     <Card className="border-slate-200 dark:border-slate-700">
@@ -66,33 +52,16 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="currency" className="text-sm font-medium">Primary Currency *</Label>
-            <Select value={pricingData.currency || 'USD'} onValueChange={(value) => handleChange('currency', value)}>
-              <SelectTrigger className="h-11">
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent>
-                {currencies.map(currency => (
-                  <SelectItem key={currency.code} value={currency.code}>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono">{currency.symbol}</span>
-                      {currency.name} ({currency.code})
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              USD is recommended for international events. Crypto options are available as payment methods.
-            </p>
-          </div>
+          <CurrencySelector 
+            value={pricingData.currency}
+            onChange={(value) => handleChange('currency', value)}
+          />
           
           <div className="space-y-2">
             <Label htmlFor="price" className="text-sm font-medium">Ticket Price *</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol || '$'}
+                {getCurrencySymbol(pricingData.currency || 'USD')}
               </span>
               <Input
                 id="price"
@@ -115,7 +84,7 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
             </Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol || '$'}
+                {getCurrencySymbol(pricingData.currency || 'USD')}
               </span>
               <Input
                 id="earlyBirdPrice"
@@ -141,27 +110,10 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
           </div>
         </div>
 
-        <div className="space-y-4">
-          <Label className="text-sm font-medium">Accepted Payment Methods *</Label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {paymentMethods.map(method => (
-              <div key={method.id} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                <Checkbox
-                  id={method.id}
-                  checked={pricingData.acceptedPayments.includes(method.id)}
-                  onCheckedChange={(checked) => handlePaymentToggle(method.id, checked as boolean)}
-                />
-                <Label htmlFor={method.id} className="flex items-center gap-2 cursor-pointer text-sm">
-                  <span className="text-lg">{method.icon}</span>
-                  {method.name}
-                </Label>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Crypto payments are processed at current exchange rates and converted to your primary currency.
-          </p>
-        </div>
+        <PaymentMethodsSelector
+          selectedMethods={pricingData.acceptedPayments}
+          onChange={(methods) => handleChange('acceptedPayments', methods)}
+        />
 
         {generationConfig.method === 'realtime' && (
           <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 p-4 rounded-lg">
@@ -181,9 +133,9 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
           <div className="text-sm">
             <div className="font-medium mb-2">💰 Revenue Summary</div>
             <div className="space-y-1 text-muted-foreground">
-              <div>Base price: {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol}{pricingData.price || '0.00'}</div>
+              <div>Base price: {getCurrencySymbol(pricingData.currency || 'USD')}{pricingData.price || '0.00'}</div>
               {pricingData.earlyBirdPrice && (
-                <div>Early bird: {currencies.find(c => c.code === (pricingData.currency || 'USD'))?.symbol}{pricingData.earlyBirdPrice}</div>
+                <div>Early bird: {getCurrencySymbol(pricingData.currency || 'USD')}{pricingData.earlyBirdPrice}</div>
               )}
               <div className="pt-2 border-t">
                 <Badge variant="outline" className="text-xs">
