@@ -27,25 +27,35 @@ const chartConfig = {
 const RevenueChart = () => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <DollarSign className="h-5 w-5" />
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+          <DollarSign className="h-4 w-4 md:h-5 md:w-5" />
           Revenue Analytics
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-80">
+      <CardContent className="px-2 md:px-6">
+        <ChartContainer config={chartConfig} className="h-48 md:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={revenueData}>
-              <XAxis dataKey="month" />
-              <YAxis />
+            <LineChart data={revenueData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+              <XAxis 
+                dataKey="month" 
+                tick={{ fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis 
+                tick={{ fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Line 
                 type="monotone" 
                 dataKey="revenue" 
                 stroke="var(--color-revenue)" 
-                strokeWidth={3}
-                dot={{ r: 6 }}
+                strokeWidth={2}
+                dot={{ r: 3 }}
               />
               <Line 
                 type="monotone" 
@@ -53,6 +63,7 @@ const RevenueChart = () => {
                 stroke="var(--color-target)" 
                 strokeWidth={2}
                 strokeDasharray="5 5"
+                dot={{ r: 3 }}
               />
             </LineChart>
           </ResponsiveContainer>

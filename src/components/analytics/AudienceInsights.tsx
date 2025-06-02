@@ -21,23 +21,23 @@ const chartConfig = {
 const AudienceInsights = () => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+          <Users className="h-4 w-4 md:h-5 md:w-5" />
           Audience Demographics
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid md:grid-cols-2 gap-6">
-          <ChartContainer config={chartConfig} className="h-60">
+      <CardContent className="px-2 md:px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <ChartContainer config={chartConfig} className="h-40 md:h-60">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={audienceData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
+                  innerRadius={25}
+                  outerRadius={60}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -50,7 +50,7 @@ const AudienceInsights = () => {
             </ResponsiveContainer>
           </ChartContainer>
           
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {audienceData.map((item) => (
               <div key={item.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -58,9 +58,9 @@ const AudienceInsights = () => {
                     className="w-3 h-3 rounded-full" 
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="text-sm font-medium">{item.name} years</span>
+                  <span className="text-xs md:text-sm font-medium">{item.name} years</span>
                 </div>
-                <span className="text-sm text-muted-foreground">{item.value}%</span>
+                <span className="text-xs md:text-sm text-muted-foreground">{item.value}%</span>
               </div>
             ))}
           </div>

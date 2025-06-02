@@ -22,22 +22,22 @@ const MobileAnalyticsDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           <AudienceInsights />
           <Card>
-            <CardHeader>
-              <CardTitle>Performance Metrics</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm md:text-base">Performance Metrics</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                  <span className="font-medium text-sm">Avg Capacity</span>
-                  <span className="text-lg md:text-xl font-bold">87%</span>
+            <CardContent className="px-3 md:px-6">
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex justify-between items-center p-2 md:p-3 bg-muted rounded-lg">
+                  <span className="font-medium text-xs md:text-sm">Avg Capacity</span>
+                  <span className="text-base md:text-xl font-bold">87%</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                  <span className="font-medium text-sm">Satisfaction</span>
-                  <span className="text-lg md:text-xl font-bold">4.8/5</span>
+                <div className="flex justify-between items-center p-2 md:p-3 bg-muted rounded-lg">
+                  <span className="font-medium text-xs md:text-sm">Satisfaction</span>
+                  <span className="text-base md:text-xl font-bold">4.8/5</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                  <span className="font-medium text-sm">Repeat Rate</span>
-                  <span className="text-lg md:text-xl font-bold">35%</span>
+                <div className="flex justify-between items-center p-2 md:p-3 bg-muted rounded-lg">
+                  <span className="font-medium text-xs md:text-sm">Repeat Rate</span>
+                  <span className="text-base md:text-xl font-bold">35%</span>
                 </div>
               </div>
             </CardContent>

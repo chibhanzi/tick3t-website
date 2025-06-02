@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, User, Calendar, Ticket, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -23,13 +25,18 @@ const Header = () => {
     { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   ];
 
+  // Choose logo based on theme
+  const logoSrc = theme === 'dark' 
+    ? "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png"
+    : "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <img 
-              src="/lovable-uploads/dace9951-9667-4cb7-8c3f-4160753e1a11.png" 
+              src={logoSrc}
               alt="Tick3rt" 
               className="h-8 w-auto"
             />

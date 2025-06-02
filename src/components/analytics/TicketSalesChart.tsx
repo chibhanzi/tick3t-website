@@ -26,18 +26,25 @@ const chartConfig = {
 const TicketSalesChart = () => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Ticket className="h-5 w-5" />
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+          <Ticket className="h-4 w-4 md:h-5 md:w-5" />
           Ticket Sales by Event
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-80">
+      <CardContent className="px-2 md:px-6">
+        <ChartContainer config={chartConfig} className="h-48 md:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={salesData} layout="horizontal">
-              <XAxis type="number" />
-              <YAxis dataKey="event" type="category" width={120} />
+            <BarChart data={salesData} layout="horizontal" margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+              <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis 
+                dataKey="event" 
+                type="category" 
+                width={80}
+                tick={{ fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
+              />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="total" fill="var(--color-total)" />
               <Bar dataKey="sold" fill="var(--color-sold)" />
