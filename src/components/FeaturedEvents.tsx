@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import EventCard from "./EventCard";
 import { Link } from "react-router-dom";
-import { Clock, TrendingUp, MapPin, Calendar, Users, Zap, Fire } from "lucide-react";
+import { Clock, TrendingUp, MapPin, Calendar, Users, Zap, Flame } from "lucide-react";
 
 const FeaturedEvents = () => {
   const events = [
@@ -146,7 +146,7 @@ const FeaturedEvents = () => {
         <div className="mb-16">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-3">
-              <Fire className="h-6 w-6 text-orange-500" />
+              <Flame className="h-6 w-6 text-orange-500" />
               <h2 className="text-2xl font-bold text-gray-900">🔥 Hot Right Now</h2>
               <Badge className="bg-orange-100 text-orange-700">Trending</Badge>
             </div>
