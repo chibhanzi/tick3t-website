@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -7,15 +8,18 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, TrendingUp, Shield, Calendar, MapPin, Star, Clock, Users, Filter, Eye, Activity, DollarSign, Award } from "lucide-react";
+import { Search, Shield, Calendar, MapPin, Star, Clock, Users, Filter, Eye, Activity, DollarSign, Award, Navigation } from "lucide-react";
 import MarketplaceActions from "@/components/marketplace/MarketplaceActions";
+import { useTheme } from "next-themes";
 
 const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [sortBy, setSortBy] = useState("date");
   const [priceRange, setPriceRange] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const { theme } = useTheme();
 
   const listings = [
     {
@@ -24,6 +28,9 @@ const Marketplace = () => {
       eventDate: "March 15, 2024",
       eventTime: "9:00 PM",
       eventLocation: "Miami Beach Arena",
+      city: "Miami",
+      state: "FL",
+      distance: "2.3 miles",
       originalPrice: "$125.00",
       currentPrice: "$200.00",
       seller: "0x1234...5678",
@@ -44,6 +51,9 @@ const Marketplace = () => {
       eventDate: "March 20, 2024",
       eventTime: "9:00 AM",
       eventLocation: "Convention Center, SF",
+      city: "San Francisco",
+      state: "CA",
+      distance: "15.7 miles",
       originalPrice: "$250.00",
       currentPrice: "$300.00",
       seller: "0x9876...4321",
@@ -64,6 +74,9 @@ const Marketplace = () => {
       eventDate: "March 18, 2024",
       eventTime: "6:00 PM",
       eventLocation: "Downtown Gallery, NYC",
+      city: "New York",
+      state: "NY",
+      distance: "0.8 miles",
       originalPrice: "$75.00",
       currentPrice: "$62.50",
       seller: "0x5555...7777",
@@ -82,8 +95,12 @@ const Marketplace = () => {
 
   const filteredListings = listings.filter(listing => {
     const matchesSearch = listing.eventTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         listing.eventLocation.toLowerCase().includes(searchTerm.toLowerCase());
+                         listing.eventLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         listing.city.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === "all" || listing.category.toLowerCase() === filterCategory.toLowerCase();
+    const matchesLocation = locationFilter === "all" || 
+                           (locationFilter === "nearby" && parseFloat(listing.distance) < 10) ||
+                           listing.state === locationFilter;
     
     let matchesPrice = true;
     if (priceRange !== "all") {
@@ -93,7 +110,7 @@ const Marketplace = () => {
       else if (priceRange === "over-250") matchesPrice = price > 250;
     }
     
-    return matchesSearch && matchesCategory && matchesPrice;
+    return matchesSearch && matchesCategory && matchesPrice && matchesLocation;
   });
 
   const sortedListings = [...filteredListings].sort((a, b) => {
@@ -108,27 +125,34 @@ const Marketplace = () => {
         return parseInt(a.timeLeft) - parseInt(b.timeLeft);
       case "popular":
         return b.views - a.views;
+      case "distance":
+        return parseFloat(a.distance) - parseFloat(b.distance);
       default:
         return new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime();
     }
   });
 
-  const marketStats = {
-    activeListings: listings.length,
-    totalVolume: "$32,850",
-    avgPrice: "$170.83",
-    verifiedSellers: Math.round(listings.filter(l => l.verified).length / listings.length * 100)
-  };
+  // Choose logo based on theme
+  const logoSrc = theme === 'dark' 
+    ? "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png"
+    : "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
+        {/* Hero Section with Logo */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            🎫 Ticket Marketplace
+          <div className="flex justify-center mb-6">
+            <img 
+              src={logoSrc}
+              alt="Tick3rt" 
+              className="h-16 w-auto"
+            />
+          </div>
+          <h1 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Ticket Marketplace
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Discover and trade verified NFT tickets securely on the blockchain
@@ -143,7 +167,7 @@ const Marketplace = () => {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Search events, locations, sellers..."
+                    placeholder="Search events, locations, cities..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 h-12 border-blue-200 dark:border-slate-600"
@@ -160,7 +184,7 @@ const Marketplace = () => {
               </div>
               
               {showFilters && (
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-blue-50 dark:bg-slate-800 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-blue-50 dark:bg-slate-800 rounded-lg">
                   <Select value={filterCategory} onValueChange={setFilterCategory}>
                     <SelectTrigger className="border-blue-200 dark:border-slate-600">
                       <SelectValue placeholder="All Categories" />
@@ -171,6 +195,20 @@ const Marketplace = () => {
                       <SelectItem value="tech">💻 Tech</SelectItem>
                       <SelectItem value="art">🎨 Art</SelectItem>
                       <SelectItem value="sports">⚽ Sports</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                    <SelectTrigger className="border-blue-200 dark:border-slate-600">
+                      <SelectValue placeholder="Location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="nearby">📍 Nearby (10 miles)</SelectItem>
+                      <SelectItem value="CA">🌴 California</SelectItem>
+                      <SelectItem value="NY">🗽 New York</SelectItem>
+                      <SelectItem value="FL">🏖️ Florida</SelectItem>
+                      <SelectItem value="TX">🤠 Texas</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -192,6 +230,7 @@ const Marketplace = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="date">📅 Event Date</SelectItem>
+                      <SelectItem value="distance">📍 Distance</SelectItem>
                       <SelectItem value="price-low">💲 Price: Low to High</SelectItem>
                       <SelectItem value="price-high">💲 Price: High to Low</SelectItem>
                       <SelectItem value="rating">⭐ Seller Rating</SelectItem>
@@ -204,6 +243,7 @@ const Marketplace = () => {
                     setSearchTerm("");
                     setFilterCategory("all");
                     setPriceRange("all");
+                    setLocationFilter("all");
                     setSortBy("date");
                   }} className="border-red-200 hover:bg-red-50 dark:border-red-600 dark:hover:bg-red-900/20">
                     Clear All
@@ -239,10 +279,14 @@ const Marketplace = () => {
                   </Badge>
                 </div>
                 
-                <div className="absolute top-3 right-3">
+                <div className="absolute top-3 right-3 flex flex-col gap-1">
                   <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">
                     <Clock className="h-3 w-3 mr-1" />
                     {listing.timeLeft}
+                  </Badge>
+                  <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">
+                    <Navigation className="h-3 w-3 mr-1" />
+                    {listing.distance}
                   </Badge>
                 </div>
                 
@@ -251,6 +295,10 @@ const Marketplace = () => {
                   <div className="flex items-center text-sm text-white/90 mb-1">
                     <Calendar className="h-3 w-3 mr-1" />
                     <span>{listing.eventDate} • {listing.eventTime}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-white/90">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    <span>{listing.city}, {listing.state}</span>
                   </div>
                 </div>
                 
@@ -263,10 +311,6 @@ const Marketplace = () => {
               
               <CardContent className="p-5">
                 <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-blue-500" />
-                    <span className="truncate">{listing.eventLocation}</span>
-                  </div>
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-1 text-green-500" />
@@ -316,6 +360,7 @@ const Marketplace = () => {
               setSearchTerm("");
               setFilterCategory("all");
               setPriceRange("all");
+              setLocationFilter("all");
               setSortBy("date");
             }} className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600">
               Reset Filters
@@ -323,29 +368,9 @@ const Marketplace = () => {
           </div>
         )}
 
-        {/* Enhanced Call to Action */}
-        <div className="text-center mt-16">
-          <Card className="max-w-4xl mx-auto border-slate-200 dark:border-slate-700 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
-            <CardContent className="p-12">
-              <div className="text-6xl mb-6">🎫</div>
-              <h2 className="text-3xl font-bold mb-4 text-foreground">Ready to sell your tickets?</h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join thousands of verified sellers on our secure marketplace. Set your own prices and reach buyers worldwide.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-lg px-8 py-3">
-                  🚀 List Your Tickets
-                </Button>
-                <Button variant="outline" className="text-lg px-8 py-3 border-blue-200 hover:bg-blue-50 dark:border-slate-600 dark:hover:bg-slate-700">
-                  📖 Learn More
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <MarketplaceActions />
       </main>
 
-      <MarketplaceActions />
       <Footer />
     </div>
   );

@@ -7,14 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { Calendar, MapPin, Star, Trophy, Clock, Ticket, Users, TrendingUp, Upload, Camera } from "lucide-react";
+import { Calendar, MapPin, Star, Trophy, Clock, Ticket, Users, TrendingUp, Upload, Camera, Share2, Instagram, Twitter, Facebook, Linkedin, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import SocialShareButton from "@/components/SocialShareButton";
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
+  const [socialLinks, setSocialLinks] = useState({
+    instagram: "",
+    twitter: "",
+    facebook: "",
+    linkedin: ""
+  });
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -64,6 +71,13 @@ const UserDashboard = () => {
     totalSpent: 1250,
     badgesEarned: 8
   };
+
+  const socialPlatforms = [
+    { name: "instagram", icon: Instagram, color: "text-pink-500", placeholder: "@username" },
+    { name: "twitter", icon: Twitter, color: "text-blue-400", placeholder: "@username" },
+    { name: "facebook", icon: Facebook, color: "text-blue-600", placeholder: "facebook.com/username" },
+    { name: "linkedin", icon: Linkedin, color: "text-blue-700", placeholder: "linkedin.com/in/username" }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -137,9 +151,10 @@ const UserDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="tickets">My Tickets</TabsTrigger>
+            <TabsTrigger value="social">Social</TabsTrigger>
             <TabsTrigger value="badges">Badges</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -157,7 +172,7 @@ const UserDashboard = () => {
                   <div className="space-y-4">
                     {upcomingEvents.map((event) => (
                       <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
+                        <div className="flex-1">
                           <h4 className="font-medium">{event.title}</h4>
                           <div className="flex items-center text-sm text-muted-foreground gap-4">
                             <span className="flex items-center gap-1">
@@ -170,9 +185,16 @@ const UserDashboard = () => {
                             </span>
                           </div>
                         </div>
-                        <Badge variant={event.status === 'confirmed' ? 'default' : 'secondary'}>
-                          {event.status}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={event.status === 'confirmed' ? 'default' : 'secondary'}>
+                            {event.status}
+                          </Badge>
+                          <SocialShareButton
+                            eventTitle={event.title}
+                            eventDate={event.date}
+                            eventLocation={event.location}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -212,6 +234,69 @@ const UserDashboard = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="social">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Share2 className="h-5 w-5" />
+                    Social Media Connections
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground mb-4">
+                    Connect your social media accounts to easily share events with friends!
+                  </p>
+                  {socialPlatforms.map((platform) => (
+                    <div key={platform.name} className="flex items-center space-x-4">
+                      <platform.icon className={`h-6 w-6 ${platform.color}`} />
+                      <div className="flex-1">
+                        <Label htmlFor={platform.name} className="capitalize font-medium">
+                          {platform.name}
+                        </Label>
+                        <Input
+                          id={platform.name}
+                          placeholder={platform.placeholder}
+                          value={socialLinks[platform.name as keyof typeof socialLinks]}
+                          onChange={(e) => setSocialLinks({
+                            ...socialLinks,
+                            [platform.name]: e.target.value
+                          })}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <Button className="mt-4">Save Social Links</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Share Your Events</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Let your friends know about the amazing events you're attending!
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {upcomingEvents.map((event) => (
+                      <div key={event.id} className="p-4 border rounded-lg">
+                        <h4 className="font-medium mb-2">{event.title}</h4>
+                        <p className="text-sm text-muted-foreground mb-3">{event.date} • {event.location}</p>
+                        <SocialShareButton
+                          eventTitle={event.title}
+                          eventDate={event.date}
+                          eventLocation={event.location}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           <TabsContent value="badges">
             <Card>
               <CardHeader>
@@ -235,22 +320,24 @@ const UserDashboard = () => {
           </TabsContent>
 
           <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" defaultValue={user?.name} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" defaultValue={user?.email} disabled />
-                </div>
-                <Button variant="outline">Save Changes</Button>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input id="name" defaultValue={user?.name} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" defaultValue={user?.email} disabled />
+                  </div>
+                  <Button variant="outline">Save Changes</Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
