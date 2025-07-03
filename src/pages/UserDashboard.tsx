@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,6 +10,7 @@ import { Calendar, MapPin, Star, Trophy, Clock, Ticket, Users, TrendingUp, Uploa
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SocialShareButton from "@/components/SocialShareButton";
+import UserInsights from "@/components/analytics/UserInsights";
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -151,10 +151,11 @@ const UserDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="tickets">My Tickets</TabsTrigger>
             <TabsTrigger value="social">Social</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="badges">Badges</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -295,6 +296,10 @@ const UserDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <UserInsights />
           </TabsContent>
 
           <TabsContent value="badges">

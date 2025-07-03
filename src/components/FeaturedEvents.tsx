@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import EventCard from "./EventCard";
 import { Link } from "react-router-dom";
 import { Clock, MapPin, Calendar, Users, Zap, Flame } from "lucide-react";
+import RecommendationEngine from "./RecommendationEngine";
 
 const FeaturedEvents = () => {
   const events = [
@@ -77,6 +78,78 @@ const FeaturedEvents = () => {
       category: "Wellness",
       available: 50,
       total: 100
+    },
+    {
+      id: "7",
+      title: "Outdoor Adventure Expedition",
+      date: "July 4, 2024 • 7:00 AM",
+      location: "Rocky Mountain National Park",
+      price: "$499.00",
+      image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8c00?w=400&h=300&fit=crop",
+      attendees: 80,
+      category: "Adventure",
+      available: 15,
+      total: 50
+    },
+    {
+      id: "8",
+      title: "Culinary Arts Masterclass",
+      date: "August 12, 2024 • 10:00 AM",
+      location: "Le Cordon Bleu, Paris",
+      price: "$599.00",
+      image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop",
+      attendees: 60,
+      category: "Food & Drink",
+      available: 20,
+      total: 30
+    },
+    {
+      id: "9",
+      title: "Fashion Week Showcase",
+      date: "September 18, 2024 • 8:00 PM",
+      location: "Milan Fashion District",
+      price: "$799.00",
+      image: "https://images.unsplash.com/photo-1489533119213-66a5cd877091?w=400&h=300&fit=crop",
+      attendees: 1000,
+      category: "Fashion",
+      available: 300,
+      total: 500
+    },
+    {
+      id: "10",
+      title: "Sustainable Living Workshop",
+      date: "October 5, 2024 • 11:00 AM",
+      location: "Eco-Village, Berlin",
+      price: "$299.00",
+      image: "https://images.unsplash.com/photo-1507608616759-54f48e0af0ee?w=400&h=300&fit=crop",
+      attendees: 120,
+      category: "Environment",
+      available: 40,
+      total: 60
+    },
+    {
+      id: "11",
+      title: "Historical Architecture Tour",
+      date: "November 11, 2024 • 2:00 PM",
+      location: "Ancient Rome, Italy",
+      price: "$399.00",
+      image: "https://images.unsplash.com/photo-1552832270-8f81a75547ca?w=400&h=300&fit=crop",
+      attendees: 90,
+      category: "History",
+      available: 30,
+      total: 45
+    },
+    {
+      id: "12",
+      title: "Space Exploration Conference",
+      date: "December 8, 2024 • 9:00 AM",
+      location: "Kennedy Space Center",
+      price: "$899.00",
+      image: "https://images.unsplash.com/photo-1517976455479-1703a0f9ca3a?w=400&h=300&fit=crop",
+      attendees: 500,
+      category: "Science",
+      available: 100,
+      total: 200
     }
   ];
 
@@ -96,6 +169,9 @@ const FeaturedEvents = () => {
             Popular events people are booking right now
           </p>
         </div>
+
+        {/* Recommendation Engine */}
+        <RecommendationEngine />
 
         {/* Ending Soon Section */}
         {urgentEvents.length > 0 && (
