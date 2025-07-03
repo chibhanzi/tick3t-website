@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import EventCard from "./EventCard";
@@ -85,15 +84,15 @@ const FeaturedEvents = () => {
   const freeEvents = events.filter(event => event.price === "Free");
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-gray-50 dark:bg-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Trending Events
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Popular events people are booking right now
           </p>
         </div>
@@ -103,12 +102,12 @@ const FeaturedEvents = () => {
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <Clock className="h-5 w-5 text-red-500" />
-                <h3 className="text-xl font-semibold text-gray-900">Almost Sold Out</h3>
-                <Badge className="bg-red-100 text-red-700">Limited</Badge>
+                <Clock className="h-5 w-5 text-red-500 dark:text-red-400" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Almost Sold Out</h3>
+                <Badge className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700">Limited</Badge>
               </div>
               <Link to="/events?filter=ending-soon">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                   View All
                 </Button>
               </Link>
@@ -118,7 +117,7 @@ const FeaturedEvents = () => {
               {urgentEvents.slice(0, 3).map((event) => (
                 <div key={event.id} className="relative">
                   <EventCard {...event} />
-                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white z-10">
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 dark:bg-red-600 text-white z-10">
                     {event.available} left
                   </Badge>
                 </div>
@@ -132,8 +131,8 @@ const FeaturedEvents = () => {
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h3 className="text-xl font-semibold text-gray-900">Free Events</h3>
-                <Badge className="bg-green-100 text-green-700">No Cost</Badge>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Free Events</h3>
+                <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700">No Cost</Badge>
               </div>
             </div>
             
@@ -141,7 +140,7 @@ const FeaturedEvents = () => {
               {freeEvents.map((event) => (
                 <div key={event.id} className="relative">
                   <EventCard {...event} />
-                  <Badge className="absolute top-3 right-3 bg-green-500 text-white z-10">
+                  <Badge className="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white z-10">
                     Free
                   </Badge>
                 </div>
