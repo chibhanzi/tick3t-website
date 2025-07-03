@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import EventCard from "./EventCard";
 import { Link } from "react-router-dom";
-import { Clock, MapPin, Calendar, Users, Zap } from "lucide-react";
+import { Clock, MapPin, Calendar, Users, Zap, Flame } from "lucide-react";
 
 const FeaturedEvents = () => {
   const events = [
