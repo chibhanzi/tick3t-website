@@ -2,10 +2,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Wallet, Smartphone, Globe } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Wallet, Smartphone, Globe, Mail, Shield, Gift } from "lucide-react";
 
-const WalletConnect = () => {
+interface WalletConnectProps {
+  onWalletConnected?: (walletAddress: string, walletType: string) => void;
+  showBenefits?: boolean;
+}
+
+const WalletConnect = ({ onWalletConnected, showBenefits = true }: WalletConnectProps) => {
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
 
   const walletOptions = [
     {
@@ -40,10 +48,27 @@ const WalletConnect = () => {
     
     // Simulate connection delay
     setTimeout(() => {
+      const mockAddress = `0x${Math.random().toString(16).substr(2, 40)}`;
+      setConnectedWallet(mockAddress);
       setIsConnecting(false);
-      console.log(`Connected to ${walletType}!`);
+      onWalletConnected?.(mockAddress, walletType);
+      console.log(`Connected to ${walletType}! Address: ${mockAddress}`);
     }, 2000);
   };
+
+  if (connectedWallet) {
+    return (
+      <div className="flex items-center gap-2">
+        <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+          <Wallet className="h-3 w-3 mr-1" />
+          Connected
+        </Badge>
+        <span className="text-xs font-mono">
+          {connectedWallet.slice(0, 6)}...{connectedWallet.slice(-4)}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <Dialog>
@@ -62,6 +87,22 @@ const WalletConnect = () => {
             Connect Your Wallet
           </DialogTitle>
         </DialogHeader>
+        
+        {showBenefits && (
+          <div className="mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-slate-800 dark:to-slate-700 rounded-lg">
+            <h4 className="font-semibold text-sm mb-2 flex items-center gap-1">
+              <Gift className="h-4 w-4 text-purple-500" />
+              Wallet Benefits
+            </h4>
+            <ul className="text-xs space-y-1 text-muted-foreground">
+              <li>• Own your NFT tickets forever</li>
+              <li>• Trade tickets on secondary markets</li>
+              <li>• Collect rare event memorabilia</li>
+              <li>• Access exclusive holder benefits</li>
+            </ul>
+          </div>
+        )}
+
         <div className="grid gap-4 py-4">
           {walletOptions.map((wallet, index) => (
             <Button
@@ -79,6 +120,17 @@ const WalletConnect = () => {
             </Button>
           ))}
         </div>
+
+        <div className="text-center">
+          <Button variant="ghost" className="text-sm text-muted-foreground hover:text-foreground">
+            <Mail className="h-4 w-4 mr-1" />
+            Continue with Email Only
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2">
+            You can connect a wallet later to claim your NFT tickets
+          </p>
+        </div>
+
         <div className="text-center text-sm text-gray-500">
           By connecting, you agree to our Terms of Service
         </div>
