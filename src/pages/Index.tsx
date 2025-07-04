@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import FeaturedEvents from "@/components/FeaturedEvents";
@@ -154,7 +153,7 @@ const Index = () => {
               </div>
               <div className="group">
                 <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                  <1s
+                  &lt;1s
                 </div>
                 <div className="text-gray-400 mt-2 group-hover:text-gray-300 transition-colors">Ticket Delivery</div>
               </div>
