@@ -1,9 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import EventCard from "./EventCard";
 import { Link } from "react-router-dom";
-import { Clock, MapPin, Calendar, Users, Zap, Flame } from "lucide-react";
-import RecommendationEngine from "./RecommendationEngine";
+import { Clock, Calendar } from "lucide-react";
 
 const FeaturedEvents = () => {
   const events = [
@@ -79,121 +79,28 @@ const FeaturedEvents = () => {
       available: 50,
       total: 100
     },
-    {
-      id: "7",
-      title: "Outdoor Adventure Expedition",
-      date: "July 4, 2024 • 7:00 AM",
-      location: "Rocky Mountain National Park",
-      price: "$499.00",
-      image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8c00?w=400&h=300&fit=crop",
-      attendees: 80,
-      category: "Adventure",
-      available: 15,
-      total: 50
-    },
-    {
-      id: "8",
-      title: "Culinary Arts Masterclass",
-      date: "August 12, 2024 • 10:00 AM",
-      location: "Le Cordon Bleu, Paris",
-      price: "$599.00",
-      image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop",
-      attendees: 60,
-      category: "Food & Drink",
-      available: 20,
-      total: 30
-    },
-    {
-      id: "9",
-      title: "Fashion Week Showcase",
-      date: "September 18, 2024 • 8:00 PM",
-      location: "Milan Fashion District",
-      price: "$799.00",
-      image: "https://images.unsplash.com/photo-1489533119213-66a5cd877091?w=400&h=300&fit=crop",
-      attendees: 1000,
-      category: "Fashion",
-      available: 300,
-      total: 500
-    },
-    {
-      id: "10",
-      title: "Sustainable Living Workshop",
-      date: "October 5, 2024 • 11:00 AM",
-      location: "Eco-Village, Berlin",
-      price: "$299.00",
-      image: "https://images.unsplash.com/photo-1507608616759-54f48e0af0ee?w=400&h=300&fit=crop",
-      attendees: 120,
-      category: "Environment",
-      available: 40,
-      total: 60
-    },
-    {
-      id: "11",
-      title: "Historical Architecture Tour",
-      date: "November 11, 2024 • 2:00 PM",
-      location: "Ancient Rome, Italy",
-      price: "$399.00",
-      image: "https://images.unsplash.com/photo-1552832270-8f81a75547ca?w=400&h=300&fit=crop",
-      attendees: 90,
-      category: "History",
-      available: 30,
-      total: 45
-    },
-    {
-      id: "12",
-      title: "Space Exploration Conference",
-      date: "December 8, 2024 • 9:00 AM",
-      location: "Kennedy Space Center",
-      price: "$899.00",
-      image: "https://images.unsplash.com/photo-1517976455479-1703a0f9ca3a?w=400&h=300&fit=crop",
-      attendees: 500,
-      category: "Science",
-      available: 100,
-      total: 200
-    }
   ];
 
-  const urgentEvents = events.filter(event => event.available < 100 && event.available > 0);
-  const freeEvents = events.filter(event => event.price === "Free");
+  const almostGone = events.filter(e => e.available > 0 && e.available < 100);
+  const allAvailable = events.filter(e => e.available > 0);
 
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Trending Events
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Popular events people are booking right now
-          </p>
-        </div>
+    <section className="py-12 bg-muted/30">
+      <div className="container mx-auto px-4">
 
-        {/* Recommendation Engine */}
-        <RecommendationEngine />
-
-        {/* Ending Soon Section */}
-        {urgentEvents.length > 0 && (
+        {/* Almost Sold Out */}
+        {almostGone.length > 0 && (
           <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <Clock className="h-5 w-5 text-red-500 dark:text-red-400" />
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Almost Sold Out</h3>
-                <Badge className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700">Limited</Badge>
-              </div>
-              <Link to="/events?filter=ending-soon">
-                <Button variant="outline" size="sm" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  View All
-                </Button>
-              </Link>
+            <div className="flex items-center gap-2 mb-5">
+              <Clock className="h-5 w-5 text-red-500" />
+              <h2 className="text-xl font-bold text-foreground">Almost Sold Out</h2>
+              <Badge variant="destructive" className="text-xs">Limited</Badge>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {urgentEvents.slice(0, 3).map((event) => (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {almostGone.map((event) => (
                 <div key={event.id} className="relative">
                   <EventCard {...event} />
-                  <Badge className="absolute -top-2 -right-2 bg-red-500 dark:bg-red-600 text-white z-10">
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs z-10">
                     {event.available} left
                   </Badge>
                 </div>
@@ -202,46 +109,28 @@ const FeaturedEvents = () => {
           </div>
         )}
 
-        {/* Free Events */}
-        {freeEvents.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Free Events</h3>
-                <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700">No Cost</Badge>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {freeEvents.map((event) => (
-                <div key={event.id} className="relative">
-                  <EventCard {...event} />
-                  <Badge className="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white z-10">
-                    Free
-                  </Badge>
-                </div>
-              ))}
-            </div>
+        {/* All Events */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-foreground">Trending Events</h2>
+            <Link to="/events">
+              <Button variant="outline" size="sm" className="text-xs">
+                View All
+              </Button>
+            </Link>
           </div>
-        )}
-
-        {/* All Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {events.map((event) => (
-            <div key={event.id} className="group">
-              <EventCard {...event} />
-            </div>
-          ))}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            {allAvailable.map((event) => (
+              <EventCard key={event.id} {...event} />
+            ))}
+          </div>
         </div>
-        
+
         {/* Simple CTA */}
-        <div className="text-center">
+        <div className="text-center pt-4">
           <Link to="/events">
-            <Button 
-              size="lg"
-              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl"
-            >
-              <Calendar className="mr-2 h-5 w-5" />
+            <Button size="lg" className="rounded-full px-8">
+              <Calendar className="mr-2 h-4 w-4" />
               See All Events
             </Button>
           </Link>
