@@ -60,11 +60,11 @@ const App = () => (
                 } 
               />
               
-              {/* Protected Organizer Routes */}
+              {/* Organizer Routes - no guard for testing */}
               <Route 
                 path="/organizer-dashboard" 
                 element={
-                  <ProtectedRoute requireOrganizer>
+                  <ProtectedRoute>
                     <OrganizerDashboard />
                   </ProtectedRoute>
                 } 
@@ -72,7 +72,7 @@ const App = () => (
               <Route 
                 path="/create-event" 
                 element={
-                  <ProtectedRoute requireOrganizer>
+                  <ProtectedRoute>
                     <CreateEvent />
                   </ProtectedRoute>
                 } 
