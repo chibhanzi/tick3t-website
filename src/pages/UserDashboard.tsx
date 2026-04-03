@@ -1,348 +1,281 @@
+
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/contexts/AuthContext";
-import { Calendar, MapPin, Star, Trophy, Clock, Ticket, Users, TrendingUp, Upload, Camera, Share2, Instagram, Twitter, Facebook, Linkedin, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import SocialShareButton from "@/components/SocialShareButton";
-import UserInsights from "@/components/analytics/UserInsights";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Calendar, MapPin, Trophy, Clock, Ticket, TrendingUp, Camera,
+  DollarSign, Tag, ArrowUpRight, QrCode, Shield, ExternalLink
+} from "lucide-react";
 
 const UserDashboard = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("overview");
+  const { toast } = useToast();
   const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
-  const [socialLinks, setSocialLinks] = useState({
-    instagram: "",
-    twitter: "",
-    facebook: "",
-    linkedin: ""
-  });
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-      };
+      reader.onload = (e) => setProfileImage(e.target?.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const upcomingEvents = [
-    {
-      id: "1",
-      title: "Tech Conference 2024",
-      date: "March 25, 2024",
-      location: "San Francisco, CA",
-      status: "confirmed",
-      ticketType: "VIP"
-    },
-    {
-      id: "2",
-      title: "Music Festival",
-      date: "April 15, 2024",
-      location: "Austin, TX",
-      status: "pending",
-      ticketType: "General"
-    }
+  const stats = { eventsAttended: 12, upcoming: 2, totalSpent: 1250, badges: 8 };
+
+  const myTickets = [
+    { id: "1", title: "Bass Drop Festival 2024", date: "Mar 15", location: "Miami, FL", tier: "VIP", status: "valid", price: 189 },
+    { id: "2", title: "Tech Conference 2024", date: "Mar 25", location: "San Francisco, CA", tier: "General", status: "valid", price: 89 },
+    { id: "3", title: "Art Gallery Opening", date: "Feb 10", location: "New York, NY", tier: "General", status: "used", price: 75 },
+  ];
+
+  const resaleListings = [
+    { id: "r1", title: "Music Festival Extra", date: "Apr 15", location: "Austin, TX", originalPrice: 125, askingPrice: 150, status: "listed" },
   ];
 
   const recentActivity = [
-    { id: 1, action: "Purchased ticket", event: "Tech Conference 2024", date: "2 days ago" },
-    { id: 2, action: "Earned badge", event: "Early Bird", date: "1 week ago" },
-    { id: 3, action: "Attended event", event: "Local Meetup", date: "2 weeks ago" }
+    { action: "Purchased ticket", detail: "Bass Drop Festival 2024", time: "2 days ago" },
+    { action: "Earned badge", detail: "Early Bird", time: "1 week ago" },
+    { action: "Listed for resale", detail: "Music Festival Extra", time: "3 days ago" },
   ];
 
   const badges = [
-    { name: "Early Bird", icon: "🐦", description: "First 100 tickets purchased" },
-    { name: "Tech Enthusiast", icon: "💻", description: "Attended 5+ tech events" },
-    { name: "Social Butterfly", icon: "🦋", description: "Shared 10+ events" }
+    { name: "Early Bird", icon: "🐦", earned: true },
+    { name: "Tech Fan", icon: "💻", earned: true },
+    { name: "Social Star", icon: "🦋", earned: true },
+    { name: "Collector", icon: "💎", earned: false },
+    { name: "Superfan", icon: "🔥", earned: false },
+    { name: "Pioneer", icon: "🚀", earned: true },
   ];
 
-  const stats = {
-    eventsAttended: 12,
-    upcomingEvents: 2,
-    totalSpent: 1250,
-    badgesEarned: 8
+  const handleListForResale = (ticketId: string) => {
+    toast({ title: "Listed for resale", description: "Your ticket is now visible on the marketplace." });
   };
 
-  const socialPlatforms = [
-    { name: "instagram", icon: Instagram, color: "text-pink-500", placeholder: "@username" },
-    { name: "twitter", icon: Twitter, color: "text-blue-400", placeholder: "@username" },
-    { name: "facebook", icon: Facebook, color: "text-blue-600", placeholder: "facebook.com/username" },
-    { name: "linkedin", icon: Linkedin, color: "text-blue-700", placeholder: "linkedin.com/in/username" }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-background">
       <Header />
-      
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="relative">
-              <img 
-                src={profileImage} 
-                alt={user?.name}
-                className="w-16 h-16 rounded-full border-4 border-white shadow-lg object-cover"
-              />
-              <Button
-                size="sm"
-                variant="outline"
-                className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0"
-                onClick={() => document.getElementById('profile-upload')?.click()}
-              >
-                <Camera className="h-3 w-3" />
-              </Button>
-              <input
-                id="profile-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Welcome back, {user?.name}! 👋
-              </h1>
-              <p className="text-muted-foreground">
-                Member since 2024
-              </p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Calendar className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{stats.eventsAttended}</div>
-                <div className="text-sm text-muted-foreground">Events Attended</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Clock className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{stats.upcomingEvents}</div>
-                <div className="text-sm text-muted-foreground">Upcoming</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <TrendingUp className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold">${stats.totalSpent}</div>
-                <div className="text-sm text-muted-foreground">Total Spent</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{stats.badgesEarned}</div>
-                <div className="text-sm text-muted-foreground">Badges Earned</div>
-              </CardContent>
-            </Card>
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Profile header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+          <div className="relative">
+            <img
+              src={profileImage}
+              alt={user?.name}
+              className="w-16 h-16 rounded-full border-2 border-primary/20 object-cover bg-muted"
+            />
+            <button
+              onClick={() => document.getElementById("profile-upload")?.click()}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md"
+            >
+              <Camera className="h-3 w-3" />
+            </button>
+            <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
           </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold">Hi, {user?.name} 👋</h1>
+            <p className="text-sm text-muted-foreground">Member since 2024</p>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/events">Browse Events</Link>
+          </Button>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="tickets">My Tickets</TabsTrigger>
-            <TabsTrigger value="social">Social</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="badges">Badges</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Ticket className="h-5 w-5" />
-                    Upcoming Events
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {upcomingEvents.map((event) => (
-                      <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-medium">{event.title}</h4>
-                          <div className="flex items-center text-sm text-muted-foreground gap-4">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {event.date}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {event.location}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={event.status === 'confirmed' ? 'default' : 'secondary'}>
-                            {event.status}
-                          </Badge>
-                          <SocialShareButton
-                            eventTitle={event.title}
-                            eventDate={event.date}
-                            eventLocation={event.location}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{activity.action}</p>
-                          <p className="text-xs text-muted-foreground">{activity.event} • {activity.date}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="tickets">
-            <Card>
-              <CardHeader>
-                <CardTitle>My Tickets</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">View and manage all your tickets</p>
-                <Button>View All Tickets</Button>
+        {/* Stats row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {[
+            { icon: Calendar, value: stats.eventsAttended, label: "Attended", color: "text-primary" },
+            { icon: Clock, value: stats.upcoming, label: "Upcoming", color: "text-blue-500" },
+            { icon: DollarSign, value: `$${stats.totalSpent}`, label: "Spent", color: "text-green-500" },
+            { icon: Trophy, value: stats.badges, label: "Badges", color: "text-yellow-500" },
+          ].map((s, i) => (
+            <Card key={i} className="border-border/50">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className={`p-2 rounded-lg bg-muted ${s.color}`}>
+                  <s.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold leading-none">{s.value}</p>
+                  <p className="text-xs text-muted-foreground">{s.label}</p>
+                </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          ))}
+        </div>
 
-          <TabsContent value="social">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Share2 className="h-5 w-5" />
-                    Social Media Connections
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground mb-4">
-                    Connect your social media accounts to easily share events with friends!
-                  </p>
-                  {socialPlatforms.map((platform) => (
-                    <div key={platform.name} className="flex items-center space-x-4">
-                      <platform.icon className={`h-6 w-6 ${platform.color}`} />
-                      <div className="flex-1">
-                        <Label htmlFor={platform.name} className="capitalize font-medium">
-                          {platform.name}
-                        </Label>
-                        <Input
-                          id={platform.name}
-                          placeholder={platform.placeholder}
-                          value={socialLinks[platform.name as keyof typeof socialLinks]}
-                          onChange={(e) => setSocialLinks({
-                            ...socialLinks,
-                            [platform.name]: e.target.value
-                          })}
-                          className="mt-1"
-                        />
+        {/* Tabs */}
+        <Tabs defaultValue="tickets" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 h-10">
+            <TabsTrigger value="tickets" className="text-xs sm:text-sm">My Tickets</TabsTrigger>
+            <TabsTrigger value="resale" className="text-xs sm:text-sm">Resale</TabsTrigger>
+            <TabsTrigger value="activity" className="text-xs sm:text-sm">Activity</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
+          </TabsList>
+
+          {/* My Tickets */}
+          <TabsContent value="tickets" className="space-y-4">
+            {myTickets.map((ticket) => (
+              <Card key={ticket.id} className="overflow-hidden border-border/50 hover:shadow-md transition-shadow">
+                <CardContent className="p-0">
+                  <div className="flex flex-col sm:flex-row">
+                    {/* Ticket left accent */}
+                    <div className={`w-full sm:w-1.5 h-1.5 sm:h-auto ${ticket.status === "valid" ? "bg-green-500" : "bg-muted-foreground/30"}`} />
+                    <div className="flex-1 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-sm truncate">{ticket.title}</h3>
+                          <Badge variant={ticket.status === "valid" ? "default" : "secondary"} className="text-[10px] shrink-0">
+                            {ticket.status === "valid" ? "Valid" : "Used"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{ticket.date}</span>
+                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{ticket.location}</span>
+                          <span className="flex items-center gap-1"><Tag className="h-3 w-3" />{ticket.tier}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm">${ticket.price}</span>
+                        {ticket.status === "valid" && (
+                          <>
+                            <Button variant="outline" size="sm" className="h-8 text-xs">
+                              <QrCode className="h-3 w-3 mr-1" /> QR
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-xs"
+                              onClick={() => handleListForResale(ticket.id)}
+                            >
+                              <ArrowUpRight className="h-3 w-3 mr-1" /> Resell
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
-                  ))}
-                  <Button className="mt-4">Save Social Links</Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Share Your Events</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Let your friends know about the amazing events you're attending!
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {upcomingEvents.map((event) => (
-                      <div key={event.id} className="p-4 border rounded-lg">
-                        <h4 className="font-medium mb-2">{event.title}</h4>
-                        <p className="text-sm text-muted-foreground mb-3">{event.date} • {event.location}</p>
-                        <SocialShareButton
-                          eventTitle={event.title}
-                          eventDate={event.date}
-                          eventLocation={event.location}
-                        />
-                      </div>
-                    ))}
                   </div>
                 </CardContent>
               </Card>
+            ))}
+          </TabsContent>
+
+          {/* Resale */}
+          <TabsContent value="resale" className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-semibold">Your Resale Listings</h2>
+              <Button size="sm" variant="outline" asChild>
+                <Link to="/marketplace"><ExternalLink className="h-3 w-3 mr-1" /> Marketplace</Link>
+              </Button>
             </div>
-          </TabsContent>
 
-          <TabsContent value="analytics">
-            <UserInsights />
-          </TabsContent>
-
-          <TabsContent value="badges">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5" />
-                  Achievement Badges
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {badges.map((badge, index) => (
-                    <div key={index} className="text-center p-4 border rounded-lg">
-                      <div className="text-4xl mb-2">{badge.icon}</div>
-                      <h3 className="font-medium">{badge.name}</h3>
-                      <p className="text-sm text-muted-foreground">{badge.description}</p>
+            {resaleListings.length === 0 ? (
+              <Card className="border-dashed border-2">
+                <CardContent className="p-8 text-center">
+                  <Tag className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
+                  <p className="font-medium mb-1">No listings yet</p>
+                  <p className="text-sm text-muted-foreground">Go to My Tickets and click "Resell" on any valid ticket</p>
+                </CardContent>
+              </Card>
+            ) : (
+              resaleListings.map((listing) => (
+                <Card key={listing.id} className="border-border/50">
+                  <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-sm">{listing.title}</h3>
+                        <Badge className="bg-amber-500/10 text-amber-600 border-amber-200 text-[10px]">Listed</Badge>
+                      </div>
+                      <div className="flex gap-3 text-xs text-muted-foreground">
+                        <span>{listing.date}</span>
+                        <span>{listing.location}</span>
+                      </div>
                     </div>
-                  ))}
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground line-through">${listing.originalPrice}</p>
+                        <p className="font-bold text-sm">${listing.askingPrice}</p>
+                      </div>
+                      <Button variant="destructive" size="sm" className="h-8 text-xs">Remove</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+
+            <Card className="bg-muted/50 border-border/50">
+              <CardContent className="p-4 flex items-start gap-3">
+                <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm">Secure Resale</p>
+                  <p className="text-xs text-muted-foreground">All resales are verified on the TON blockchain. Buyers get authentic NFT tickets with full ownership transfer.</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="settings">
-            <div className="space-y-6">
+          {/* Activity */}
+          <TabsContent value="activity" className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-6">
               <Card>
-                <CardHeader>
-                  <CardTitle>Account Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" defaultValue={user?.name} />
+                <CardHeader><CardTitle className="text-base">Recent Activity</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  {recentActivity.map((a, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">{a.action}</p>
+                        <p className="text-xs text-muted-foreground">{a.detail} · {a.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle className="text-base">Badges</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-3">
+                    {badges.map((b, i) => (
+                      <div
+                        key={i}
+                        className={`text-center p-3 rounded-lg border ${b.earned ? "border-primary/20 bg-primary/5" : "border-border opacity-40"}`}
+                      >
+                        <span className="text-2xl">{b.icon}</span>
+                        <p className="text-xs font-medium mt-1">{b.name}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" defaultValue={user?.email} disabled />
-                  </div>
-                  <Button variant="outline">Save Changes</Button>
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Settings */}
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader><CardTitle className="text-base">Account Settings</CardTitle></CardHeader>
+              <CardContent className="space-y-4 max-w-md">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input id="name" defaultValue={user?.name} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" defaultValue={user?.email} disabled />
+                </div>
+                <Button variant="outline">Save Changes</Button>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

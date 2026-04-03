@@ -114,7 +114,7 @@ const Header = () => {
                 {user ? (
                   <>
                     <Link
-                      to="/dashboard"
+                      to={user.isOrganizer ? "/organizer-dashboard" : "/dashboard"}
                       className="flex items-center space-x-3 text-lg font-medium transition-colors hover:text-primary py-2"
                       onClick={() => setIsOpen(false)}
                     >
