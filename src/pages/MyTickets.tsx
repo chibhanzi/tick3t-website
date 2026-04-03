@@ -54,8 +54,8 @@ const MyTickets = () => {
         hasEarlyAccess: true,
         earlyAccessHours: 2
       },
-      mintedFrom: "0x9876...4321",
-      network: "Ethereum"
+      mintedFrom: "EQ9876...4321",
+      network: "TON"
     }
   ];
 
