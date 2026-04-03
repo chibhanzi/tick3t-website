@@ -32,8 +32,8 @@ const MyTickets = () => {
         hasRoyalties: true,
         royaltyPercentage: 2.5
       },
-      mintedFrom: "0x1234...5678",
-      network: "Polygon"
+      mintedFrom: "EQ1234...5678",
+      network: "TON"
     },
     {
       id: "2",
@@ -54,8 +54,8 @@ const MyTickets = () => {
         hasEarlyAccess: true,
         earlyAccessHours: 2
       },
-      mintedFrom: "0x9876...4321",
-      network: "Ethereum"
+      mintedFrom: "EQ9876...4321",
+      network: "TON"
     }
   ];
 
