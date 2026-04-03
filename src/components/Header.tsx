@@ -62,7 +62,7 @@ const Header = () => {
           <ThemeToggle />
           {user ? (
             <div className="flex items-center space-x-2">
-              <Link to="/dashboard">
+              <Link to={user.isOrganizer ? "/organizer-dashboard" : "/dashboard"}>
                 <Button variant="ghost" size="sm" className="flex items-center space-x-2">
                   <User className="h-4 w-4" />
                   <span>Dashboard</span>
