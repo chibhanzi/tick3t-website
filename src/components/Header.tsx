@@ -1,9 +1,9 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, User, Calendar, Ticket, ShoppingBag } from "lucide-react";
+import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -13,6 +13,9 @@ const Header = () => {
   const { user, logout } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isOrganizerContext = location.pathname.startsWith("/organizer-dashboard") || location.pathname.startsWith("/create-event");
 
   const handleLogout = () => {
     logout();
@@ -20,27 +23,33 @@ const Header = () => {
     setIsOpen(false);
   };
 
-  const navigationItems = [
-    { href: "/events", label: "Events", icon: Calendar },
-    { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
-  ];
+  const navigationItems = isOrganizerContext
+    ? [
+        { href: "/organizer-dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/create-event", label: "Create Event", icon: Plus },
+        { href: "/events", label: "Events", icon: Calendar },
+      ]
+    : [
+        { href: "/events", label: "Events", icon: Calendar },
+        { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
+      ];
 
-  // Choose logo based on theme
   const logoSrc = theme === 'dark' 
     ? "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png"
     : "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
+
+  const dashboardLink = isOrganizerContext ? "/organizer-dashboard" : "/dashboard";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <img 
-              src={logoSrc}
-              alt="Tick3rt" 
-              className="h-8 w-auto"
-            />
+            <img src={logoSrc} alt="Tick3rt" className="h-8 w-auto" />
           </Link>
+          {isOrganizerContext && (
+            <Badge variant="outline" className="text-[10px] hidden sm:inline-flex">Organizer</Badge>
+          )}
         </div>
 
         {/* Desktop Navigation */}
@@ -49,7 +58,7 @@ const Header = () => {
             <Link
               key={item.href}
               to={item.href}
-              className="text-sm font-medium transition-colors hover:text-primary flex items-center space-x-1"
+              className={`text-sm font-medium transition-colors hover:text-primary flex items-center space-x-1 ${location.pathname === item.href ? "text-primary" : ""}`}
             >
               <item.icon className="h-4 w-4" />
               <span>{item.label}</span>
@@ -58,27 +67,31 @@ const Header = () => {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-3">
           <ThemeToggle />
           {user ? (
             <div className="flex items-center space-x-2">
-              <Link to={user.isOrganizer ? "/organizer-dashboard" : "/dashboard"}>
-                <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                  <User className="h-4 w-4" />
-                  <span>Dashboard</span>
-                </Button>
-              </Link>
-              {user.role === 'organizer' && (
-                <Link to="/create-event">
-                  <Button size="sm" className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>Create Event</span>
+              {/* Switch context button */}
+              {isOrganizerContext ? (
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    <User className="h-4 w-4 mr-1" /> User View
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/organizer-dashboard">
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    <LayoutDashboard className="h-4 w-4 mr-1" /> Organizer
                   </Button>
                 </Link>
               )}
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                Logout
-              </Button>
+              <Link to={dashboardLink}>
+                <Button variant="ghost" size="sm">
+                  <User className="h-4 w-4 mr-1" />
+                  <span>Dashboard</span>
+                </Button>
+              </Link>
+              <Button variant="outline" size="sm" onClick={handleLogout}>Logout</Button>
             </div>
           ) : (
             <Link to="/auth">
@@ -114,31 +127,35 @@ const Header = () => {
                 {user ? (
                   <>
                     <Link
-                      to={user.isOrganizer ? "/organizer-dashboard" : "/dashboard"}
+                      to={dashboardLink}
                       className="flex items-center space-x-3 text-lg font-medium transition-colors hover:text-primary py-2"
                       onClick={() => setIsOpen(false)}
                     >
                       <User className="h-5 w-5" />
                       <span>Dashboard</span>
                     </Link>
-                    <Link
-                      to="/my-tickets"
-                      className="flex items-center space-x-3 text-lg font-medium transition-colors hover:text-primary py-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <Ticket className="h-5 w-5" />
-                      <span>My Tickets</span>
-                    </Link>
-                    {user.role === 'organizer' && (
+                    
+                    {/* Context switch */}
+                    {isOrganizerContext ? (
                       <Link
-                        to="/create-event"
+                        to="/dashboard"
                         className="flex items-center space-x-3 text-lg font-medium transition-colors hover:text-primary py-2"
                         onClick={() => setIsOpen(false)}
                       >
-                        <Calendar className="h-5 w-5" />
-                        <span>Create Event</span>
+                        <User className="h-5 w-5" />
+                        <span>User Dashboard</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/organizer-dashboard"
+                        className="flex items-center space-x-3 text-lg font-medium transition-colors hover:text-primary py-2"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <LayoutDashboard className="h-5 w-5" />
+                        <span>Organizer Dashboard</span>
                       </Link>
                     )}
+
                     <Button 
                       variant="outline" 
                       onClick={handleLogout}
@@ -160,5 +177,8 @@ const Header = () => {
     </header>
   );
 };
+
+// Need Badge imported
+import { Badge } from "@/components/ui/badge";
 
 export default Header;
