@@ -179,7 +179,5 @@ const Header = () => {
   );
 };
 
-// Need Badge imported
-import { Badge } from "@/components/ui/badge";
 
 export default Header;
