@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,15 +11,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import QRCodeLib from "qrcode";
 import {
-  Calendar, MapPin, Trophy, Clock, Ticket, TrendingUp, Camera,
-  DollarSign, Tag, ArrowUpRight, QrCode, Shield, ExternalLink
+  Calendar, MapPin, Trophy, Clock, Camera, Wallet,
+  DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
+  TrendingUp, Banknote, Download
 } from "lucide-react";
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
+  const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -30,22 +33,72 @@ const UserDashboard = () => {
     }
   };
 
-  const stats = { eventsAttended: 12, upcoming: 2, totalSpent: 1250, badges: 8 };
+  const stats = { eventsAttended: 12, upcoming: 2, totalSpent: 1250, resaleEarnings: 320 };
 
   const myTickets = [
-    { id: "1", title: "Bass Drop Festival 2024", date: "Mar 15", location: "Miami, FL", tier: "VIP", status: "valid", price: 189 },
-    { id: "2", title: "Tech Conference 2024", date: "Mar 25", location: "San Francisco, CA", tier: "General", status: "valid", price: 89 },
-    { id: "3", title: "Art Gallery Opening", date: "Feb 10", location: "New York, NY", tier: "General", status: "used", price: 75 },
+    {
+      id: "1", title: "Bass Drop Festival 2024", date: "Mar 15, 2024", time: "9:00 PM",
+      location: "Miami Beach Arena", tier: "VIP", status: "valid", price: 189,
+      bgGradient: "from-violet-600 to-pink-500", organizer: "Live Nation",
+      ticketNumber: "TK-00142"
+    },
+    {
+      id: "2", title: "Tech Innovation Summit", date: "Mar 25, 2024", time: "10:00 AM",
+      location: "SF Convention Center", tier: "General", status: "valid", price: 89,
+      bgGradient: "from-cyan-600 to-blue-500", organizer: "TechEvents Co",
+      ticketNumber: "TK-00298"
+    },
+    {
+      id: "3", title: "Art Gallery Opening", date: "Feb 10, 2024", time: "7:00 PM",
+      location: "Brooklyn Museum, NYC", tier: "General", status: "used", price: 75,
+      bgGradient: "from-amber-500 to-orange-600", organizer: "ArtSpace NYC",
+      ticketNumber: "TK-00067"
+    },
   ];
 
   const resaleListings = [
     { id: "r1", title: "Music Festival Extra", date: "Apr 15", location: "Austin, TX", originalPrice: 125, askingPrice: 150, status: "listed" },
+    { id: "r2", title: "Comedy Night VIP", date: "May 2", location: "Chicago, IL", originalPrice: 80, askingPrice: 95, status: "sold" },
   ];
+
+  const resaleStats = {
+    totalEarnings: 320,
+    pendingPayout: 150,
+    ticketsSold: 3,
+    activeListing: 1,
+  };
+
+  // Generate QR codes dynamically on render
+  useEffect(() => {
+    const generateQRCodes = async () => {
+      const codes: Record<string, string> = {};
+      for (const ticket of myTickets) {
+        if (ticket.status === "valid") {
+          try {
+            const qrData = JSON.stringify({
+              ticketId: ticket.id,
+              ticketNumber: ticket.ticketNumber,
+              event: ticket.title,
+              timestamp: Date.now(),
+            });
+            codes[ticket.id] = await QRCodeLib.toDataURL(qrData, {
+              width: 80, margin: 1,
+              color: { dark: '#000000', light: '#FFFFFF' }
+            });
+          } catch (e) {
+            console.error("QR generation failed", e);
+          }
+        }
+      }
+      setQrCodes(codes);
+    };
+    generateQRCodes();
+  }, []);
 
   const recentActivity = [
     { action: "Purchased ticket", detail: "Bass Drop Festival 2024", time: "2 days ago" },
     { action: "Earned badge", detail: "Early Bird", time: "1 week ago" },
-    { action: "Listed for resale", detail: "Music Festival Extra", time: "3 days ago" },
+    { action: "Sold ticket", detail: "Comedy Night VIP — $95", time: "5 days ago" },
   ];
 
   const badges = [
@@ -59,6 +112,10 @@ const UserDashboard = () => {
 
   const handleListForResale = (ticketId: string) => {
     toast({ title: "Listed for resale", description: "Your ticket is now visible on the marketplace." });
+  };
+
+  const handleWithdraw = () => {
+    toast({ title: "Withdrawal requested", description: `$${resaleStats.pendingPayout} will be sent to your Paynow account.` });
   };
 
   return (
@@ -86,28 +143,26 @@ const UserDashboard = () => {
             <h1 className="text-2xl font-bold">Hi, {user?.name} 👋</h1>
             <p className="text-sm text-muted-foreground">Member since 2024</p>
           </div>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild size="sm">
             <Link to="/events">Browse Events</Link>
           </Button>
         </div>
 
-        {/* Stats row */}
+        {/* Stats row - improved cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { icon: Calendar, value: stats.eventsAttended, label: "Attended", color: "text-primary" },
-            { icon: Clock, value: stats.upcoming, label: "Upcoming", color: "text-blue-500" },
-            { icon: DollarSign, value: `$${stats.totalSpent}`, label: "Spent", color: "text-green-500" },
-            { icon: Trophy, value: stats.badges, label: "Badges", color: "text-yellow-500" },
+            { icon: Calendar, value: stats.eventsAttended, label: "Attended", bg: "bg-primary/10", color: "text-primary" },
+            { icon: Clock, value: stats.upcoming, label: "Upcoming", bg: "bg-blue-500/10", color: "text-blue-500" },
+            { icon: DollarSign, value: `$${stats.totalSpent}`, label: "Spent", bg: "bg-green-500/10", color: "text-green-500" },
+            { icon: TrendingUp, value: `$${stats.resaleEarnings}`, label: "Resale Earned", bg: "bg-amber-500/10", color: "text-amber-500" },
           ].map((s, i) => (
-            <Card key={i} className="border-border/50">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className={`p-2 rounded-lg bg-muted ${s.color}`}>
-                  <s.icon className="h-5 w-5" />
+            <Card key={i} className="border-border/50 hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center mb-3`}>
+                  <s.icon className={`h-5 w-5 ${s.color}`} />
                 </div>
-                <div>
-                  <p className="text-xl font-bold leading-none">{s.value}</p>
-                  <p className="text-xs text-muted-foreground">{s.label}</p>
-                </div>
+                <p className="text-2xl font-bold leading-none">{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
               </CardContent>
             </Card>
           ))}
@@ -122,78 +177,163 @@ const UserDashboard = () => {
             <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
           </TabsList>
 
-          {/* My Tickets */}
-          <TabsContent value="tickets" className="space-y-4">
-            {myTickets.map((ticket) => (
-              <Card key={ticket.id} className="overflow-hidden border-border/50 hover:shadow-md transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Ticket left accent */}
-                    <div className={`w-full sm:w-1.5 h-1.5 sm:h-auto ${ticket.status === "valid" ? "bg-green-500" : "bg-muted-foreground/30"}`} />
-                    <div className="flex-1 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-sm truncate">{ticket.title}</h3>
-                          <Badge variant={ticket.status === "valid" ? "default" : "secondary"} className="text-[10px] shrink-0">
-                            {ticket.status === "valid" ? "Valid" : "Used"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{ticket.date}</span>
-                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{ticket.location}</span>
-                          <span className="flex items-center gap-1"><Tag className="h-3 w-3" />{ticket.tier}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm">${ticket.price}</span>
-                        {ticket.status === "valid" && (
-                          <>
-                            <Button variant="outline" size="sm" className="h-8 text-xs">
-                              <QrCode className="h-3 w-3 mr-1" /> QR
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 text-xs"
-                              onClick={() => handleListForResale(ticket.id)}
-                            >
-                              <ArrowUpRight className="h-3 w-3 mr-1" /> Resell
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-
-          {/* Resale */}
-          <TabsContent value="resale" className="space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-semibold">Your Resale Listings</h2>
-              <Button size="sm" variant="outline" asChild>
-                <Link to="/marketplace"><ExternalLink className="h-3 w-3 mr-1" /> Marketplace</Link>
-              </Button>
-            </div>
-
-            {resaleListings.length === 0 ? (
+          {/* My Tickets - Visual ticket cards like ticket-generator */}
+          <TabsContent value="tickets" className="space-y-6">
+            {myTickets.length === 0 ? (
               <Card className="border-dashed border-2">
-                <CardContent className="p-8 text-center">
-                  <Tag className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-                  <p className="font-medium mb-1">No listings yet</p>
-                  <p className="text-sm text-muted-foreground">Go to My Tickets and click "Resell" on any valid ticket</p>
+                <CardContent className="p-12 text-center">
+                  <div className="text-5xl mb-4">🎫</div>
+                  <h3 className="font-semibold text-lg mb-2">No tickets yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Browse events and grab your first ticket!</p>
+                  <Button asChild><Link to="/events">Browse Events</Link></Button>
                 </CardContent>
               </Card>
             ) : (
-              resaleListings.map((listing) => (
-                <Card key={listing.id} className="border-border/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {myTickets.map((ticket) => (
+                  <div key={ticket.id} className="group">
+                    {/* Visual Ticket Card */}
+                    <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${ticket.bgGradient} text-white shadow-lg hover:shadow-xl transition-all duration-300`}>
+                      {/* Ticket perforated edge effect */}
+                      <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col justify-center">
+                        <div className="border-l-2 border-dashed border-white/30 h-full" />
+                      </div>
+                      
+                      <div className="p-5 pr-20 relative">
+                        {/* Status */}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[10px] font-medium tracking-wider uppercase opacity-80">
+                            {ticket.organizer}
+                          </span>
+                          <Badge className={`text-[10px] ${ticket.status === "valid" ? "bg-white/20 text-white border-white/30" : "bg-black/20 text-white/70 border-white/20"}`}>
+                            {ticket.status === "valid" ? "✓ Valid" : "Used"}
+                          </Badge>
+                        </div>
+
+                        {/* Event title */}
+                        <h3 className="text-lg font-bold mb-3 leading-tight">{ticket.title}</h3>
+
+                        {/* Details grid */}
+                        <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                          <div className="flex items-center gap-1.5 opacity-90">
+                            <Calendar className="h-3 w-3" />
+                            <span>{ticket.date}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 opacity-90">
+                            <Clock className="h-3 w-3" />
+                            <span>{ticket.time}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 opacity-90 col-span-2">
+                            <MapPin className="h-3 w-3" />
+                            <span>{ticket.location}</span>
+                          </div>
+                        </div>
+
+                        {/* Bottom row */}
+                        <div className="flex items-end justify-between pt-2 border-t border-white/20">
+                          <div>
+                            <p className="text-[10px] opacity-60 uppercase tracking-wider">Tier</p>
+                            <p className="text-sm font-bold">{ticket.tier}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[10px] opacity-60 uppercase tracking-wider">Price</p>
+                            <p className="text-sm font-bold">${ticket.price}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] opacity-60 uppercase tracking-wider">Ticket</p>
+                            <p className="text-sm font-bold">{ticket.ticketNumber}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* QR code section on the right stub */}
+                      <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm">
+                        {qrCodes[ticket.id] ? (
+                          <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
+                        ) : (
+                          <div className="w-12 h-12 rounded bg-white/20 flex items-center justify-center">
+                            <span className="text-xs opacity-60">—</span>
+                          </div>
+                        )}
+                        <p className="text-[8px] mt-1 opacity-60 font-medium">SCAN</p>
+                      </div>
+                    </div>
+
+                    {/* Actions below ticket */}
+                    {ticket.status === "valid" && (
+                      <div className="flex gap-2 mt-2">
+                        <Button
+                          variant="outline" size="sm" className="flex-1 h-8 text-xs"
+                          onClick={() => handleListForResale(ticket.id)}
+                        >
+                          <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-8 text-xs">
+                          <Download className="h-3 w-3 mr-1" /> Save
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Resale - with earnings tracking */}
+          <TabsContent value="resale" className="space-y-6">
+            {/* Resale earnings overview */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: "Total Earned", value: `$${resaleStats.totalEarnings}`, icon: TrendingUp, color: "text-green-500" },
+                { label: "Pending Payout", value: `$${resaleStats.pendingPayout}`, icon: Banknote, color: "text-amber-500" },
+                { label: "Tickets Sold", value: resaleStats.ticketsSold, icon: Tag, color: "text-blue-500" },
+                { label: "Active Listings", value: resaleStats.activeListing, icon: ArrowUpRight, color: "text-primary" },
+              ].map((s, i) => (
+                <Card key={i} className="border-border/50">
+                  <CardContent className="p-3 text-center">
+                    <s.icon className={`h-4 w-4 mx-auto mb-1 ${s.color}`} />
+                    <p className="text-lg font-bold">{s.value}</p>
+                    <p className="text-[10px] text-muted-foreground">{s.label}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Withdraw button */}
+            {resaleStats.pendingPayout > 0 && (
+              <Card className="border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-950/20">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-sm">Ready to withdraw</p>
+                    <p className="text-xs text-muted-foreground">
+                      ${resaleStats.pendingPayout} available · Sent via Paynow
+                    </p>
+                  </div>
+                  <Button size="sm" onClick={handleWithdraw} className="bg-green-600 hover:bg-green-700">
+                    <Wallet className="h-3 w-3 mr-1" /> Withdraw
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Listings */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-semibold text-sm">Your Listings</h2>
+                <Button size="sm" variant="outline" asChild>
+                  <Link to="/marketplace"><ExternalLink className="h-3 w-3 mr-1" /> Marketplace</Link>
+                </Button>
+              </div>
+
+              {resaleListings.map((listing) => (
+                <Card key={listing.id} className="border-border/50 mb-3">
                   <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-sm">{listing.title}</h3>
-                        <Badge className="bg-amber-500/10 text-amber-600 border-amber-200 text-[10px]">Listed</Badge>
+                        <Badge className={`text-[10px] ${listing.status === "sold" ? "bg-green-100 text-green-700 border-green-200" : "bg-amber-100 text-amber-700 border-amber-200"}`}>
+                          {listing.status === "sold" ? "✓ Sold" : "Listed"}
+                        </Badge>
                       </div>
                       <div className="flex gap-3 text-xs text-muted-foreground">
                         <span>{listing.date}</span>
@@ -205,12 +345,14 @@ const UserDashboard = () => {
                         <p className="text-xs text-muted-foreground line-through">${listing.originalPrice}</p>
                         <p className="font-bold text-sm">${listing.askingPrice}</p>
                       </div>
-                      <Button variant="destructive" size="sm" className="h-8 text-xs">Remove</Button>
+                      {listing.status === "listed" && (
+                        <Button variant="destructive" size="sm" className="h-8 text-xs">Remove</Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            )}
+              ))}
+            </div>
 
             <Card className="bg-muted/50 border-border/50">
               <CardContent className="p-4 flex items-start gap-3">
@@ -260,8 +402,8 @@ const UserDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Settings */}
-          <TabsContent value="settings">
+          {/* Settings - with Paynow payment details */}
+          <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader><CardTitle className="text-base">Account Settings</CardTitle></CardHeader>
               <CardContent className="space-y-4 max-w-md">
@@ -273,7 +415,55 @@ const UserDashboard = () => {
                   <Label htmlFor="email">Email</Label>
                   <Input id="email" defaultValue={user?.email} disabled />
                 </div>
-                <Button variant="outline">Save Changes</Button>
+                <Button variant="outline" size="sm">Save Changes</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Wallet className="h-4 w-4" />
+                  Payment Details — Paynow
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 max-w-md">
+                <p className="text-xs text-muted-foreground">
+                  Add your Paynow details for faster ticket purchases and resale withdrawals.
+                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="paynow-phone">Paynow Phone Number</Label>
+                  <Input id="paynow-phone" placeholder="e.g. 0771234567" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paynow-name">Account Holder Name</Label>
+                  <Input id="paynow-name" placeholder="Your full name as registered" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paynow-email">Paynow Email (optional)</Label>
+                  <Input id="paynow-email" type="email" placeholder="email@example.com" />
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm">Save Payment Details</Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Your payment details are encrypted and only used for ticket purchases and resale payouts.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">TON Wallet (Optional)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 max-w-md">
+                <p className="text-xs text-muted-foreground">
+                  Connect your TON wallet to receive NFT tickets directly. Not required — tickets are delivered via email by default.
+                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="ton-wallet">Wallet Address</Label>
+                  <Input id="ton-wallet" placeholder="EQx..." />
+                </div>
+                <Button variant="outline" size="sm">Connect Wallet</Button>
               </CardContent>
             </Card>
           </TabsContent>

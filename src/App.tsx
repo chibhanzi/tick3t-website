@@ -10,7 +10,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
-import MyTickets from "./pages/MyTickets";
 import Marketplace from "./pages/Marketplace";
 import Auth from "./pages/Auth";
 import EventDetail from "./pages/EventDetail";
@@ -42,7 +41,6 @@ const App = () => (
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/upgrade-to-organizer" element={<UpgradeToOrganizer />} />
               
-              {/* Protected User Routes */}
               <Route 
                 path="/dashboard" 
                 element={
@@ -51,16 +49,7 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route 
-                path="/my-tickets" 
-                element={
-                  <ProtectedRoute>
-                    <MyTickets />
-                  </ProtectedRoute>
-                } 
-              />
               
-              {/* Organizer Routes - no guard for testing */}
               <Route 
                 path="/organizer-dashboard" 
                 element={
