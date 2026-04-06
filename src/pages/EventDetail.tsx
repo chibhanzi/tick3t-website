@@ -3,10 +3,11 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SocialShareButton from "@/components/SocialShareButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Clock, Share2, Heart, Minus, Plus, ChevronLeft, Shield, Ticket } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const EventDetail = () => {
@@ -30,6 +31,7 @@ const EventDetail = () => {
     available: 150,
     total: 500,
     organizer: "Bass Events Miami",
+    isVerifiedOrganizer: true,
     tags: ["Electronic", "Dance", "Festival", "Miami"],
     amenities: ["Food Trucks", "Premium Bar", "Valet Parking", "Free WiFi", "24/7 Security"],
   };
@@ -43,6 +45,8 @@ const EventDetail = () => {
   const selectedTierData = tiers.find(t => t.id === selectedTier)!;
   const totalPrice = selectedTierData.price * quantity;
   const soldPercent = ((event.total - event.available) / event.total) * 100;
+
+  const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`🎉 Check out ${event.title} on ${event.date} at ${event.location}! Get tickets: ${window.location.href}`)}`;
 
   const handleBuy = () => {
     toast({
@@ -75,13 +79,21 @@ const EventDetail = () => {
               )}
             </div>
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">{event.title}</h1>
-            <p className="text-white/80 text-lg">by {event.organizer}</p>
+            <div className="flex items-center gap-2 text-white/80">
+              <span>by {event.organizer}</span>
+              {event.isVerifiedOrganizer && (
+                <Badge className="bg-green-500/90 text-white border-0 text-[10px] gap-0.5">
+                  <CheckCircle className="h-3 w-3" />
+                  Verified
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* Left — Details (3 cols) */}
+            {/* Left — Details */}
             <div className="lg:col-span-3 space-y-6">
               {/* Quick info row */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -131,7 +143,7 @@ const EventDetail = () => {
               </div>
             </div>
 
-            {/* Right — Purchase card (2 cols) */}
+            {/* Right — Purchase card */}
             <div className="lg:col-span-2">
               <Card className="sticky top-20 border-border shadow-lg">
                 <CardContent className="p-6 space-y-5">
@@ -161,29 +173,16 @@ const EventDetail = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Quantity</span>
                     <div className="flex items-center gap-3">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        disabled={quantity <= 1}
-                      >
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
                         <Minus className="h-3 w-3" />
                       </Button>
                       <span className="font-bold w-6 text-center">{quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setQuantity(Math.min(10, quantity + 1))}
-                        disabled={quantity >= 10}
-                      >
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.min(10, quantity + 1))} disabled={quantity >= 10}>
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Divider */}
                   <div className="border-t border-border" />
 
                   {/* Total */}
@@ -193,29 +192,39 @@ const EventDetail = () => {
                   </div>
 
                   {/* Buy button */}
-                  <Button
-                    className="w-full h-12 text-base font-semibold"
-                    disabled={event.available === 0}
-                    onClick={handleBuy}
-                  >
+                  <Button className="w-full h-12 text-base font-semibold" disabled={event.available === 0} onClick={handleBuy}>
                     <Ticket className="h-4 w-4 mr-2" />
                     {event.available === 0 ? "Sold Out" : "Get Tickets"}
                   </Button>
 
+                  {/* Trust badge */}
+                  <div className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <Shield className="h-4 w-4 text-green-600" />
+                    <span className="text-xs text-green-700 dark:text-green-400 font-medium">Secure Payment via Paynow</span>
+                  </div>
+
                   {/* Actions row */}
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setLiked(!liked)}
-                    >
+                    <Button variant="outline" className="flex-1" onClick={() => setLiked(!liked)}>
                       <Heart className={`h-4 w-4 mr-1 ${liked ? "fill-red-500 text-red-500" : ""}`} />
                       {liked ? "Saved" : "Save"}
                     </Button>
-                    <Button variant="outline" className="flex-1">
-                      <Share2 className="h-4 w-4 mr-1" /> Share
+                    <Button
+                      variant="outline"
+                      className="flex-1 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-green-700 dark:text-green-400"
+                      onClick={() => window.open(whatsappShareUrl, '_blank')}
+                    >
+                      <MessageCircle className="h-4 w-4 mr-1" />
+                      WhatsApp
                     </Button>
                   </div>
+
+                  {/* Full share */}
+                  <SocialShareButton
+                    eventTitle={event.title}
+                    eventDate={event.date}
+                    eventLocation={event.location}
+                  />
 
                   {/* Availability bar */}
                   <div className="space-y-2">
@@ -224,10 +233,7 @@ const EventDetail = () => {
                       <span>{event.available} remaining</span>
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all"
-                        style={{ width: `${soldPercent}%` }}
-                      />
+                      <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${soldPercent}%` }} />
                     </div>
                   </div>
 

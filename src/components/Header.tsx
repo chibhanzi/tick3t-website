@@ -111,14 +111,16 @@ const Header = () => {
                 
                 {user ? (
                   <>
-                    <Link
-                      to={dashboardLink}
-                      className="flex items-center space-x-3 text-lg font-medium transition-colors hover:text-primary py-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {isOrganizer ? <LayoutDashboard className="h-5 w-5" /> : <User className="h-5 w-5" />}
-                      <span>Dashboard</span>
-                    </Link>
+                    {!isOrganizer && (
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center space-x-3 text-lg font-medium transition-colors hover:text-primary py-2"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <User className="h-5 w-5" />
+                        <span>Dashboard</span>
+                      </Link>
+                    )}
 
                     <Button 
                       variant="outline" 
