@@ -5,6 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const featuredEvents = [
   {
@@ -39,8 +46,19 @@ const featuredEvents = [
   },
 ];
 
+const cities = [
+  { value: "all", label: "All Cities" },
+  { value: "harare", label: "Harare" },
+  { value: "bulawayo", label: "Bulawayo" },
+  { value: "mutare", label: "Mutare" },
+  { value: "gweru", label: "Gweru" },
+  { value: "masvingo", label: "Masvingo" },
+  { value: "victoria-falls", label: "Victoria Falls" },
+];
+
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCity, setSelectedCity] = useState("all");
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -55,6 +73,8 @@ const Hero = () => {
   const goNext = () => setCurrentSlide((prev) => (prev + 1) % featuredEvents.length);
   const goPrev = () => setCurrentSlide((prev) => (prev - 1 + featuredEvents.length) % featuredEvents.length);
 
+  const searchUrl = `/events${searchQuery || selectedCity !== "all" ? `?${searchQuery ? `search=${searchQuery}` : ""}${selectedCity !== "all" ? `${searchQuery ? "&" : ""}city=${selectedCity}` : ""}` : ""}`;
+
   return (
     <section className="relative w-full min-h-[85vh] md:min-h-[90vh] flex flex-col">
       {/* Background Image */}
@@ -63,18 +83,14 @@ const Hero = () => {
           key={ev.id}
           className={`absolute inset-0 transition-opacity duration-700 ${i === currentSlide ? "opacity-100" : "opacity-0"}`}
         >
-          <img
-            src={ev.image}
-            alt={ev.title}
-            className="w-full h-full object-cover"
-          />
+          <img src={ev.image} alt={ev.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30" />
         </div>
       ))}
 
-      {/* Search Bar — top overlay */}
+      {/* Search Bar + City Selector */}
       <div className="relative z-20 pt-6 px-4">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto space-y-3">
           <div className="flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-4 py-2">
             <Search className="h-5 w-5 text-white/70 mr-3 flex-shrink-0" />
             <Input
@@ -84,16 +100,34 @@ const Hero = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 border-0 bg-transparent text-white placeholder-white/50 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
             />
-            <Link to={`/events${searchQuery ? `?search=${searchQuery}` : ""}`}>
+            <Link to={searchUrl}>
               <Button size="sm" className="rounded-full bg-white text-black hover:bg-white/90 text-xs px-5">
                 Search
               </Button>
             </Link>
           </div>
+          {/* City selector */}
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-3 py-1.5">
+              <MapPin className="h-4 w-4 text-white/70" />
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="border-0 bg-transparent text-white text-sm h-auto p-0 focus:ring-0 w-auto gap-1 [&>svg]:text-white/70">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((city) => (
+                    <SelectItem key={city.value} value={city.value}>
+                      {city.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Featured Event Content — bottom */}
+      {/* Featured Event Content */}
       <div className="relative z-10 mt-auto px-4 pb-8 md:pb-12">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-3">

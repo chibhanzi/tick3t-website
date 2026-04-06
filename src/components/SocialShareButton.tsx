@@ -1,8 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Share2, Facebook, Twitter, Instagram, Linkedin, Copy, Check } from "lucide-react";
+import { Share2, Facebook, Twitter, Linkedin, Copy, Check, MessageCircle } from "lucide-react";
 import { useState } from "react";
 
 interface SocialShareProps {
@@ -19,13 +18,20 @@ const SocialShareButton = ({ eventTitle, eventDate, eventLocation, eventUrl = wi
   const shareText = `🎉 I'm attending ${eventTitle} on ${eventDate} at ${eventLocation}! Join me! #Tick3rt`;
   const encodedText = encodeURIComponent(shareText);
   const encodedUrl = encodeURIComponent(eventUrl);
+  const whatsappText = encodeURIComponent(`${shareText}\n\n${eventUrl}`);
 
   const socialLinks = [
+    {
+      name: "WhatsApp",
+      icon: MessageCircle,
+      url: `https://wa.me/?text=${whatsappText}`,
+      color: "bg-green-500 hover:bg-green-600"
+    },
     {
       name: "Twitter",
       icon: Twitter,
       url: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
-      color: "bg-blue-500 hover:bg-blue-600"
+      color: "bg-sky-500 hover:bg-sky-600"
     },
     {
       name: "Facebook",
