@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -18,34 +16,37 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [isOrganizer, setIsOrganizer] = useState(false);
+  const [accountType, setAccountType] = useState<"attendee" | "organizer">("attendee");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const { login, register } = useAuth();
   const { toast } = useToast();
 
+  const isOrganizer = accountType === "organizer";
+
+  const buildAuthEmail = (rawEmail: string) => {
+    if (!isOrganizer) return rawEmail;
+    return /(organizer|admin|event|host|creator)/i.test(rawEmail) ? rawEmail : `organizer+${rawEmail}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      let success = false;
-
-      // If organizer toggle is on, append a flag to the email for the mock auth
-      const authEmail = isOrganizer && !isLogin ? `organizer+${email}` : email;
-
-      if (isLogin) {
-        success = await login(authEmail, password);
-      } else {
-        success = await register(authEmail, password, name);
-      }
+      const authEmail = buildAuthEmail(email);
+      const success = isLogin
+        ? await login(authEmail, password)
+        : await register(authEmail, password, name);
 
       if (success) {
         toast({
           title: isLogin ? "Welcome back!" : "Account created!",
           description: isLogin
-            ? "You have successfully logged in."
+            ? isOrganizer
+              ? "You are now entering the organizer dashboard."
+              : "You have successfully logged in."
             : isOrganizer
               ? "Your organizer account is ready."
               : "Your account has been created.",
@@ -64,47 +65,76 @@ const Auth = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-md mx-auto">
+      <main className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-md">
           <div className="mb-6">
-            <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors text-sm">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
+            <Link to="/" className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
             </Link>
           </div>
 
-          <Card className="shadow-xl border-border">
+          <Card className="border-border/60 shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold">
-                {isLogin ? "Welcome Back" : "Create Account"}
+                {isLogin ? (isOrganizer ? "Organizer Sign In" : "Welcome Back") : (isOrganizer ? "Create Organizer Account" : "Create Account")}
               </CardTitle>
               <CardDescription>
-                {isLogin ? "Sign in to your account" : "Get started with Tick3rt"}
+                {isLogin
+                  ? isOrganizer
+                    ? "Access events, payouts, ticket tools, and attendee management."
+                    : "Sign in to browse, buy, resell, and manage tickets."
+                  : isOrganizer
+                    ? "Set up your event operations and start selling tickets."
+                    : "Create an account for buying tickets and resale activity."}
               </CardDescription>
             </CardHeader>
 
             <CardContent>
+              <div className="mb-6 space-y-3">
+                <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("attendee")}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${accountType === "attendee" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    Ticket Buyer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("organizer")}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${accountType === "organizer" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    Event Organizer
+                  </button>
+                </div>
+
+                <div className="rounded-xl border border-border/60 bg-muted/40 p-4 text-sm text-muted-foreground">
+                  {isOrganizer
+                    ? "Organizer mode takes you straight to the organizer dashboard and tools after sign in."
+                    : "Buyer mode keeps things focused on finding events, purchasing tickets, and resale management."}
+                </div>
+              </div>
+
               <Tabs value={isLogin ? "login" : "register"} className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="login" onClick={() => setIsLogin(true)}>Sign In</TabsTrigger>
                   <TabsTrigger value="register" onClick={() => setIsLogin(false)}>Sign Up</TabsTrigger>
                 </TabsList>
 
-                {/* Login */}
-                <TabsContent value="login" className="space-y-4 mt-6">
+                <TabsContent value="login" className="mt-6 space-y-4">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="login-email">Email</Label>
                       <Input id="login-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     </div>
                     <PasswordField id="login-pass" value={password} onChange={setPassword} show={showPassword} toggle={() => setShowPassword(!showPassword)} />
-                    <Button type="submit" className="w-full h-11" disabled={isLoading}>
-                      {isLoading ? "Signing In…" : "Sign In"}
+                    <Button type="submit" className="h-11 w-full" disabled={isLoading}>
+                      {isLoading ? "Signing In…" : isOrganizer ? "Continue to Organizer Dashboard" : "Sign In"}
                     </Button>
                   </form>
                 </TabsContent>
 
-                {/* Register */}
-                <TabsContent value="register" className="space-y-4 mt-6">
+                <TabsContent value="register" className="mt-6 space-y-4">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="reg-name">Full Name</Label>
@@ -115,17 +145,7 @@ const Auth = () => {
                       <Input id="reg-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     </div>
                     <PasswordField id="reg-pass" value={password} onChange={setPassword} show={showPassword} toggle={() => setShowPassword(!showPassword)} placeholder="Create a password" />
-
-                    {/* Organizer toggle */}
-                    <div className="flex items-center justify-between rounded-lg border border-border p-4">
-                      <div>
-                        <p className="font-medium text-sm">Sign up as Organizer</p>
-                        <p className="text-xs text-muted-foreground">Create and manage your own events</p>
-                      </div>
-                      <Switch checked={isOrganizer} onCheckedChange={setIsOrganizer} />
-                    </div>
-
-                    <Button type="submit" className="w-full h-11" disabled={isLoading}>
+                    <Button type="submit" className="h-11 w-full" disabled={isLoading}>
                       {isLoading ? "Creating Account…" : isOrganizer ? "Create Organizer Account" : "Create Account"}
                     </Button>
                   </form>
@@ -141,7 +161,6 @@ const Auth = () => {
   );
 };
 
-/* Reusable password field */
 const PasswordField = ({ id, value, onChange, show, toggle, placeholder = "Enter your password" }: {
   id: string; value: string; onChange: (v: string) => void; show: boolean; toggle: () => void; placeholder?: string;
 }) => (
