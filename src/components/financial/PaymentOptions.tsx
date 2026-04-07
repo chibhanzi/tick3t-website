@@ -1,128 +1,163 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Users, CreditCard, Calendar, Bell, DollarSign } from "lucide-react";
+import { CreditCard, DollarSign, Landmark, ShieldCheck, Smartphone, Wallet } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface PaymentOptionsProps {
   eventPrice: number;
   eventTitle: string;
+  onConfirm?: (method: string) => void;
 }
 
-const PaymentOptions = ({ eventPrice, eventTitle }: PaymentOptionsProps) => {
-  const [paymentMethod, setPaymentMethod] = useState("full");
-  const [groupSize, setGroupSize] = useState(2);
-  const [priceAlert, setPriceAlert] = useState(false);
+const rails = [
+  {
+    id: "paynow",
+    title: "Paynow",
+    description: "Best for most buyers using EcoCash, OneMoney, or bank-linked local checkout.",
+    eta: "Fast local confirmation",
+    tags: ["EcoCash", "OneMoney", "Bank"],
+    icon: Smartphone,
+    recommended: true,
+  },
+  {
+    id: "bank",
+    title: "Bank Transfer",
+    description: "Direct bank payment with a clear reference flow.",
+    eta: "Useful for larger orders",
+    tags: ["Bank", "Reference code"],
+    icon: Landmark,
+  },
+  {
+    id: "card",
+    title: "Card & Wallets",
+    description: "Simple card checkout for buyers who prefer a familiar payment form.",
+    eta: "Instant confirmation",
+    tags: ["Visa", "Mastercard", "Wallets"],
+    icon: CreditCard,
+  },
+  {
+    id: "ton",
+    title: "TON",
+    description: "Optional crypto checkout for buyers who want to pay with TON.",
+    eta: "Fast on-chain confirmation",
+    tags: ["TON", "Crypto optional"],
+    icon: Wallet,
+  },
+] as const;
 
-  const installmentOptions = [
-    { id: "2-month", label: "2 Monthly Payments", amount: eventPrice / 2, fee: 5 },
-    { id: "3-month", label: "3 Monthly Payments", amount: eventPrice / 3, fee: 8 },
-    { id: "4-month", label: "4 Monthly Payments", amount: eventPrice / 4, fee: 12 }
-  ];
+const stepMap: Record<string, string[]> = {
+  paynow: [
+    "Choose Paynow at checkout.",
+    "Approve with EcoCash, OneMoney, or a supported bank option.",
+    "Your ticket appears in your dashboard right after confirmation.",
+  ],
+  bank: [
+    "Generate your transfer reference.",
+    "Complete the payment from your bank.",
+    "Your ticket unlocks once the transfer reflects.",
+  ],
+  card: [
+    "Enter your card or wallet details.",
+    "Approve the payment securely.",
+    "Receive the ticket instantly after success.",
+  ],
+  ton: [
+    "Connect your TON wallet.",
+    "Approve the amount in TON.",
+    "Your ticket is confirmed after the transaction completes.",
+  ],
+};
+
+const PaymentOptions = ({ eventPrice, eventTitle, onConfirm }: PaymentOptionsProps) => {
+  const { toast } = useToast();
+  const [paymentMethod, setPaymentMethod] = useState<(typeof rails)[number]["id"]>("paynow");
+
+  const selectedRail = rails.find((rail) => rail.id === paymentMethod) ?? rails[0];
+
+  const handleConfirm = () => {
+    onConfirm?.(selectedRail.title);
+    toast({
+      title: `${selectedRail.title} selected`,
+      description: `You are ready to pay $${eventPrice.toFixed(2)} for ${eventTitle}.`,
+    });
+  };
 
   return (
-    <Card>
+    <Card className="border-border/60">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <DollarSign className="h-5 w-5" />
-          Payment Options
+          Choose how you want to pay
         </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Local payment methods come first, while TON stays available as an optional crypto method.
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-          {/* Full Payment */}
-          <div className="flex items-center space-x-2 p-3 border rounded-lg">
-            <RadioGroupItem value="full" id="full" />
-            <div className="flex-1">
-              <Label htmlFor="full" className="font-medium">Pay in Full</Label>
-              <p className="text-sm text-muted-foreground">Pay ${eventPrice.toFixed(2)} now</p>
-            </div>
-            <Badge variant="secondary">No Fees</Badge>
-          </div>
-
-          {/* Group Buying */}
-          <div className="flex items-center space-x-2 p-3 border rounded-lg">
-            <RadioGroupItem value="group" id="group" />
-            <div className="flex-1">
-              <Label htmlFor="group" className="font-medium flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                Group Buying
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Split cost with friends - ${(eventPrice / groupSize).toFixed(2)} per person
-              </p>
-              {paymentMethod === "group" && (
-                <div className="mt-2 flex items-center gap-2">
-                  <Label htmlFor="group-size" className="text-xs">Group Size:</Label>
-                  <Input
-                    id="group-size"
-                    type="number"
-                    min="2"
-                    max="10"
-                    value={groupSize}
-                    onChange={(e) => setGroupSize(parseInt(e.target.value) || 2)}
-                    className="w-16 h-6 text-xs"
-                  />
+        <div className="grid gap-3">
+          {rails.map((rail) => (
+            <button
+              key={rail.id}
+              type="button"
+              onClick={() => setPaymentMethod(rail.id)}
+              className={`rounded-xl border p-4 text-left transition-all ${paymentMethod === rail.id ? "border-primary bg-primary/5" : "border-border/60 hover:border-primary/40"}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex gap-3">
+                  <div className="rounded-full bg-primary/10 p-3 text-primary">
+                    <rail.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold">{rail.title}</p>
+                      {rail.recommended && <Badge>Best for most buyers</Badge>}
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{rail.description}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{rail.eta}</p>
+                  </div>
                 </div>
-              )}
-            </div>
-            <Badge className="bg-green-100 text-green-700">Save Money</Badge>
-          </div>
+                <div className={`mt-1 h-4 w-4 rounded-full border ${paymentMethod === rail.id ? "border-primary bg-primary" : "border-border"}`} />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {rail.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">{tag}</Badge>
+                ))}
+              </div>
+            </button>
+          ))}
+        </div>
 
-          {/* Payment Plans */}
-          <div className="space-y-2">
-            <Label className="font-medium flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              Payment Plans
-            </Label>
-            {installmentOptions.map((option) => (
-              <div key={option.id} className="flex items-center space-x-2 p-3 border rounded-lg ml-6">
-                <RadioGroupItem value={option.id} id={option.id} />
-                <div className="flex-1">
-                  <Label htmlFor={option.id} className="font-medium">{option.label}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    ${option.amount.toFixed(2)}/month + ${option.fee} processing fee
-                  </p>
+        <div className="rounded-xl border border-border/60 bg-muted/40 p-4">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            <Label className="font-medium">How {selectedRail.title} works</Label>
+          </div>
+          <div className="mt-3 space-y-3">
+            {stepMap[paymentMethod].map((step, index) => (
+              <div key={step} className="flex gap-3 text-sm">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  {index + 1}
                 </div>
-                <Badge variant="outline">${(eventPrice + option.fee).toFixed(2)} total</Badge>
+                <p className="text-muted-foreground">{step}</p>
               </div>
             ))}
           </div>
-        </RadioGroup>
+        </div>
 
-        {/* Price Alert */}
-        <div className="flex items-center justify-between p-3 border rounded-lg">
-          <div className="flex items-center gap-2">
-            <Bell className="h-4 w-4" />
-            <div>
-              <Label className="font-medium">Price Drop Alert</Label>
-              <p className="text-sm text-muted-foreground">Get notified if the price drops</p>
-            </div>
+        <div className="flex items-center justify-between rounded-xl border border-border/60 p-4">
+          <div>
+            <p className="text-sm font-medium">Amount due now</p>
+            <p className="text-xs text-muted-foreground">Secure checkout and ticket delivery after payment confirmation.</p>
           </div>
-          <Button
-            variant={priceAlert ? "default" : "outline"}
-            size="sm"
-            onClick={() => setPriceAlert(!priceAlert)}
-          >
-            {priceAlert ? "Enabled" : "Enable"}
-          </Button>
+          <p className="text-2xl font-bold">${eventPrice.toFixed(2)}</p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button className="flex-1">
-            <CreditCard className="h-4 w-4 mr-2" />
-            {paymentMethod === "full" ? "Buy Now" : 
-             paymentMethod === "group" ? "Start Group Buy" : "Set Up Payment Plan"}
-          </Button>
-          {paymentMethod !== "full" && (
-            <Button variant="outline">Learn More</Button>
-          )}
-        </div>
+        <Button className="w-full" onClick={handleConfirm}>
+          Continue with {selectedRail.title}
+        </Button>
       </CardContent>
     </Card>
   );
