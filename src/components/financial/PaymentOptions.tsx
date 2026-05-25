@@ -113,7 +113,7 @@ const PaymentOptions = ({ eventPrice, eventTitle, onConfirm }: PaymentOptionsPro
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold">{rail.title}</p>
-                      {rail.recommended && <Badge>Best for most buyers</Badge>}
+                      {"recommended" in rail && rail.recommended && <Badge>Best for most buyers</Badge>}
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">{rail.description}</p>
                     <p className="mt-2 text-xs text-muted-foreground">{rail.eta}</p>
