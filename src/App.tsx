@@ -12,6 +12,7 @@ import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
 import Marketplace from "./pages/Marketplace";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import EventDetail from "./pages/EventDetail";
 import UserDashboard from "./pages/UserDashboard";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/events" element={<Events />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/upgrade-to-organizer" element={<UpgradeToOrganizer />} />
               
