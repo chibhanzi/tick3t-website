@@ -126,36 +126,32 @@ const Events = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="border-blue-200 dark:border-slate-700">
-            <CardContent className="p-4 text-center">
-              <Calendar className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-              <div className="text-xl font-bold text-foreground">{liveEventsCount}</div>
-              <div className="text-xs text-muted-foreground">Live Events</div>
-            </CardContent>
-          </Card>
-          <Card className="border-green-200 dark:border-slate-700">
-            <CardContent className="p-4 text-center">
-              <Users className="h-6 w-6 text-green-500 mx-auto mb-2" />
-              <div className="text-xl font-bold text-foreground">{totalTicketsAvailable}</div>
-              <div className="text-xs text-muted-foreground">Tickets Available</div>
-            </CardContent>
-          </Card>
-          <Card className="border-purple-200 dark:border-slate-700">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-              <div className="text-xl font-bold text-foreground">${totalRevenue}</div>
-              <div className="text-xs text-muted-foreground">Total Revenue</div>
-            </CardContent>
-          </Card>
-          <Card className="border-orange-200 dark:border-slate-700">
-            <CardContent className="p-4 text-center">
-              <MapPin className="h-6 w-6 text-orange-500 mx-auto mb-2" />
-              <div className="text-xl font-bold text-foreground">6</div>
-              <div className="text-xs text-muted-foreground">Cities</div>
-            </CardContent>
-          </Card>
+        <div className="mb-8 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm overflow-hidden">
+          <div className="grid grid-cols-3 divide-x divide-border/60">
+            <div className="flex flex-col items-center justify-center gap-2 p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/10">
+                <Calendar className="h-4 w-4 text-blue-500" />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">{liveEventsCount}</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Live Events</div>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-2 p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10">
+                <Users className="h-4 w-4 text-emerald-500" />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">{totalTicketsAvailable.toLocaleString()}</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Tickets Available</div>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-2 p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500/10">
+                <MapPin className="h-4 w-4 text-orange-500" />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">6</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Cities</div>
+            </div>
+          </div>
         </div>
+
 
         <Card className="mb-8 border-slate-200 dark:border-slate-700">
           <CardContent className="p-6">
