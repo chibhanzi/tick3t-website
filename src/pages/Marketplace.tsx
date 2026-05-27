@@ -174,7 +174,7 @@ const Marketplace = () => {
   };
 
   const gridClasses: Record<ViewMode, string> = {
-    grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5",
+    grid: "grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5",
     list: "flex flex-col gap-4",
     compact: "grid grid-cols-1 divide-y divide-border/60 rounded-2xl border border-border/60 bg-card/40 overflow-hidden",
   };
