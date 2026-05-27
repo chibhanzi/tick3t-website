@@ -148,23 +148,32 @@ const UserDashboard = () => {
           </Button>
         </div>
 
-        {/* Stats row - improved cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        {/* Stats row - unified premium cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           {[
-            { icon: Calendar, value: stats.eventsAttended, label: "Attended", bg: "bg-primary/10", color: "text-primary" },
-            { icon: Clock, value: stats.upcoming, label: "Upcoming", bg: "bg-blue-500/10", color: "text-blue-500" },
-            { icon: DollarSign, value: `$${stats.totalSpent}`, label: "Spent", bg: "bg-green-500/10", color: "text-green-500" },
-            { icon: TrendingUp, value: `$${stats.resaleEarnings}`, label: "Resale Earned", bg: "bg-amber-500/10", color: "text-amber-500" },
+            { icon: Calendar, value: stats.eventsAttended, label: "Attended", accent: "from-primary/20 to-primary/5", iconBg: "bg-primary/15", color: "text-primary", trend: "+3 this month" },
+            { icon: Clock, value: stats.upcoming, label: "Upcoming", accent: "from-blue-500/20 to-blue-500/5", iconBg: "bg-blue-500/15", color: "text-blue-500", trend: "Next in 5d" },
+            { icon: DollarSign, value: `$${stats.totalSpent}`, label: "Spent", accent: "from-emerald-500/20 to-emerald-500/5", iconBg: "bg-emerald-500/15", color: "text-emerald-500", trend: "Lifetime" },
+            { icon: TrendingUp, value: `$${stats.resaleEarnings}`, label: "Resale Earned", accent: "from-amber-500/20 to-amber-500/5", iconBg: "bg-amber-500/15", color: "text-amber-500", trend: "+12%" },
           ].map((s, i) => (
-            <Card key={i} className="border-border/50 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center mb-3`}>
-                  <s.icon className={`h-5 w-5 ${s.color}`} />
+            <div
+              key={i}
+              className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition-all hover:border-border hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${s.accent} opacity-60 group-hover:opacity-100 transition-opacity`} />
+              <div className="relative">
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`w-9 h-9 rounded-xl ${s.iconBg} flex items-center justify-center ring-1 ring-border/40 backdrop-blur-sm`}>
+                    <s.icon className={`h-4 w-4 ${s.color}`} />
+                  </div>
+                  <span className="text-[9px] font-semibold text-muted-foreground tracking-wide uppercase">
+                    {s.trend}
+                  </span>
                 </div>
-                <p className="text-2xl font-bold leading-none">{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
-              </CardContent>
-            </Card>
+                <p className="text-2xl font-bold tracking-tight leading-none">{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-1.5 font-medium">{s.label}</p>
+              </div>
+            </div>
           ))}
         </div>
 
