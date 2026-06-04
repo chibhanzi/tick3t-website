@@ -92,47 +92,101 @@ const Header = () => {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <nav className="mt-8 flex flex-col space-y-4">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className="flex items-center space-x-3 py-2 text-lg font-medium transition-colors hover:text-primary"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.label}</span>
+            <SheetContent side="right" className="w-[320px] sm:w-[380px] border-l border-border/50 p-0 bg-background/95 backdrop-blur-xl">
+              <div className="flex flex-col h-full">
+                {/* Drawer Header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
+                  <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2">
+                    <img src={logoSrc} alt="Tick3rt" className="h-7 w-auto" />
                   </Link>
-                ))}
+                </div>
 
-                {user ? (
-                  <>
-                    {!isOrganizer && (
-                      <Link
-                        to="/dashboard"
-                        className="flex items-center space-x-3 py-2 text-lg font-medium transition-colors hover:text-primary"
-                        onClick={() => setIsOpen(false)}
+                {/* Navigation Links */}
+                <nav className="flex-1 overflow-y-auto px-3 py-4">
+                  <div className="space-y-1">
+                    {navigationItems.map((item) => {
+                      const isActive = location.pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          onClick={() => setIsOpen(false)}
+                          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                            isActive
+                              ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+                              : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                            isActive ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                          }`}>
+                            <item.icon className="h-4 w-4" />
+                          </div>
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  {user && (
+                    <>
+                      <div className="my-4 border-t border-border/40" />
+                      <div className="space-y-1">
+                        {!isOrganizer && (
+                          <Link
+                            to="/dashboard"
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                              location.pathname === "/dashboard"
+                                ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+                                : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                            }`}
+                          >
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                              location.pathname === "/dashboard" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                            }`}>
+                              <User className="h-4 w-4" />
+                            </div>
+                            <span>Dashboard</span>
+                          </Link>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </nav>
+
+                {/* Bottom Actions */}
+                <div className="border-t border-border/40 px-3 py-4">
+                  {user ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 px-3 py-2">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
+                          <User className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{user?.name || "User"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user?.email || ""}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        onClick={handleLogout}
+                        className="w-full justify-start gap-3 px-3 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                       >
-                        <User className="h-5 w-5" />
-                        <span>Dashboard</span>
-                      </Link>
-                    )}
-
-                    <Button
-                      variant="outline"
-                      onClick={handleLogout}
-                      className="mt-4 w-full justify-start"
-                    >
-                      Logout
-                    </Button>
-                  </>
-                ) : (
-                  <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full">Sign In</Button>
-                  </Link>
-                )}
-              </nav>
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </Button>
+                    </div>
+                  ) : (
+                    <Link to="/auth" onClick={() => setIsOpen(false)} className="block">
+                      <Button className="w-full gap-2 text-sm">
+                        <Ticket className="h-4 w-4" />
+                        Sign In
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
