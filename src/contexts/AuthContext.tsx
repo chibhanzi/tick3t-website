@@ -1,8 +1,5 @@
-import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Session, User as SbUser } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 
 export type AppRole = "user" | "organizer" | "admin";
 
@@ -27,7 +24,7 @@ interface SignUpInput {
 
 interface AuthContextProps {
   user: ProfileShape | null;
-  session: Session | null;
+  session: { user: ProfileShape } | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   isOrganizer: boolean;
@@ -37,13 +34,13 @@ interface AuthContextProps {
   signInWithOAuth: (provider: "google" | "apple") => Promise<{ error: string | null }>;
   requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  // Legacy aliases (kept so existing components don't break)
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+const STORAGE_KEY = "tick3rt.mock-auth.user";
 
 export const useAuth = (): AuthContextProps => {
   const ctx = useContext(AuthContext);
@@ -51,114 +48,78 @@ export const useAuth = (): AuthContextProps => {
   return ctx;
 };
 
-const buildProfile = (
-  sbUser: SbUser,
-  role: AppRole,
-  displayName: string | null,
-  avatarUrl: string | null,
-  isVerified: boolean,
-): ProfileShape => ({
-  id: sbUser.id,
-  name: displayName || sbUser.user_metadata?.display_name || sbUser.user_metadata?.full_name || sbUser.email?.split("@")[0] || "User",
-  email: sbUser.email || "",
-  profilePicture: avatarUrl || sbUser.user_metadata?.avatar_url || "",
-  isOrganizer: role === "organizer" || role === "admin",
-  isAdmin: role === "admin",
-  role,
-  isVerified,
-});
+const roleFromEmail = (email: string, explicit?: AppRole): AppRole => {
+  if (explicit && explicit !== "user") return explicit;
+  const e = email.toLowerCase();
+  if (e.startsWith("admin+") || e.startsWith("admin@")) return "admin";
+  if (e.startsWith("organizer+") || e.startsWith("organiser+")) return "organizer";
+  return "user";
+};
+
+const buildMockProfile = (email: string, displayName?: string, role?: AppRole): ProfileShape => {
+  const resolvedRole = roleFromEmail(email, role);
+  const name = displayName?.trim() || email.split("@")[0] || "Demo User";
+  return {
+    id: `mock-${btoa(email).replace(/=/g, "").slice(0, 16)}`,
+    name,
+    email,
+    profilePicture: "",
+    isOrganizer: resolvedRole === "organizer" || resolvedRole === "admin",
+    isAdmin: resolvedRole === "admin",
+    role: resolvedRole,
+    isVerified: true,
+  };
+};
+
+const loadStored = (): ProfileShape | null => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as ProfileShape) : null;
+  } catch {
+    return null;
+  }
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<ProfileShape | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const hydrateUser = useCallback(async (sbUser: SbUser) => {
-    // Fetch in parallel; defer with setTimeout(0) is unnecessary here since we're outside the listener callback
-    const [rolesRes, profileRes, orgRes] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", sbUser.id),
-      supabase.from("profiles").select("display_name, avatar_url").eq("id", sbUser.id).maybeSingle(),
-      supabase.from("organizer_profiles").select("verification_status").eq("id", sbUser.id).maybeSingle(),
-    ]);
-    const roles = (rolesRes.data || []).map((r) => r.role as AppRole);
-    const role: AppRole = roles.includes("admin") ? "admin" : roles.includes("organizer") ? "organizer" : "user";
-    const isVerified = orgRes.data?.verification_status === "verified";
-    setUser(buildProfile(sbUser, role, profileRes.data?.display_name ?? null, profileRes.data?.avatar_url ?? null, isVerified));
+  useEffect(() => {
+    setUser(loadStored());
+    setIsLoading(false);
   }, []);
 
-  useEffect(() => {
-    // 1. Subscribe FIRST (per Supabase guidance)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      if (newSession?.user) {
-        // Defer DB work so we don't deadlock the auth callback
-        setTimeout(() => { hydrateUser(newSession.user); }, 0);
-      } else {
-        setUser(null);
-      }
-    });
-
-    // 2. Then check existing session
-    supabase.auth.getSession().then(({ data: { session: existing } }) => {
-      setSession(existing);
-      if (existing?.user) {
-        hydrateUser(existing.user).finally(() => setIsLoading(false));
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [hydrateUser]);
+  const persist = (p: ProfileShape | null) => {
+    if (p) localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    else localStorage.removeItem(STORAGE_KEY);
+    setUser(p);
+  };
 
   const signIn: AuthContextProps["signIn"] = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (error) return { error: error.message };
+    if (!email || !password) return { error: "Email and password are required" };
+    persist(buildMockProfile(email));
     return { error: null };
   };
 
-  const signUp: AuthContextProps["signUp"] = async ({ email, password, displayName, role, businessName }) => {
-    const redirectUrl = `${window.location.origin}/`;
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          display_name: displayName,
-          role,
-          business_name: businessName,
-        },
-      },
-    });
-    if (error) return { error: error.message, needsConfirmation: false };
-    const needsConfirmation = !data.session;
-    return { error: null, needsConfirmation };
+  const signUp: AuthContextProps["signUp"] = async ({ email, password, displayName, role }) => {
+    if (!email || !password) return { error: "Email and password are required", needsConfirmation: false };
+    persist(buildMockProfile(email, displayName, role));
+    return { error: null, needsConfirmation: false };
   };
 
   const signInWithOAuth: AuthContextProps["signInWithOAuth"] = async (provider) => {
-    const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
-    if (result.error) return { error: result.error.message || "OAuth sign-in failed" };
+    persist(buildMockProfile(`demo@${provider}.com`, `${provider} Demo`));
     return { error: null };
   };
 
-  const requestPasswordReset: AuthContextProps["requestPasswordReset"] = async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) return { error: error.message };
-    return { error: null };
-  };
+  const requestPasswordReset = async () => ({ error: null });
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
+    persist(null);
     navigate("/auth");
   };
 
-  // Legacy aliases
   const login = async (email: string, password: string) => {
     const { error } = await signIn(email, password);
     return !error;
@@ -170,9 +131,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const value = useMemo<AuthContextProps>(() => ({
     user,
-    session,
+    session: user ? { user } : null,
     isLoading,
-    isAuthenticated: !!session,
+    isAuthenticated: !!user,
     isOrganizer: !!user?.isOrganizer,
     isAdmin: !!user?.isAdmin,
     signIn,
@@ -183,7 +144,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     login,
     register,
     logout: signOut,
-  }), [user, session, isLoading]);
+  }), [user, isLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
