@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { ShieldCheck, Zap, Globe } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const navGroups = [
   {
