@@ -32,9 +32,9 @@ const Header = () => {
         { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
       ];
 
-  const logoSrc = theme === "dark"
-    ? "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png"
-    : "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
+  const logoDark = "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png";
+  const logoLight = "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
+  const logoSrc = theme === "dark" ? logoDark : logoLight;
 
   const dashboardLink = isOrganizer ? "/organizer-dashboard" : "/dashboard";
   const dashboardLabel = isOrganizer ? "Organizer Dashboard" : "Dashboard";
