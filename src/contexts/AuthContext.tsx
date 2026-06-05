@@ -96,9 +96,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(p);
   };
 
-  const signIn: AuthContextProps["signIn"] = async (email, password) => {
+  const signIn: AuthContextProps["signIn"] = async (email, password, role) => {
     if (!email || !password) return { error: "Email and password are required" };
-    persist(buildMockProfile(email));
+    persist(buildMockProfile(email, undefined, role));
     return { error: null };
   };
 
