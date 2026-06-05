@@ -50,9 +50,9 @@ const Footer = () => {
           <div className="md:col-span-5">
             <Link to="/" className="inline-flex items-center">
               <img
-                src="/lovable-uploads/dace9951-9667-4cb7-8c3f-4160753e1a11.png"
+                src={logoSrc}
                 alt="Tick3rt"
-                className="h-9 w-auto"
+                className="h-9 w-auto transition-opacity duration-300"
               />
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
