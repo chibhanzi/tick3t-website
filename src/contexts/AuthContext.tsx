@@ -29,7 +29,7 @@ interface AuthContextProps {
   isAuthenticated: boolean;
   isOrganizer: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string, role?: AppRole) => Promise<{ error: string | null }>;
   signUp: (input: SignUpInput) => Promise<{ error: string | null; needsConfirmation: boolean }>;
   signInWithOAuth: (provider: "google" | "apple") => Promise<{ error: string | null }>;
   requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
