@@ -50,7 +50,7 @@ const Auth = () => {
     if (!password) return toast({ title: "Password required", variant: "destructive" });
 
     setLoading(true);
-    const { error } = await signIn(emailParsed.data, password);
+    const { error } = await signIn(emailParsed.data, password, accountType === "organizer" ? "organizer" : "user");
     setLoading(false);
     if (error) {
       const friendly = /invalid login|invalid credentials/i.test(error)
@@ -60,7 +60,7 @@ const Auth = () => {
           : error;
       return toast({ title: "Sign in failed", description: friendly, variant: "destructive" });
     }
-    toast({ title: "Welcome back!" });
+    toast({ title: `Welcome back!`, description: accountType === "organizer" ? "Signed in as Organizer." : "Signed in as Attendee." });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -218,6 +218,25 @@ const Auth = () => {
                   <TabsContent value="signin" className="mt-6">
                     <form onSubmit={handleSignIn} className="space-y-4">
                       <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Sign in as</Label>
+                        <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
+                          <button
+                            type="button"
+                            onClick={() => setAccountType("attendee")}
+                            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${accountType === "attendee" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                          >
+                            Attendee
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAccountType("organizer")}
+                            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${accountType === "organizer" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                          >
+                            Organizer
+                          </button>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
                         <Label htmlFor="signin-email">Email</Label>
                         <Input id="signin-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
                       </div>
@@ -228,10 +247,11 @@ const Auth = () => {
                         </button>
                       </div>
                       <Button type="submit" className="h-11 w-full" disabled={loading}>
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : accountType === "organizer" ? "Sign in as Organizer" : "Sign in as Attendee"}
                       </Button>
                     </form>
                   </TabsContent>
+
 
                   <TabsContent value="signup" className="mt-6 space-y-4">
                     <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">

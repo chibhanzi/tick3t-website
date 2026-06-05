@@ -29,7 +29,7 @@ interface AuthContextProps {
   isAuthenticated: boolean;
   isOrganizer: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string, role?: AppRole) => Promise<{ error: string | null }>;
   signUp: (input: SignUpInput) => Promise<{ error: string | null; needsConfirmation: boolean }>;
   signInWithOAuth: (provider: "google" | "apple") => Promise<{ error: string | null }>;
   requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
@@ -49,7 +49,7 @@ export const useAuth = (): AuthContextProps => {
 };
 
 const roleFromEmail = (email: string, explicit?: AppRole): AppRole => {
-  if (explicit && explicit !== "user") return explicit;
+  if (explicit) return explicit;
   const e = email.toLowerCase();
   if (e.startsWith("admin+") || e.startsWith("admin@")) return "admin";
   if (e.startsWith("organizer+") || e.startsWith("organiser+")) return "organizer";
@@ -96,9 +96,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(p);
   };
 
-  const signIn: AuthContextProps["signIn"] = async (email, password) => {
+  const signIn: AuthContextProps["signIn"] = async (email, password, role) => {
     if (!email || !password) return { error: "Email and password are required" };
-    persist(buildMockProfile(email));
+    persist(buildMockProfile(email, undefined, role));
     return { error: null };
   };
 
