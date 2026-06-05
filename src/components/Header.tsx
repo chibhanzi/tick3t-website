@@ -32,9 +32,9 @@ const Header = () => {
         { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
       ];
 
-  const logoSrc = theme === "dark"
-    ? "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png"
-    : "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
+  const logoDark = "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png";
+  const logoLight = "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
+  const logoSrc = theme === "dark" ? logoDark : logoLight;
 
   const dashboardLink = isOrganizer ? "/organizer-dashboard" : "/dashboard";
   const dashboardLabel = isOrganizer ? "Organizer Dashboard" : "Dashboard";
@@ -44,7 +44,10 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
-            <img src={logoSrc} alt="Tick3rt" className="h-8 w-auto" />
+            <span className="relative inline-block h-8 w-[110px]">
+              <img src={logoLight} alt="Tick3rt" className={`absolute inset-0 h-8 w-auto transition-opacity duration-500 ${theme === "dark" ? "opacity-0" : "opacity-100"}`} />
+              <img src={logoDark} alt="" aria-hidden className={`absolute inset-0 h-8 w-auto transition-opacity duration-500 ${theme === "dark" ? "opacity-100" : "opacity-0"}`} />
+            </span>
           </Link>
           {isOrganizer && (
             <Badge variant="outline" className="hidden text-[10px] sm:inline-flex">Organizer</Badge>

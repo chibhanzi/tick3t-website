@@ -173,7 +173,7 @@ const Hero = () => {
               </Button>
             </Link>
             <Link to="/events">
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8">
+              <Button size="lg" variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white rounded-full px-8">
                 Browse Events
               </Button>
             </Link>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Calendar, MapPin, Users, TrendingUp } from "lucide-react";
+import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X } from "lucide-react";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -153,63 +153,76 @@ const Events = () => {
         </div>
 
 
-        <Card className="mb-8 border-slate-200 dark:border-slate-700">
-          <CardContent className="p-6">
-            <div className="flex flex-col gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search events, locations..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12"
-                />
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <label className="text-sm font-medium mb-2 block text-foreground">Category</label>
-                  <div className="flex gap-2 flex-wrap">
-                    {categories.map((category) => (
-                      <Badge
-                        key={category}
-                        variant={selectedCategory === category ? "default" : "outline"}
-                        className={`cursor-pointer transition-all ${
-                          selectedCategory === category 
-                            ? "bg-blue-500 hover:bg-blue-600 text-white" 
-                            : "hover:bg-muted border-slate-300 dark:border-slate-600"
-                        }`}
-                        onClick={() => setSelectedCategory(category)}
-                      >
-                        {category}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="sm:w-48">
-                  <label className="text-sm font-medium mb-2 block text-foreground">Price Range</label>
-                  <div className="flex flex-col gap-1">
-                    {priceRanges.map((range) => (
-                      <Badge
-                        key={range}
-                        variant={priceFilter === range ? "default" : "outline"}
-                        className={`cursor-pointer text-center transition-all ${
-                          priceFilter === range 
-                            ? "bg-blue-500 hover:bg-blue-600 text-white" 
-                            : "hover:bg-muted border-slate-300 dark:border-slate-600"
-                        }`}
-                        onClick={() => setPriceFilter(range)}
-                      >
-                        {range}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
+        <div className="mb-8 space-y-4">
+          {/* Search bar */}
+          <div className="group relative">
+            <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-r from-blue-500/30 via-indigo-500/20 to-purple-500/30 opacity-0 blur-md transition-opacity duration-300 group-focus-within:opacity-100" />
+            <div className="relative flex items-center gap-2 rounded-2xl border border-border/60 bg-card/80 px-4 py-2 shadow-sm backdrop-blur-sm transition-all focus-within:border-primary/40 focus-within:shadow-md">
+              <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <Input
+                placeholder="Search events, artists, or venues…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-11 flex-1 border-0 bg-transparent text-base placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Category pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {categories.map((category) => {
+              const active = selectedCategory === category;
+              return (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-card/60 text-muted-foreground ring-1 ring-border/60 hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Price filter row */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex shrink-0 items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground">
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Price
+            </div>
+            {priceRanges.map((range) => {
+              const active = priceFilter === range;
+              return (
+                <button
+                  key={range}
+                  onClick={() => setPriceFilter(range)}
+                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                    active
+                      ? "bg-foreground text-background"
+                      : "bg-transparent text-muted-foreground ring-1 ring-border/60 hover:text-foreground"
+                  }`}
+                >
+                  {range}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
 
         {/* Events Grid - 2 cards per row on mobile, 3 on desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">
