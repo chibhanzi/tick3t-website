@@ -39,7 +39,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(isOrganizer ? "/organizer-dashboard" : "/dashboard", { replace: true });
+      navigate(isOrganizer ? "/organizer-dashboard" : "/events", { replace: true });
     }
   }, [isAuthenticated, isOrganizer, navigate]);
 
