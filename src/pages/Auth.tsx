@@ -50,7 +50,7 @@ const Auth = () => {
     if (!password) return toast({ title: "Password required", variant: "destructive" });
 
     setLoading(true);
-    const { error } = await signIn(emailParsed.data, password);
+    const { error } = await signIn(emailParsed.data, password, accountType === "organizer" ? "organizer" : "user");
     setLoading(false);
     if (error) {
       const friendly = /invalid login|invalid credentials/i.test(error)
@@ -60,7 +60,7 @@ const Auth = () => {
           : error;
       return toast({ title: "Sign in failed", description: friendly, variant: "destructive" });
     }
-    toast({ title: "Welcome back!" });
+    toast({ title: `Welcome back!`, description: accountType === "organizer" ? "Signed in as Organizer." : "Signed in as Attendee." });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
