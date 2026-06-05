@@ -49,7 +49,7 @@ export const useAuth = (): AuthContextProps => {
 };
 
 const roleFromEmail = (email: string, explicit?: AppRole): AppRole => {
-  if (explicit && explicit !== "user") return explicit;
+  if (explicit) return explicit;
   const e = email.toLowerCase();
   if (e.startsWith("admin+") || e.startsWith("admin@")) return "admin";
   if (e.startsWith("organizer+") || e.startsWith("organiser+")) return "organizer";
