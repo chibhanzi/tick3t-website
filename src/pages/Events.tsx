@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X } from "lucide-react";
+import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X, ChevronDown, Tag } from "lucide-react";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
