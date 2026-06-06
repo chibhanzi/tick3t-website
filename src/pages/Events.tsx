@@ -12,6 +12,7 @@ const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [priceFilter, setPriceFilter] = useState("All");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const events = [
     {
