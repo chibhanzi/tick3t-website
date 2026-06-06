@@ -282,27 +282,23 @@ const UserDashboard = () => {
           {/* Resale - with earnings tracking */}
           <TabsContent value="resale" className="space-y-6">
             {/* Resale earnings overview */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {[
-                { label: "Total Earned", value: `$${resaleStats.totalEarnings}`, icon: TrendingUp, accent: "from-emerald-500/20 to-emerald-500/5", iconBg: "bg-emerald-500/15", color: "text-emerald-500" },
-                { label: "Pending Payout", value: `$${resaleStats.pendingPayout}`, icon: Banknote, accent: "from-amber-500/20 to-amber-500/5", iconBg: "bg-amber-500/15", color: "text-amber-500" },
-                { label: "Tickets Sold", value: resaleStats.ticketsSold, icon: Tag, accent: "from-blue-500/20 to-blue-500/5", iconBg: "bg-blue-500/15", color: "text-blue-500" },
-                { label: "Active Listings", value: resaleStats.activeListing, icon: ArrowUpRight, accent: "from-primary/20 to-primary/5", iconBg: "bg-primary/15", color: "text-primary" },
-              ].map((s, i) => (
-                <div
-                  key={i}
-                  className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition-all hover:border-border hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${s.accent} opacity-60 group-hover:opacity-100 transition-opacity`} />
-                  <div className="relative">
-                    <div className={`w-9 h-9 rounded-xl ${s.iconBg} flex items-center justify-center ring-1 ring-border/40 backdrop-blur-sm mb-3`}>
+            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm overflow-hidden">
+              <div className="grid grid-cols-4 divide-x divide-border/60">
+                {[
+                  { label: "Earned", value: `$${resaleStats.totalEarnings}`, icon: TrendingUp, iconBg: "bg-emerald-500/10", color: "text-emerald-500" },
+                  { label: "Pending", value: `$${resaleStats.pendingPayout}`, icon: Banknote, iconBg: "bg-orange-500/10", color: "text-orange-500" },
+                  { label: "Sold", value: resaleStats.ticketsSold.toString(), icon: Tag, iconBg: "bg-blue-500/10", color: "text-blue-500" },
+                  { label: "Active", value: resaleStats.activeListing.toString(), icon: ArrowUpRight, iconBg: "bg-violet-500/10", color: "text-violet-500" },
+                ].map((s) => (
+                  <div key={s.label} className="flex flex-col items-center justify-center gap-2 p-5">
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-full ${s.iconBg}`}>
                       <s.icon className={`h-4 w-4 ${s.color}`} />
                     </div>
-                    <p className="text-2xl font-bold tracking-tight leading-none">{s.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1.5 font-medium">{s.label}</p>
+                    <div className="text-xl sm:text-2xl font-bold tracking-tight">{s.value}</div>
+                    <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground text-center">{s.label}</div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Withdraw button */}
