@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X } from "lucide-react";
+import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X, ChevronDown, Tag } from "lucide-react";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [priceFilter, setPriceFilter] = useState("All");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const events = [
     {
@@ -153,8 +154,8 @@ const Events = () => {
         </div>
 
 
-        <div className="mb-8 space-y-4">
-          {/* Search bar */}
+        <div className="mb-8 space-y-3">
+          {/* Search bar with filter button */}
           <div className="group relative">
             <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-r from-blue-500/30 via-indigo-500/20 to-purple-500/30 opacity-0 blur-md transition-opacity duration-300 group-focus-within:opacity-100" />
             <div className="relative flex items-center gap-2 rounded-2xl border border-border/60 bg-card/80 px-4 py-2 shadow-sm backdrop-blur-sm transition-all focus-within:border-primary/40 focus-within:shadow-md">
@@ -175,52 +176,115 @@ const Events = () => {
                   <X className="h-4 w-4" />
                 </button>
               )}
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                  isFilterOpen
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+                aria-label="Toggle filters"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span className="hidden sm:inline">Filters</span>
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isFilterOpen ? "rotate-180" : ""}`} />
+                {(selectedCategory !== "All" || priceFilter !== "All") && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                    {(selectedCategory !== "All" ? 1 : 0) + (priceFilter !== "All" ? 1 : 0)}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Category pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {categories.map((category) => {
-              const active = selectedCategory === category;
-              return (
+          {/* Active filter chips */}
+          {(selectedCategory !== "All" || priceFilter !== "All") && (
+            <div className="flex flex-wrap items-center gap-2">
+              {selectedCategory !== "All" && (
                 <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                    active
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-card/60 text-muted-foreground ring-1 ring-border/60 hover:bg-muted hover:text-foreground"
-                  }`}
+                  onClick={() => setSelectedCategory("All")}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
                 >
-                  {category}
+                  <Tag className="h-3 w-3" />
+                  {selectedCategory}
+                  <X className="h-3 w-3" />
                 </button>
-              );
-            })}
-          </div>
-
-          {/* Price filter row */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="flex shrink-0 items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              Price
+              )}
+              {priceFilter !== "All" && (
+                <button
+                  onClick={() => setPriceFilter("All")}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                >
+                  <SlidersHorizontal className="h-3 w-3" />
+                  {priceFilter}
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+              <button
+                onClick={() => { setSelectedCategory("All"); setPriceFilter("All"); }}
+                className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Clear all
+              </button>
             </div>
-            {priceRanges.map((range) => {
-              const active = priceFilter === range;
-              return (
-                <button
-                  key={range}
-                  onClick={() => setPriceFilter(range)}
-                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                    active
-                      ? "bg-foreground text-background"
-                      : "bg-transparent text-muted-foreground ring-1 ring-border/60 hover:text-foreground"
-                  }`}
-                >
-                  {range}
-                </button>
-              );
-            })}
-          </div>
+          )}
+
+          {/* Filter card */}
+          {isFilterOpen && (
+            <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-lg backdrop-blur-sm">
+              <div className="p-5 space-y-5">
+                {/* Category filter */}
+                <div>
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">Category</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((category) => {
+                      const active = selectedCategory === category;
+                      return (
+                        <button
+                          key={category}
+                          onClick={() => setSelectedCategory(category)}
+                          className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                            active
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "bg-muted/50 text-muted-foreground ring-1 ring-border/60 hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          {category}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-border/60" />
+
+                {/* Price filter */}
+                <div>
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">Price Range</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {priceRanges.map((range) => {
+                      const active = priceFilter === range;
+                      return (
+                        <button
+                          key={range}
+                          onClick={() => setPriceFilter(range)}
+                          className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                            active
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "bg-muted/50 text-muted-foreground ring-1 ring-border/60 hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          {range}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
 
