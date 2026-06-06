@@ -232,7 +232,7 @@ const Events = () => {
 
           {/* Filter card */}
           {isFilterOpen && (
-            <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-lg backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
+            <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-lg backdrop-blur-sm">
               <div className="p-5 space-y-5">
                 {/* Category filter */}
                 <div>
