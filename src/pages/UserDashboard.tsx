@@ -15,7 +15,8 @@ import QRCodeLib from "qrcode";
 import {
   Calendar, MapPin, Trophy, Clock, Camera, Wallet,
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
-  TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault
+  TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault,
+  LayoutGrid, Rows3
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -29,6 +30,7 @@ const UserDashboard = () => {
   const [vaultSearch, setVaultSearch] = useState("");
   const [vaultStatus, setVaultStatus] = useState<"all" | "valid" | "used">("all");
   const [vaultSort, setVaultSort] = useState<"date-desc" | "date-asc" | "price-desc" | "price-asc" | "name">("date-desc");
+  const [vaultLayout, setVaultLayout] = useState<"grid" | "list">("grid");
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -222,6 +224,24 @@ const UserDashboard = () => {
                   <SelectItem value="name">A → Z</SelectItem>
                 </SelectContent>
               </Select>
+              <div className="inline-flex h-10 items-center rounded-md border border-border/60 bg-background/50 p-1">
+                <button
+                  type="button"
+                  onClick={() => setVaultLayout("grid")}
+                  aria-label="Grid view"
+                  className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVaultLayout("list")}
+                  aria-label="List view"
+                  className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <Rows3 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             {(() => {
@@ -267,7 +287,7 @@ const UserDashboard = () => {
               }
 
               return (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={vaultLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "flex flex-col gap-4"}>
                   {filtered.map((ticket) => (
                     <div key={ticket.id} className="group">
                       {/* Visual Ticket Card */}

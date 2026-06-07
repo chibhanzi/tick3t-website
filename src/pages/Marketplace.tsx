@@ -8,6 +8,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import {
   Search,
   ShieldCheck,
   Calendar,
@@ -22,10 +27,26 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRight,
+  CheckCircle2,
+  HandCoins,
 } from "lucide-react";
 import MarketplaceActions from "@/components/marketplace/MarketplaceActions";
 
 type ViewMode = "grid" | "list" | "compact";
+type Listing = {
+  id: string;
+  eventTitle: string;
+  eventDate: string;
+  eventTime: string;
+  eventLocation: string;
+  city: string;
+  currentPrice: string;
+  originalPrice: string;
+  seller: string;
+  image: string;
+  [key: string]: any;
+};
+
 
 const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +56,49 @@ const Marketplace = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const { toast } = useToast();
+  const [buyTarget, setBuyTarget] = useState<Listing | null>(null);
+  const [offerTarget, setOfferTarget] = useState<Listing | null>(null);
+  const [offerAmount, setOfferAmount] = useState("");
+  const [offerNote, setOfferNote] = useState("");
+  const [processing, setProcessing] = useState(false);
+
+  const openBuy = (l: Listing) => setBuyTarget(l);
+  const openOffer = (l: Listing) => {
+    setOfferTarget(l);
+    const num = Number((l.currentPrice || "").replace(/[^0-9.]/g, ""));
+    setOfferAmount(num ? Math.max(1, Math.round(num * 0.9)).toString() : "");
+    setOfferNote("");
+  };
+
+  const confirmBuy = async () => {
+    if (!buyTarget) return;
+    setProcessing(true);
+    await new Promise((r) => setTimeout(r, 700));
+    setProcessing(false);
+    toast({
+      title: "Purchase confirmed",
+      description: `${buyTarget.eventTitle} — ${buyTarget.currentPrice}. Ticket added to your vault.`,
+    });
+    setBuyTarget(null);
+  };
+
+  const submitOffer = async () => {
+    if (!offerTarget) return;
+    const amount = Number(offerAmount);
+    if (!amount || amount <= 0) {
+      toast({ title: "Enter a valid offer", variant: "destructive" });
+      return;
+    }
+    setProcessing(true);
+    await new Promise((r) => setTimeout(r, 600));
+    setProcessing(false);
+    toast({
+      title: "Offer sent",
+      description: `Your $${amount} offer was sent to ${offerTarget.seller}.`,
+    });
+    setOfferTarget(null);
+  };
 
   const listings = [
     {
@@ -381,8 +445,8 @@ const Marketplace = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button className="flex-1" size="sm">Buy Now</Button>
-                      <Button variant="outline" size="sm">Offer</Button>
+                      <Button className="flex-1" size="sm" onClick={() => openBuy(listing)}>Buy Now</Button>
+                      <Button variant="outline" size="sm" onClick={() => openOffer(listing)}>Offer</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -433,8 +497,8 @@ const Marketplace = () => {
                           <span>{listing.ticketsSold}/{listing.totalTickets} sold</span>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">Make Offer</Button>
-                          <Button size="sm">Buy Now</Button>
+                          <Button variant="outline" size="sm" onClick={() => openOffer(listing)}>Make Offer</Button>
+                          <Button size="sm" onClick={() => openBuy(listing)}>Buy Now</Button>
                         </div>
                       </div>
                     </div>
@@ -462,7 +526,7 @@ const Marketplace = () => {
                   <div className="text-sm font-semibold leading-none">{listing.currentPrice}</div>
                   <div className="mt-1"><PriceTrend change={listing.priceChange} /></div>
                 </div>
-                <Button size="sm" variant="ghost" className="flex-shrink-0">
+                <Button size="sm" variant="ghost" className="flex-shrink-0" onClick={() => openBuy(listing)}>
                   Buy <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </div>
@@ -483,6 +547,92 @@ const Marketplace = () => {
           <MarketplaceActions />
         </div>
       </main>
+
+      {/* Buy Now confirmation dialog */}
+      <Dialog open={!!buyTarget} onOpenChange={(o) => !o && setBuyTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500" /> Confirm purchase
+            </DialogTitle>
+            <DialogDescription>
+              You're about to buy a verified resale ticket. Payment is held securely until transfer is confirmed.
+            </DialogDescription>
+          </DialogHeader>
+          {buyTarget && (
+            <div className="rounded-xl border border-border/60 bg-muted/40 p-4 space-y-2">
+              <div className="font-semibold leading-tight">{buyTarget.eventTitle}</div>
+              <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap">
+                <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{buyTarget.eventDate}</span>
+                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{buyTarget.city}</span>
+              </div>
+              <div className="flex items-end justify-between pt-2 border-t border-border/60">
+                <div className="text-xs text-muted-foreground">Seller {buyTarget.seller}</div>
+                <div className="text-right">
+                  <div className="text-xs text-muted-foreground line-through">{buyTarget.originalPrice}</div>
+                  <div className="text-2xl font-bold leading-none">{buyTarget.currentPrice}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBuyTarget(null)} disabled={processing}>Cancel</Button>
+            <Button onClick={confirmBuy} disabled={processing}>
+              {processing ? "Processing…" : `Pay ${buyTarget?.currentPrice ?? ""}`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Make Offer dialog */}
+      <Dialog open={!!offerTarget} onOpenChange={(o) => !o && setOfferTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <HandCoins className="h-5 w-5 text-primary" /> Make an offer
+            </DialogTitle>
+            <DialogDescription>
+              Suggest a price to {offerTarget?.seller}. They can accept, decline or counter.
+            </DialogDescription>
+          </DialogHeader>
+          {offerTarget && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border/60 bg-muted/40 p-3 text-sm">
+                <div className="font-semibold leading-tight">{offerTarget.eventTitle}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Asking <span className="font-medium text-foreground">{offerTarget.currentPrice}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="offer-amount">Your offer (USD)</Label>
+                <Input
+                  id="offer-amount"
+                  type="number"
+                  min={1}
+                  value={offerAmount}
+                  onChange={(e) => setOfferAmount(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="offer-note">Message (optional)</Label>
+                <Input
+                  id="offer-note"
+                  value={offerNote}
+                  onChange={(e) => setOfferNote(e.target.value)}
+                  placeholder="Hi, would you accept this price?"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOfferTarget(null)} disabled={processing}>Cancel</Button>
+            <Button onClick={submitOffer} disabled={processing}>
+              {processing ? "Sending…" : "Send offer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
