@@ -8,6 +8,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import {
   Search,
   ShieldCheck,
   Calendar,
@@ -22,8 +27,25 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRight,
+  CheckCircle2,
+  HandCoins,
 } from "lucide-react";
 import MarketplaceActions from "@/components/marketplace/MarketplaceActions";
+
+type ViewMode = "grid" | "list" | "compact";
+type Listing = {
+  id: string;
+  eventTitle: string;
+  eventDate: string;
+  eventTime: string;
+  eventLocation: string;
+  city: string;
+  currentPrice: string;
+  originalPrice: string;
+  seller: string;
+  image: string;
+  [key: string]: any;
+};
 
 type ViewMode = "grid" | "list" | "compact";
 
