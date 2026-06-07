@@ -56,6 +56,49 @@ const Marketplace = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const { toast } = useToast();
+  const [buyTarget, setBuyTarget] = useState<Listing | null>(null);
+  const [offerTarget, setOfferTarget] = useState<Listing | null>(null);
+  const [offerAmount, setOfferAmount] = useState("");
+  const [offerNote, setOfferNote] = useState("");
+  const [processing, setProcessing] = useState(false);
+
+  const openBuy = (l: Listing) => setBuyTarget(l);
+  const openOffer = (l: Listing) => {
+    setOfferTarget(l);
+    const num = Number((l.currentPrice || "").replace(/[^0-9.]/g, ""));
+    setOfferAmount(num ? Math.max(1, Math.round(num * 0.9)).toString() : "");
+    setOfferNote("");
+  };
+
+  const confirmBuy = async () => {
+    if (!buyTarget) return;
+    setProcessing(true);
+    await new Promise((r) => setTimeout(r, 700));
+    setProcessing(false);
+    toast({
+      title: "Purchase confirmed",
+      description: `${buyTarget.eventTitle} — ${buyTarget.currentPrice}. Ticket added to your vault.`,
+    });
+    setBuyTarget(null);
+  };
+
+  const submitOffer = async () => {
+    if (!offerTarget) return;
+    const amount = Number(offerAmount);
+    if (!amount || amount <= 0) {
+      toast({ title: "Enter a valid offer", variant: "destructive" });
+      return;
+    }
+    setProcessing(true);
+    await new Promise((r) => setTimeout(r, 600));
+    setProcessing(false);
+    toast({
+      title: "Offer sent",
+      description: `Your $${amount} offer was sent to ${offerTarget.seller}.`,
+    });
+    setOfferTarget(null);
+  };
 
   const listings = [
     {
