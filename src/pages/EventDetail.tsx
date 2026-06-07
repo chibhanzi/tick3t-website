@@ -7,12 +7,17 @@ import SocialShareButton from "@/components/SocialShareButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle, ShoppingBag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const EventDetail = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  // Mock: pretend resale tickets exist for this event
+  const resaleAvailable = 7;
+  const resaleFromPrice = 110;
   const [quantity, setQuantity] = useState(1);
   const [selectedTier, setSelectedTier] = useState("general");
   const [liked, setLiked] = useState(false);
