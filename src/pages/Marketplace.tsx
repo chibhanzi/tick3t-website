@@ -497,8 +497,8 @@ const Marketplace = () => {
                           <span>{listing.ticketsSold}/{listing.totalTickets} sold</span>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">Make Offer</Button>
-                          <Button size="sm">Buy Now</Button>
+                          <Button variant="outline" size="sm" onClick={() => openOffer(listing)}>Make Offer</Button>
+                          <Button size="sm" onClick={() => openBuy(listing)}>Buy Now</Button>
                         </div>
                       </div>
                     </div>
