@@ -445,8 +445,8 @@ const Marketplace = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button className="flex-1" size="sm">Buy Now</Button>
-                      <Button variant="outline" size="sm">Offer</Button>
+                      <Button className="flex-1" size="sm" onClick={() => openBuy(listing)}>Buy Now</Button>
+                      <Button variant="outline" size="sm" onClick={() => openOffer(listing)}>Offer</Button>
                     </div>
                   </CardContent>
                 </Card>
