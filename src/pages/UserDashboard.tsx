@@ -30,6 +30,7 @@ const UserDashboard = () => {
   const [vaultSearch, setVaultSearch] = useState("");
   const [vaultStatus, setVaultStatus] = useState<"all" | "valid" | "used">("all");
   const [vaultSort, setVaultSort] = useState<"date-desc" | "date-asc" | "price-desc" | "price-asc" | "name">("date-desc");
+  const [vaultLayout, setVaultLayout] = useState<"grid" | "list">("grid");
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
