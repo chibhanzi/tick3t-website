@@ -224,6 +224,24 @@ const UserDashboard = () => {
                   <SelectItem value="name">A → Z</SelectItem>
                 </SelectContent>
               </Select>
+              <div className="inline-flex h-10 items-center rounded-md border border-border/60 bg-background/50 p-1">
+                <button
+                  type="button"
+                  onClick={() => setVaultLayout("grid")}
+                  aria-label="Grid view"
+                  className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVaultLayout("list")}
+                  aria-label="List view"
+                  className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <Rows3 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             {(() => {
