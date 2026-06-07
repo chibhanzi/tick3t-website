@@ -287,7 +287,7 @@ const UserDashboard = () => {
               }
 
               return (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={vaultLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "flex flex-col gap-4"}>
                   {filtered.map((ticket) => (
                     <div key={ticket.id} className="group">
                       {/* Visual Ticket Card */}
