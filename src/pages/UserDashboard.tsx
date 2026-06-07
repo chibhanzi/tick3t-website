@@ -15,14 +15,20 @@ import QRCodeLib from "qrcode";
 import {
   Calendar, MapPin, Trophy, Clock, Camera, Wallet,
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
-  TrendingUp, Banknote, Download
+  TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault
 } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
+  const [vaultSearch, setVaultSearch] = useState("");
+  const [vaultStatus, setVaultStatus] = useState<"all" | "valid" | "used">("all");
+  const [vaultSort, setVaultSort] = useState<"date-desc" | "date-asc" | "price-desc" | "price-asc" | "name">("date-desc");
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -171,15 +177,76 @@ const UserDashboard = () => {
         {/* Tabs */}
         <Tabs defaultValue="tickets" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 h-10">
-            <TabsTrigger value="tickets" className="text-xs sm:text-sm">My Tickets</TabsTrigger>
+            <TabsTrigger value="tickets" className="text-xs sm:text-sm gap-1.5">
+              <Vault className="h-3.5 w-3.5" /> Vault
+            </TabsTrigger>
             <TabsTrigger value="resale" className="text-xs sm:text-sm">Resale</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs sm:text-sm">Activity</TabsTrigger>
             <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
           </TabsList>
 
-          {/* My Tickets - Visual ticket cards like ticket-generator */}
+          {/* Vault - Visual ticket cards with search/filter/sort */}
           <TabsContent value="tickets" className="space-y-6">
-            {myTickets.length === 0 ? (
+            {/* Vault toolbar */}
+            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-3 flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search your vault..."
+                  value={vaultSearch}
+                  onChange={(e) => setVaultSearch(e.target.value)}
+                  className="pl-9 h-10 bg-background/50 border-border/60"
+                />
+              </div>
+              <Select value={vaultStatus} onValueChange={(v) => setVaultStatus(v as typeof vaultStatus)}>
+                <SelectTrigger className="h-10 w-full sm:w-[140px] bg-background/50 border-border/60">
+                  <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All tickets</SelectItem>
+                  <SelectItem value="valid">Valid</SelectItem>
+                  <SelectItem value="used">Used</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={vaultSort} onValueChange={(v) => setVaultSort(v as typeof vaultSort)}>
+                <SelectTrigger className="h-10 w-full sm:w-[160px] bg-background/50 border-border/60">
+                  <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date-desc">Newest first</SelectItem>
+                  <SelectItem value="date-asc">Oldest first</SelectItem>
+                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                  <SelectItem value="name">A → Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(() => {
+              const q = vaultSearch.trim().toLowerCase();
+              const filtered = myTickets
+                .filter((t) => vaultStatus === "all" || t.status === vaultStatus)
+                .filter((t) =>
+                  !q ||
+                  t.title.toLowerCase().includes(q) ||
+                  t.location.toLowerCase().includes(q) ||
+                  t.organizer.toLowerCase().includes(q) ||
+                  t.ticketNumber.toLowerCase().includes(q)
+                )
+                .sort((a, b) => {
+                  switch (vaultSort) {
+                    case "date-asc": return new Date(a.date).getTime() - new Date(b.date).getTime();
+                    case "price-desc": return b.price - a.price;
+                    case "price-asc": return a.price - b.price;
+                    case "name": return a.title.localeCompare(b.title);
+                    default: return new Date(b.date).getTime() - new Date(a.date).getTime();
+                  }
+                });
+
+              if (filtered.length === 0) {
+                return (
               <Card className="border-dashed border-2">
                 <CardContent className="p-12 text-center">
                   <div className="text-5xl mb-4">🎫</div>
