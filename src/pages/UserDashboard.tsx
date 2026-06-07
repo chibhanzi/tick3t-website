@@ -15,14 +15,20 @@ import QRCodeLib from "qrcode";
 import {
   Calendar, MapPin, Trophy, Clock, Camera, Wallet,
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
-  TrendingUp, Banknote, Download
+  TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault
 } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
+  const [vaultSearch, setVaultSearch] = useState("");
+  const [vaultStatus, setVaultStatus] = useState<"all" | "valid" | "used">("all");
+  const [vaultSort, setVaultSort] = useState<"date-desc" | "date-asc" | "price-desc" | "price-asc" | "name">("date-desc");
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -171,112 +177,178 @@ const UserDashboard = () => {
         {/* Tabs */}
         <Tabs defaultValue="tickets" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 h-10">
-            <TabsTrigger value="tickets" className="text-xs sm:text-sm">My Tickets</TabsTrigger>
+            <TabsTrigger value="tickets" className="text-xs sm:text-sm gap-1.5">
+              <Vault className="h-3.5 w-3.5" /> Vault
+            </TabsTrigger>
             <TabsTrigger value="resale" className="text-xs sm:text-sm">Resale</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs sm:text-sm">Activity</TabsTrigger>
             <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
           </TabsList>
 
-          {/* My Tickets - Visual ticket cards like ticket-generator */}
+          {/* Vault - Visual ticket cards with search/filter/sort */}
           <TabsContent value="tickets" className="space-y-6">
-            {myTickets.length === 0 ? (
-              <Card className="border-dashed border-2">
-                <CardContent className="p-12 text-center">
-                  <div className="text-5xl mb-4">🎫</div>
-                  <h3 className="font-semibold text-lg mb-2">No tickets yet</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Browse events and grab your first ticket!</p>
-                  <Button asChild><Link to="/events">Browse Events</Link></Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {myTickets.map((ticket) => (
-                  <div key={ticket.id} className="group">
-                    {/* Visual Ticket Card */}
-                    <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${ticket.bgGradient} text-white shadow-lg hover:shadow-xl transition-all duration-300`}>
-                      {/* Ticket perforated edge effect */}
-                      <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col justify-center">
-                        <div className="border-l-2 border-dashed border-white/30 h-full" />
-                      </div>
-                      
-                      <div className="p-5 pr-20 relative">
-                        {/* Status */}
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-[10px] font-medium tracking-wider uppercase opacity-80">
-                            {ticket.organizer}
-                          </span>
-                          <Badge className={`text-[10px] ${ticket.status === "valid" ? "bg-white/20 text-white border-white/30" : "bg-black/20 text-white/70 border-white/20"}`}>
-                            {ticket.status === "valid" ? "✓ Valid" : "Used"}
-                          </Badge>
-                        </div>
-
-                        {/* Event title */}
-                        <h3 className="text-lg font-bold mb-3 leading-tight">{ticket.title}</h3>
-
-                        {/* Details grid */}
-                        <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
-                          <div className="flex items-center gap-1.5 opacity-90">
-                            <Calendar className="h-3 w-3" />
-                            <span>{ticket.date}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 opacity-90">
-                            <Clock className="h-3 w-3" />
-                            <span>{ticket.time}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 opacity-90 col-span-2">
-                            <MapPin className="h-3 w-3" />
-                            <span>{ticket.location}</span>
-                          </div>
-                        </div>
-
-                        {/* Bottom row */}
-                        <div className="flex items-end justify-between pt-2 border-t border-white/20">
-                          <div>
-                            <p className="text-[10px] opacity-60 uppercase tracking-wider">Tier</p>
-                            <p className="text-sm font-bold">{ticket.tier}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-[10px] opacity-60 uppercase tracking-wider">Price</p>
-                            <p className="text-sm font-bold">${ticket.price}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-[10px] opacity-60 uppercase tracking-wider">Ticket</p>
-                            <p className="text-sm font-bold">{ticket.ticketNumber}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* QR code section on the right stub */}
-                      <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm">
-                        {qrCodes[ticket.id] ? (
-                          <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
-                        ) : (
-                          <div className="w-12 h-12 rounded bg-white/20 flex items-center justify-center">
-                            <span className="text-xs opacity-60">—</span>
-                          </div>
-                        )}
-                        <p className="text-[8px] mt-1 opacity-60 font-medium">SCAN</p>
-                      </div>
-                    </div>
-
-                    {/* Actions below ticket */}
-                    {ticket.status === "valid" && (
-                      <div className="flex gap-2 mt-2">
-                        <Button
-                          variant="outline" size="sm" className="flex-1 h-8 text-xs"
-                          onClick={() => handleListForResale(ticket.id)}
-                        >
-                          <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-8 text-xs">
-                          <Download className="h-3 w-3 mr-1" /> Save
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            {/* Vault toolbar */}
+            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-3 flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search your vault..."
+                  value={vaultSearch}
+                  onChange={(e) => setVaultSearch(e.target.value)}
+                  className="pl-9 h-10 bg-background/50 border-border/60"
+                />
               </div>
-            )}
+              <Select value={vaultStatus} onValueChange={(v) => setVaultStatus(v as typeof vaultStatus)}>
+                <SelectTrigger className="h-10 w-full sm:w-[140px] bg-background/50 border-border/60">
+                  <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All tickets</SelectItem>
+                  <SelectItem value="valid">Valid</SelectItem>
+                  <SelectItem value="used">Used</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={vaultSort} onValueChange={(v) => setVaultSort(v as typeof vaultSort)}>
+                <SelectTrigger className="h-10 w-full sm:w-[160px] bg-background/50 border-border/60">
+                  <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date-desc">Newest first</SelectItem>
+                  <SelectItem value="date-asc">Oldest first</SelectItem>
+                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                  <SelectItem value="name">A → Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(() => {
+              const q = vaultSearch.trim().toLowerCase();
+              const filtered = myTickets
+                .filter((t) => vaultStatus === "all" || t.status === vaultStatus)
+                .filter((t) =>
+                  !q ||
+                  t.title.toLowerCase().includes(q) ||
+                  t.location.toLowerCase().includes(q) ||
+                  t.organizer.toLowerCase().includes(q) ||
+                  t.ticketNumber.toLowerCase().includes(q)
+                )
+                .sort((a, b) => {
+                  switch (vaultSort) {
+                    case "date-asc": return new Date(a.date).getTime() - new Date(b.date).getTime();
+                    case "price-desc": return b.price - a.price;
+                    case "price-asc": return a.price - b.price;
+                    case "name": return a.title.localeCompare(b.title);
+                    default: return new Date(b.date).getTime() - new Date(a.date).getTime();
+                  }
+                });
+
+              if (filtered.length === 0) {
+                return (
+                  <Card className="border-dashed border-2">
+                    <CardContent className="p-12 text-center">
+                      <div className="text-5xl mb-4">🎫</div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {myTickets.length === 0 ? "Your vault is empty" : "No matching tickets"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {myTickets.length === 0
+                          ? "Browse events and grab your first ticket!"
+                          : "Try adjusting your search or filters."}
+                      </p>
+                      {myTickets.length === 0 && (
+                        <Button asChild><Link to="/events">Browse Events</Link></Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filtered.map((ticket) => (
+                    <div key={ticket.id} className="group">
+                      {/* Visual Ticket Card */}
+                      <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${ticket.bgGradient} text-white shadow-lg hover:shadow-xl transition-all duration-300`}>
+                        <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col justify-center">
+                          <div className="border-l-2 border-dashed border-white/30 h-full" />
+                        </div>
+
+                        <div className="p-5 pr-20 relative">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-[10px] font-medium tracking-wider uppercase opacity-80">
+                              {ticket.organizer}
+                            </span>
+                            <Badge className={`text-[10px] ${ticket.status === "valid" ? "bg-white/20 text-white border-white/30" : "bg-black/20 text-white/70 border-white/20"}`}>
+                              {ticket.status === "valid" ? "✓ Valid" : "Used"}
+                            </Badge>
+                          </div>
+
+                          <h3 className="text-lg font-bold mb-3 leading-tight">{ticket.title}</h3>
+
+                          <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                            <div className="flex items-center gap-1.5 opacity-90">
+                              <Calendar className="h-3 w-3" />
+                              <span>{ticket.date}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 opacity-90">
+                              <Clock className="h-3 w-3" />
+                              <span>{ticket.time}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 opacity-90 col-span-2">
+                              <MapPin className="h-3 w-3" />
+                              <span>{ticket.location}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-end justify-between pt-2 border-t border-white/20">
+                            <div>
+                              <p className="text-[10px] opacity-60 uppercase tracking-wider">Tier</p>
+                              <p className="text-sm font-bold">{ticket.tier}</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-[10px] opacity-60 uppercase tracking-wider">Price</p>
+                              <p className="text-sm font-bold">${ticket.price}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[10px] opacity-60 uppercase tracking-wider">Ticket</p>
+                              <p className="text-sm font-bold">{ticket.ticketNumber}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm">
+                          {qrCodes[ticket.id] ? (
+                            <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
+                          ) : (
+                            <div className="w-12 h-12 rounded bg-white/20 flex items-center justify-center">
+                              <span className="text-xs opacity-60">—</span>
+                            </div>
+                          )}
+                          <p className="text-[8px] mt-1 opacity-60 font-medium">SCAN</p>
+                        </div>
+                      </div>
+
+                      {ticket.status === "valid" && (
+                        <div className="flex gap-2 mt-2">
+                          <Button
+                            variant="outline" size="sm" className="flex-1 h-8 text-xs"
+                            onClick={() => handleListForResale(ticket.id)}
+                          >
+                            <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
+                          </Button>
+                          <Button variant="outline" size="sm" className="h-8 text-xs">
+                            <Download className="h-3 w-3 mr-1" /> Save
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </TabsContent>
 
           {/* Resale - with earnings tracking */}

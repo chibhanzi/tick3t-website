@@ -7,12 +7,17 @@ import SocialShareButton from "@/components/SocialShareButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle, ShoppingBag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const EventDetail = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  // Mock: pretend resale tickets exist for this event
+  const resaleAvailable = 7;
+  const resaleFromPrice = 110;
   const [quantity, setQuantity] = useState(1);
   const [selectedTier, setSelectedTier] = useState("general");
   const [liked, setLiked] = useState(false);
@@ -191,11 +196,32 @@ const EventDetail = () => {
                     <span className="text-2xl font-bold">${totalPrice.toFixed(2)}</span>
                   </div>
 
-                  {/* Buy button */}
-                  <Button className="w-full h-12 text-base font-semibold" disabled={event.available === 0} onClick={handleBuy}>
-                    <Ticket className="h-4 w-4 mr-2" />
-                    {event.available === 0 ? "Sold Out" : "Get Tickets"}
-                  </Button>
+                  {/* Buy button — redirects to resale market when sold out */}
+                  {event.available === 0 ? (
+                    resaleAvailable > 0 ? (
+                      <Button
+                        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90"
+                        onClick={() => navigate(`/marketplace?event=${event.id}`)}
+                      >
+                        <ShoppingBag className="h-4 w-4 mr-2" />
+                        Buy from Resale ({resaleAvailable} available)
+                      </Button>
+                    ) : (
+                      <Button className="w-full h-12 text-base font-semibold" disabled>
+                        <Ticket className="h-4 w-4 mr-2" /> Sold Out
+                      </Button>
+                    )
+                  ) : (
+                    <Button className="w-full h-12 text-base font-semibold" onClick={handleBuy}>
+                      <Ticket className="h-4 w-4 mr-2" /> Get Tickets
+                    </Button>
+                  )}
+
+                  {event.available === 0 && resaleAvailable > 0 && (
+                    <p className="text-[11px] text-center text-muted-foreground -mt-1">
+                      Verified fan resale · from ${resaleFromPrice}
+                    </p>
+                  )}
 
                   {/* Trust badge */}
                   <div className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/20">
@@ -224,6 +250,8 @@ const EventDetail = () => {
                     eventTitle={event.title}
                     eventDate={event.date}
                     eventLocation={event.location}
+                    ticketsLeft={event.available}
+                    price={selectedTierData.price}
                   />
 
                   {/* Availability bar */}
