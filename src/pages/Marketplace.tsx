@@ -548,6 +548,92 @@ const Marketplace = () => {
         </div>
       </main>
 
+      {/* Buy Now confirmation dialog */}
+      <Dialog open={!!buyTarget} onOpenChange={(o) => !o && setBuyTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500" /> Confirm purchase
+            </DialogTitle>
+            <DialogDescription>
+              You're about to buy a verified resale ticket. Payment is held securely until transfer is confirmed.
+            </DialogDescription>
+          </DialogHeader>
+          {buyTarget && (
+            <div className="rounded-xl border border-border/60 bg-muted/40 p-4 space-y-2">
+              <div className="font-semibold leading-tight">{buyTarget.eventTitle}</div>
+              <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap">
+                <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{buyTarget.eventDate}</span>
+                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{buyTarget.city}</span>
+              </div>
+              <div className="flex items-end justify-between pt-2 border-t border-border/60">
+                <div className="text-xs text-muted-foreground">Seller {buyTarget.seller}</div>
+                <div className="text-right">
+                  <div className="text-xs text-muted-foreground line-through">{buyTarget.originalPrice}</div>
+                  <div className="text-2xl font-bold leading-none">{buyTarget.currentPrice}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBuyTarget(null)} disabled={processing}>Cancel</Button>
+            <Button onClick={confirmBuy} disabled={processing}>
+              {processing ? "Processing…" : `Pay ${buyTarget?.currentPrice ?? ""}`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Make Offer dialog */}
+      <Dialog open={!!offerTarget} onOpenChange={(o) => !o && setOfferTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <HandCoins className="h-5 w-5 text-primary" /> Make an offer
+            </DialogTitle>
+            <DialogDescription>
+              Suggest a price to {offerTarget?.seller}. They can accept, decline or counter.
+            </DialogDescription>
+          </DialogHeader>
+          {offerTarget && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border/60 bg-muted/40 p-3 text-sm">
+                <div className="font-semibold leading-tight">{offerTarget.eventTitle}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Asking <span className="font-medium text-foreground">{offerTarget.currentPrice}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="offer-amount">Your offer (USD)</Label>
+                <Input
+                  id="offer-amount"
+                  type="number"
+                  min={1}
+                  value={offerAmount}
+                  onChange={(e) => setOfferAmount(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="offer-note">Message (optional)</Label>
+                <Input
+                  id="offer-note"
+                  value={offerNote}
+                  onChange={(e) => setOfferNote(e.target.value)}
+                  placeholder="Hi, would you accept this price?"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOfferTarget(null)} disabled={processing}>Cancel</Button>
+            <Button onClick={submitOffer} disabled={processing}>
+              {processing ? "Sending…" : "Send offer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
