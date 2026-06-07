@@ -47,7 +47,6 @@ type Listing = {
   [key: string]: any;
 };
 
-type ViewMode = "grid" | "list" | "compact";
 
 const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
