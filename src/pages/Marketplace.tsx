@@ -526,7 +526,7 @@ const Marketplace = () => {
                   <div className="text-sm font-semibold leading-none">{listing.currentPrice}</div>
                   <div className="mt-1"><PriceTrend change={listing.priceChange} /></div>
                 </div>
-                <Button size="sm" variant="ghost" className="flex-shrink-0">
+                <Button size="sm" variant="ghost" className="flex-shrink-0" onClick={() => openBuy(listing)}>
                   Buy <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </div>
