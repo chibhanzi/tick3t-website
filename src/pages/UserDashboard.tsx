@@ -15,7 +15,8 @@ import QRCodeLib from "qrcode";
 import {
   Calendar, MapPin, Trophy, Clock, Camera, Wallet,
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
-  TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault
+  TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault,
+  LayoutGrid, Rows3
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
