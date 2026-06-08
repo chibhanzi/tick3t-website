@@ -126,7 +126,7 @@ const UserDashboard = () => {
     toast({ title: "Withdrawal requested", description: `$${resaleStats.pendingPayout} will be sent to your Paynow account.` });
   };
 
-  const visibleVaultTickets = myTickets
+  const visibleVaultTickets = [...myTickets]
     .filter((ticket) => vaultStatus === "all" || ticket.status === vaultStatus)
     .filter((ticket) => {
       const query = vaultSearch.trim().toLowerCase();
@@ -135,7 +135,7 @@ const UserDashboard = () => {
       return [ticket.title, ticket.location, ticket.organizer, ticket.ticketNumber, ticket.tier]
         .some((value) => value.toLowerCase().includes(query));
     })
-    .toSorted((a, b) => {
+    .sort((a, b) => {
       switch (vaultSort) {
         case "date-asc":
           return a.sortDate.localeCompare(b.sortDate);
