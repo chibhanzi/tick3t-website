@@ -190,8 +190,9 @@ const UserDashboard = () => {
           {/* Vault - Visual ticket cards with search/filter/sort */}
           <TabsContent value="tickets" className="space-y-6">
             {/* Vault toolbar */}
-            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-3 flex flex-col sm:flex-row gap-2">
-              <div className="relative flex-1">
+            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-3 space-y-3">
+              {/* Search */}
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search your vault..."
@@ -200,47 +201,66 @@ const UserDashboard = () => {
                   className="pl-9 h-10 bg-background/50 border-border/60"
                 />
               </div>
-              <Select value={vaultStatus} onValueChange={(v) => setVaultStatus(v as typeof vaultStatus)}>
-                <SelectTrigger className="h-10 w-full sm:w-[140px] bg-background/50 border-border/60">
-                  <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All tickets</SelectItem>
-                  <SelectItem value="valid">Valid</SelectItem>
-                  <SelectItem value="used">Used</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={vaultSort} onValueChange={(v) => setVaultSort(v as typeof vaultSort)}>
-                <SelectTrigger className="h-10 w-full sm:w-[160px] bg-background/50 border-border/60">
-                  <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date-desc">Newest first</SelectItem>
-                  <SelectItem value="date-asc">Oldest first</SelectItem>
-                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                  <SelectItem value="name">A → Z</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="inline-flex h-10 items-center rounded-md border border-border/60 bg-background/50 p-1">
-                <button
-                  type="button"
-                  onClick={() => setVaultLayout("grid")}
-                  aria-label="Grid view"
-                  className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVaultLayout("list")}
-                  aria-label="List view"
-                  className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  <Rows3 className="h-4 w-4" />
-                </button>
+
+              {/* Status pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-0.5">
+                {([
+                  { v: "all", label: "All", count: myTickets.length },
+                  { v: "valid", label: "Valid", count: myTickets.filter(t => t.status === "valid").length },
+                  { v: "used", label: "Used", count: myTickets.filter(t => t.status === "used").length },
+                ] as const).map((s) => (
+                  <button
+                    key={s.v}
+                    type="button"
+                    onClick={() => setVaultStatus(s.v as typeof vaultStatus)}
+                    className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs font-medium transition-colors ${
+                      vaultStatus === s.v
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {s.label}
+                    <span className={`text-[10px] px-1.5 rounded-full ${vaultStatus === s.v ? "bg-primary-foreground/20" : "bg-background/60"}`}>
+                      {s.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort + Layout */}
+              <div className="flex items-center gap-2">
+                <Select value={vaultSort} onValueChange={(v) => setVaultSort(v as typeof vaultSort)}>
+                  <SelectTrigger className="h-9 flex-1 bg-background/50 border-border/60 text-xs">
+                    <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground mr-1 hidden xs:inline">Sort:</span>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date-desc">Newest first</SelectItem>
+                    <SelectItem value="date-asc">Oldest first</SelectItem>
+                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                    <SelectItem value="name">Name (A → Z)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="inline-flex h-9 items-center rounded-md border border-border/60 bg-background/50 p-0.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setVaultLayout("grid")}
+                    aria-label="Grid view"
+                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVaultLayout("list")}
+                    aria-label="List view"
+                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <Rows3 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
