@@ -48,19 +48,19 @@ const UserDashboard = () => {
       id: "1", title: "Bass Drop Festival 2024", date: "Mar 15, 2024", time: "9:00 PM",
       location: "Miami Beach Arena", tier: "VIP", status: "valid", price: 189,
       bgGradient: "from-violet-600 to-pink-500", organizer: "Live Nation",
-      ticketNumber: "TK-00142"
+      ticketNumber: "TK-00142", sortDate: "2024-03-15T21:00:00"
     },
     {
       id: "2", title: "Tech Innovation Summit", date: "Mar 25, 2024", time: "10:00 AM",
       location: "SF Convention Center", tier: "General", status: "valid", price: 89,
       bgGradient: "from-cyan-600 to-blue-500", organizer: "TechEvents Co",
-      ticketNumber: "TK-00298"
+      ticketNumber: "TK-00298", sortDate: "2024-03-25T10:00:00"
     },
     {
       id: "3", title: "Art Gallery Opening", date: "Feb 10, 2024", time: "7:00 PM",
       location: "Brooklyn Museum, NYC", tier: "General", status: "used", price: 75,
       bgGradient: "from-amber-500 to-orange-600", organizer: "ArtSpace NYC",
-      ticketNumber: "TK-00067"
+      ticketNumber: "TK-00067", sortDate: "2024-02-10T19:00:00"
     },
   ];
 
@@ -125,6 +125,31 @@ const UserDashboard = () => {
   const handleWithdraw = () => {
     toast({ title: "Withdrawal requested", description: `$${resaleStats.pendingPayout} will be sent to your Paynow account.` });
   };
+
+  const visibleVaultTickets = myTickets
+    .filter((ticket) => vaultStatus === "all" || ticket.status === vaultStatus)
+    .filter((ticket) => {
+      const query = vaultSearch.trim().toLowerCase();
+      if (!query) return true;
+
+      return [ticket.title, ticket.location, ticket.organizer, ticket.ticketNumber, ticket.tier]
+        .some((value) => value.toLowerCase().includes(query));
+    })
+    .toSorted((a, b) => {
+      switch (vaultSort) {
+        case "date-asc":
+          return a.sortDate.localeCompare(b.sortDate);
+        case "price-desc":
+          return b.price - a.price;
+        case "price-asc":
+          return a.price - b.price;
+        case "name":
+          return a.title.localeCompare(b.title);
+        case "date-desc":
+        default:
+          return b.sortDate.localeCompare(a.sortDate);
+      }
+    });
 
   return (
     <div className="min-h-screen bg-background">
@@ -265,27 +290,7 @@ const UserDashboard = () => {
             </div>
 
             {(() => {
-              const q = vaultSearch.trim().toLowerCase();
-              const filtered = myTickets
-                .filter((t) => vaultStatus === "all" || t.status === vaultStatus)
-                .filter((t) =>
-                  !q ||
-                  t.title.toLowerCase().includes(q) ||
-                  t.location.toLowerCase().includes(q) ||
-                  t.organizer.toLowerCase().includes(q) ||
-                  t.ticketNumber.toLowerCase().includes(q)
-                )
-                .sort((a, b) => {
-                  switch (vaultSort) {
-                    case "date-asc": return new Date(a.date).getTime() - new Date(b.date).getTime();
-                    case "price-desc": return b.price - a.price;
-                    case "price-asc": return a.price - b.price;
-                    case "name": return a.title.localeCompare(b.title);
-                    default: return new Date(b.date).getTime() - new Date(a.date).getTime();
-                  }
-                });
-
-              if (filtered.length === 0) {
+              if (visibleVaultTickets.length === 0) {
                 return (
                   <Card className="border-dashed border-2">
                     <CardContent className="p-12 text-center">
@@ -308,7 +313,7 @@ const UserDashboard = () => {
 
               return (
                 <div className={vaultLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "flex flex-col gap-4"}>
-                  {filtered.map((ticket) => (
+                  {visibleVaultTickets.map((ticket) => (
                     <div key={ticket.id} className="group">
                       {/* Visual Ticket Card */}
                       <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${ticket.bgGradient} text-white shadow-lg hover:shadow-xl transition-all duration-300`}>
