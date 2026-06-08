@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Share2, Facebook, Twitter, Linkedin, Copy, Check, MessageCircle,
   Instagram, Music2, Camera, Ticket
