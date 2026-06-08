@@ -136,66 +136,58 @@ const SocialShareButton = ({
   };
 
   return (
-    <div className="relative">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setShowShare(!showShare)}
-        className="flex items-center gap-2 w-full"
-      >
-        <Share2 className="h-4 w-4" />
-        Share Event
-      </Button>
+    <Popover open={showShare} onOpenChange={setShowShare}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="flex items-center gap-2 w-full">
+          <Share2 className="h-4 w-4" />
+          Share Event
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-4" collisionPadding={16}>
+        <h4 className="font-semibold mb-1">Share to your story</h4>
+        <p className="text-xs text-muted-foreground mb-3">
+          Caption auto-copied with price{ticketsLeft !== undefined ? " & tickets left" : ""}.
+        </p>
 
-      {showShare && (
-        <Card className="absolute top-12 right-0 z-50 w-80 shadow-xl border">
-          <CardContent className="p-4">
-            <h4 className="font-semibold mb-1">Share to your story</h4>
-            <p className="text-xs text-muted-foreground mb-3">
-              Caption auto-copied with price{ticketsLeft !== undefined ? " & tickets left" : ""}.
-            </p>
-
-            {(ticketsLeft !== undefined || price !== undefined) && (
-              <div className="flex items-center gap-2 mb-3 p-2 rounded-md bg-muted/60 text-xs">
-                <Ticket className="h-3.5 w-3.5 text-primary" />
-                {ticketsLeft !== undefined && (
-                  <span className="font-medium">{ticketsLeft} left</span>
-                )}
-                {price !== undefined && (
-                  <span className="text-muted-foreground">
-                    · from {typeof price === "number" ? `$${price}` : price}
-                  </span>
-                )}
-              </div>
+        {(ticketsLeft !== undefined || price !== undefined) && (
+          <div className="flex items-center gap-2 mb-3 p-2 rounded-md bg-muted/60 text-xs">
+            <Ticket className="h-3.5 w-3.5 text-primary" />
+            {ticketsLeft !== undefined && (
+              <span className="font-medium">{ticketsLeft} left</span>
             )}
+            {price !== undefined && (
+              <span className="text-muted-foreground">
+                · from {typeof price === "number" ? `$${price}` : price}
+              </span>
+            )}
+          </div>
+        )}
 
-            <div className="grid grid-cols-2 gap-2">
-              {socialLinks.map((social) => (
-                <Button
-                  key={social.name}
-                  size="sm"
-                  className={`justify-start text-white border-none ${social.color}`}
-                  onClick={social.onClick}
-                >
-                  <social.icon className="h-4 w-4 mr-2" />
-                  <span className="truncate">{social.name}</span>
-                </Button>
-              ))}
-            </div>
-
+        <div className="grid grid-cols-2 gap-2">
+          {socialLinks.map((social) => (
             <Button
-              variant="outline"
+              key={social.name}
               size="sm"
-              className="w-full justify-start mt-3"
-              onClick={copyToClipboard}
+              className={`justify-start text-white border-none ${social.color}`}
+              onClick={social.onClick}
             >
-              {copied ? <Check className="h-4 w-4 mr-2 text-green-500" /> : <Copy className="h-4 w-4 mr-2" />}
-              {copied ? "Copied!" : "Copy caption + link"}
+              <social.icon className="h-4 w-4 mr-2" />
+              <span className="truncate">{social.name}</span>
             </Button>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+          ))}
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start mt-3"
+          onClick={copyToClipboard}
+        >
+          {copied ? <Check className="h-4 w-4 mr-2 text-green-500" /> : <Copy className="h-4 w-4 mr-2" />}
+          {copied ? "Copied!" : "Copy caption + link"}
+        </Button>
+      </PopoverContent>
+    </Popover>
   );
 };
 
