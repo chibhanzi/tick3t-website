@@ -312,9 +312,68 @@ const UserDashboard = () => {
               }
 
               return (
-                <div className={vaultLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "flex flex-col gap-4"}>
+                <div className={vaultLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "flex flex-col gap-3"}>
                   {visibleVaultTickets.map((ticket) => (
-                    <div key={ticket.id} className="group">
+                    <div key={ticket.id} className={vaultLayout === "list" ? "group rounded-2xl border border-border/60 bg-card/70 backdrop-blur-sm overflow-hidden shadow-sm" : "group"}>
+                      {vaultLayout === "list" ? (
+                        <>
+                          <div className={`h-1.5 bg-gradient-to-r ${ticket.bgGradient}`} />
+                          <div className="p-4 flex items-start gap-3">
+                            <div className={`shrink-0 h-14 w-14 rounded-xl bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-primary-foreground shadow-md`}>
+                              <Vault className="h-6 w-6" />
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <div className="min-w-0">
+                                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground truncate">
+                                    {ticket.organizer}
+                                  </p>
+                                  <h3 className="font-bold leading-snug truncate">{ticket.title}</h3>
+                                </div>
+                                <Badge variant={ticket.status === "valid" ? "default" : "secondary"} className="shrink-0 text-[10px]">
+                                  {ticket.status === "valid" ? "Valid" : "Used"}
+                                </Badge>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1.5 min-w-0"><Calendar className="h-3 w-3 shrink-0" /> {ticket.date}</span>
+                                <span className="flex items-center gap-1.5 min-w-0"><Clock className="h-3 w-3 shrink-0" /> {ticket.time}</span>
+                                <span className="flex items-center gap-1.5 min-w-0 truncate"><MapPin className="h-3 w-3 shrink-0" /> {ticket.location}</span>
+                              </div>
+
+                              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                                <span><span className="text-muted-foreground">Tier</span> <strong>{ticket.tier}</strong></span>
+                                <span><span className="text-muted-foreground">Price</span> <strong>${ticket.price}</strong></span>
+                                <span><span className="text-muted-foreground">No.</span> <strong>{ticket.ticketNumber}</strong></span>
+                              </div>
+                            </div>
+
+                            <div className="hidden sm:flex shrink-0 flex-col items-center gap-1">
+                              {qrCodes[ticket.id] ? (
+                                <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded border border-border" />
+                              ) : (
+                                <div className="w-12 h-12 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">—</div>
+                              )}
+                            </div>
+                          </div>
+
+                          {ticket.status === "valid" && (
+                            <div className="px-4 pb-4 flex gap-2">
+                              <Button
+                                variant="outline" size="sm" className="flex-1 h-8 text-xs"
+                                onClick={() => handleListForResale(ticket.id)}
+                              >
+                                <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
+                              </Button>
+                              <Button variant="outline" size="sm" className="h-8 text-xs">
+                                <Download className="h-3 w-3 mr-1" /> Save
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
                       {/* Visual Ticket Card */}
                       <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${ticket.bgGradient} text-white shadow-lg hover:shadow-xl transition-all duration-300`}>
                         <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col justify-center">
@@ -388,6 +447,8 @@ const UserDashboard = () => {
                             <Download className="h-3 w-3 mr-1" /> Save
                           </Button>
                         </div>
+                      )}
+                        </>
                       )}
                     </div>
                   ))}
