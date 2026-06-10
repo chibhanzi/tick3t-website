@@ -273,7 +273,8 @@ const UserDashboard = () => {
                     type="button"
                     onClick={() => setVaultLayout("grid")}
                     aria-label="Grid view"
-                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    aria-pressed={vaultLayout === "grid"}
+                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "grid" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     <LayoutGrid className="h-4 w-4" />
                   </button>
@@ -281,7 +282,8 @@ const UserDashboard = () => {
                     type="button"
                     onClick={() => setVaultLayout("list")}
                     aria-label="List view"
-                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    aria-pressed={vaultLayout === "list"}
+                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "list" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     <Rows3 className="h-4 w-4" />
                   </button>
@@ -312,7 +314,7 @@ const UserDashboard = () => {
               }
 
               return (
-                <div className={vaultLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "flex flex-col gap-3"}>
+                <div key={vaultLayout} className={vaultLayout === "grid" ? "grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6" : "flex flex-col gap-3"}>
                   {visibleVaultTickets.map((ticket) => (
                     <div key={ticket.id} className={vaultLayout === "list" ? "group rounded-2xl border border-border/60 bg-card/70 backdrop-blur-sm overflow-hidden shadow-sm" : "group"}>
                       {vaultLayout === "list" ? (
