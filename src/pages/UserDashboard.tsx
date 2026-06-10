@@ -378,54 +378,50 @@ const UserDashboard = () => {
                         <>
                       {/* Visual Ticket Card */}
                       <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${ticket.bgGradient} text-white shadow-lg hover:shadow-xl transition-all duration-300`}>
-                        <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col justify-center">
+                        <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-16 hidden sm:flex flex-col justify-center">
                           <div className="border-l-2 border-dashed border-white/30 h-full" />
                         </div>
 
-                        <div className="p-5 pr-20 relative">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-[10px] font-medium tracking-wider uppercase opacity-80">
+                        <div className="p-3 sm:p-5 sm:pr-20 relative">
+                          <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1">
+                            <span className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase opacity-80 truncate">
                               {ticket.organizer}
                             </span>
-                            <Badge className={`text-[10px] ${ticket.status === "valid" ? "bg-white/20 text-white border-white/30" : "bg-black/20 text-white/70 border-white/20"}`}>
-                              {ticket.status === "valid" ? "✓ Valid" : "Used"}
+                            <Badge className={`text-[9px] sm:text-[10px] shrink-0 ${ticket.status === "valid" ? "bg-white/20 text-white border-white/30" : "bg-black/20 text-white/70 border-white/20"}`}>
+                              {ticket.status === "valid" ? "✓" : "Used"}
                             </Badge>
                           </div>
 
-                          <h3 className="text-lg font-bold mb-3 leading-tight">{ticket.title}</h3>
+                          <h3 className="text-sm sm:text-lg font-bold mb-2 sm:mb-3 leading-tight line-clamp-2">{ticket.title}</h3>
 
-                          <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
-                            <div className="flex items-center gap-1.5 opacity-90">
-                              <Calendar className="h-3 w-3" />
-                              <span>{ticket.date}</span>
+                          <div className="flex flex-col sm:grid sm:grid-cols-2 gap-1 sm:gap-2 mb-2 sm:mb-3 text-[11px] sm:text-xs">
+                            <div className="flex items-center gap-1.5 opacity-90 min-w-0">
+                              <Calendar className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{ticket.date}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 opacity-90">
-                              <Clock className="h-3 w-3" />
-                              <span>{ticket.time}</span>
+                            <div className="flex items-center gap-1.5 opacity-90 min-w-0">
+                              <Clock className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{ticket.time}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 opacity-90 col-span-2">
-                              <MapPin className="h-3 w-3" />
-                              <span>{ticket.location}</span>
+                            <div className="flex items-center gap-1.5 opacity-90 sm:col-span-2 min-w-0">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{ticket.location}</span>
                             </div>
                           </div>
 
-                          <div className="flex items-end justify-between pt-2 border-t border-white/20">
-                            <div>
-                              <p className="text-[10px] opacity-60 uppercase tracking-wider">Tier</p>
-                              <p className="text-sm font-bold">{ticket.tier}</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-[10px] opacity-60 uppercase tracking-wider">Price</p>
-                              <p className="text-sm font-bold">${ticket.price}</p>
+                          <div className="flex items-end justify-between pt-2 border-t border-white/20 gap-2">
+                            <div className="min-w-0">
+                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">Tier</p>
+                              <p className="text-xs sm:text-sm font-bold truncate">{ticket.tier}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[10px] opacity-60 uppercase tracking-wider">Ticket</p>
-                              <p className="text-sm font-bold">{ticket.ticketNumber}</p>
+                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">Price</p>
+                              <p className="text-xs sm:text-sm font-bold">${ticket.price}</p>
                             </div>
                           </div>
                         </div>
 
-                        <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm">
+                        <div className="absolute right-0 top-0 bottom-0 w-16 hidden sm:flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm">
                           {qrCodes[ticket.id] ? (
                             <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
                           ) : (
