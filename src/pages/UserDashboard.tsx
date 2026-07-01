@@ -472,20 +472,6 @@ const UserDashboard = () => {
                               </Button>
                             </div>
                           )}
-
-                          {ticket.status === "valid" && (
-                            <div className="px-4 pb-4 flex gap-2">
-                              <Button
-                                variant="outline" size="sm" className="flex-1 h-8 text-xs"
-                                onClick={() => handleListForResale(ticket.id)}
-                              >
-                                <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
-                              </Button>
-                              <Button variant="outline" size="sm" className="h-8 text-xs">
-                                <Download className="h-3 w-3 mr-1" /> Save
-                              </Button>
-                            </div>
-                          )}
                         </>
                       ) : (
                         <>
