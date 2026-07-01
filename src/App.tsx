@@ -18,6 +18,7 @@ import UserDashboard from "./pages/UserDashboard";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import UpgradeToOrganizer from "./pages/UpgradeToOrganizer";
 import NotFound from "./pages/NotFound";
+import DeveloperPortal from "./pages/DeveloperPortal";
 
 const queryClient = new QueryClient();
 
