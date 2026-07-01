@@ -16,8 +16,19 @@ import {
   Calendar, MapPin, Trophy, Clock, Camera, Wallet,
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
   TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault,
-  LayoutGrid, Rows3
+  LayoutGrid, Rows3, Music, BadgeCheck, GraduationCap, Gift, Award, AtSign, Sparkles
 } from "lucide-react";
+
+type VaultCategory = "concert" | "membership" | "course" | "giftcard" | "badge" | "username";
+
+const CATEGORY_META: Record<VaultCategory, { label: string; short: string; icon: any; accent: string }> = {
+  concert:    { label: "Concert Tickets",    short: "Tickets",     icon: Music,         accent: "from-violet-600 to-pink-500" },
+  membership: { label: "Membership Passes",  short: "Memberships", icon: BadgeCheck,    accent: "from-amber-500 to-orange-600" },
+  course:     { label: "Course Credentials", short: "Credentials", icon: GraduationCap, accent: "from-emerald-500 to-teal-600" },
+  giftcard:   { label: "Gift Cards",         short: "Gift Cards",  icon: Gift,          accent: "from-rose-500 to-red-600" },
+  badge:      { label: "Attendance Badges",  short: "Badges",      icon: Award,         accent: "from-cyan-500 to-blue-600" },
+  username:   { label: "Usernames",          short: "Usernames",   icon: AtSign,        accent: "from-fuchsia-500 to-purple-600" },
+};
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
@@ -31,6 +42,7 @@ const UserDashboard = () => {
   const [vaultStatus, setVaultStatus] = useState<"all" | "valid" | "used">("all");
   const [vaultSort, setVaultSort] = useState<"date-desc" | "date-asc" | "price-desc" | "price-asc" | "name">("date-desc");
   const [vaultLayout, setVaultLayout] = useState<"grid" | "list">("grid");
+  const [vaultCategory, setVaultCategory] = useState<"all" | VaultCategory>("all");
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -43,24 +55,69 @@ const UserDashboard = () => {
 
   const stats = { eventsAttended: 12, upcoming: 2, totalSpent: 1250, resaleEarnings: 320 };
 
-  const myTickets = [
+  const myTickets: Array<{
+    id: string; title: string; date: string; time: string; location: string;
+    tier: string; status: string; price: number; bgGradient: string; organizer: string;
+    ticketNumber: string; sortDate: string; category: VaultCategory;
+    meta?: string; subtitle?: string;
+  }> = [
     {
       id: "1", title: "Bass Drop Festival 2024", date: "Mar 15, 2024", time: "9:00 PM",
       location: "Miami Beach Arena", tier: "VIP", status: "valid", price: 189,
       bgGradient: "from-violet-600 to-pink-500", organizer: "Live Nation",
-      ticketNumber: "TK-00142", sortDate: "2024-03-15T21:00:00"
+      ticketNumber: "TK-00142", sortDate: "2024-03-15T21:00:00", category: "concert"
     },
     {
       id: "2", title: "Tech Innovation Summit", date: "Mar 25, 2024", time: "10:00 AM",
       location: "SF Convention Center", tier: "General", status: "valid", price: 89,
       bgGradient: "from-cyan-600 to-blue-500", organizer: "TechEvents Co",
-      ticketNumber: "TK-00298", sortDate: "2024-03-25T10:00:00"
+      ticketNumber: "TK-00298", sortDate: "2024-03-25T10:00:00", category: "concert"
     },
     {
       id: "3", title: "Art Gallery Opening", date: "Feb 10, 2024", time: "7:00 PM",
       location: "Brooklyn Museum, NYC", tier: "General", status: "used", price: 75,
       bgGradient: "from-amber-500 to-orange-600", organizer: "ArtSpace NYC",
-      ticketNumber: "TK-00067", sortDate: "2024-02-10T19:00:00"
+      ticketNumber: "TK-00067", sortDate: "2024-02-10T19:00:00", category: "concert"
+    },
+    // Membership passes
+    {
+      id: "m1", title: "Vouch Insider Club", date: "Renews Jan 2025", time: "Annual",
+      location: "Members-only benefits", tier: "Gold", status: "valid", price: 120,
+      bgGradient: "from-amber-500 to-orange-600", organizer: "Vouch",
+      ticketNumber: "MEM-00812", sortDate: "2025-01-10T00:00:00", category: "membership",
+      subtitle: "Priority pre-sales · Lounge access"
+    },
+    // Course credentials
+    {
+      id: "c1", title: "Blockchain Fundamentals", date: "Issued Nov 20, 2024", time: "Verified",
+      location: "Tick3rt Academy", tier: "Certificate", status: "valid", price: 0,
+      bgGradient: "from-emerald-500 to-teal-600", organizer: "Tick3rt Academy",
+      ticketNumber: "CRED-00021", sortDate: "2024-11-20T00:00:00", category: "course",
+      subtitle: "12 modules · 40 hrs"
+    },
+    // Gift card
+    {
+      id: "g1", title: "Tick3rt Gift Card", date: "No expiry", time: "Balance available",
+      location: "Redeemable on any event", tier: "$50", status: "valid", price: 50,
+      bgGradient: "from-rose-500 to-red-600", organizer: "Tick3rt",
+      ticketNumber: "GC-9F2A-7K", sortDate: "2024-12-01T00:00:00", category: "giftcard",
+      meta: "Balance: $42.50"
+    },
+    // Attendance badge
+    {
+      id: "b1", title: "HIFA 2024 Attendee", date: "Awarded May 2024", time: "Lifetime",
+      location: "Harare International Festival", tier: "Attendance", status: "valid", price: 0,
+      bgGradient: "from-cyan-500 to-blue-600", organizer: "HIFA",
+      ticketNumber: "BDG-HIFA24", sortDate: "2024-05-08T00:00:00", category: "badge",
+      subtitle: "Proof of attendance"
+    },
+    // Username
+    {
+      id: "u1", title: "@raves", date: "Owned since Jun 2024", time: "Permanent",
+      location: "Tick3rt handle", tier: "Rare", status: "valid", price: 250,
+      bgGradient: "from-fuchsia-500 to-purple-600", organizer: "Tick3rt Names",
+      ticketNumber: "NAME-RAVES", sortDate: "2024-06-14T00:00:00", category: "username",
+      subtitle: "5-letter · Category: Music"
     },
   ];
 
@@ -127,6 +184,7 @@ const UserDashboard = () => {
   };
 
   const visibleVaultTickets = [...myTickets]
+    .filter((ticket) => vaultCategory === "all" || ticket.category === vaultCategory)
     .filter((ticket) => vaultStatus === "all" || ticket.status === vaultStatus)
     .filter((ticket) => {
       const query = vaultSearch.trim().toLowerCase();
@@ -227,6 +285,35 @@ const UserDashboard = () => {
                 />
               </div>
 
+              {/* Category chips */}
+              <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-0.5">
+                {([
+                  { v: "all" as const, label: "All", icon: Sparkles },
+                  ...(Object.entries(CATEGORY_META).map(([v, m]) => ({ v: v as VaultCategory, label: m.short, icon: m.icon }))),
+                ]).map((c) => {
+                  const active = vaultCategory === c.v;
+                  const count = c.v === "all" ? myTickets.length : myTickets.filter(t => t.category === c.v).length;
+                  const Icon = c.icon;
+                  return (
+                    <button
+                      key={c.v}
+                      type="button"
+                      onClick={() => setVaultCategory(c.v)}
+                      className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs font-medium transition-colors border ${
+                        active
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background/40 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {c.label}
+                      <span className={`text-[10px] px-1.5 rounded-full ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+
               {/* Status pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-0.5">
                 {([
@@ -315,15 +402,22 @@ const UserDashboard = () => {
 
               return (
                 <div key={vaultLayout} className={vaultLayout === "grid" ? "grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6" : "flex flex-col gap-3"}>
-                  {visibleVaultTickets.map((ticket) => (
+                  {visibleVaultTickets.map((ticket) => {
+                    const catMeta = CATEGORY_META[ticket.category];
+                    const CatIcon = catMeta.icon;
+                    const isTransferable = ticket.category !== "course" && ticket.category !== "badge";
+                    const isConcert = ticket.category === "concert";
+                    return (
                     <div key={ticket.id} className={vaultLayout === "list" ? "group rounded-2xl border border-border/60 bg-card/70 backdrop-blur-sm overflow-hidden shadow-sm" : "group"}>
+
                       {vaultLayout === "list" ? (
                         <>
                           <div className={`h-1.5 bg-gradient-to-r ${ticket.bgGradient}`} />
                           <div className="p-4 flex items-start gap-3">
                             <div className={`shrink-0 h-14 w-14 rounded-xl bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-primary-foreground shadow-md`}>
-                              <Vault className="h-6 w-6" />
+                              <CatIcon className="h-6 w-6" />
                             </div>
+
 
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-2 mb-1">
@@ -352,23 +446,28 @@ const UserDashboard = () => {
                             </div>
 
                             <div className="hidden sm:flex shrink-0 flex-col items-center gap-1">
-                              {qrCodes[ticket.id] ? (
+                              {isConcert && qrCodes[ticket.id] ? (
                                 <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded border border-border" />
                               ) : (
-                                <div className="w-12 h-12 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">—</div>
+                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-white`}>
+                                  <CatIcon className="h-5 w-5" />
+                                </div>
                               )}
+                              <span className="text-[9px] text-muted-foreground uppercase tracking-wider">{catMeta.short}</span>
                             </div>
                           </div>
 
                           {ticket.status === "valid" && (
                             <div className="px-4 pb-4 flex gap-2">
-                              <Button
-                                variant="outline" size="sm" className="flex-1 h-8 text-xs"
-                                onClick={() => handleListForResale(ticket.id)}
-                              >
-                                <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
-                              </Button>
-                              <Button variant="outline" size="sm" className="h-8 text-xs">
+                              {isTransferable && (
+                                <Button
+                                  variant="outline" size="sm" className="flex-1 h-8 text-xs"
+                                  onClick={() => handleListForResale(ticket.id)}
+                                >
+                                  <ArrowUpRight className="h-3 w-3 mr-1" /> {ticket.category === "concert" ? "List for Resale" : ticket.category === "username" ? "List for Sale" : "Transfer / Sell"}
+                                </Button>
+                              )}
+                              <Button variant="outline" size="sm" className={`h-8 text-xs ${isTransferable ? "" : "flex-1"}`}>
                                 <Download className="h-3 w-3 mr-1" /> Save
                               </Button>
                             </div>
@@ -411,37 +510,44 @@ const UserDashboard = () => {
 
                           <div className="flex items-end justify-between pt-2 border-t border-white/20 gap-2">
                             <div className="min-w-0">
-                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">Tier</p>
+                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">{isConcert ? "Tier" : catMeta.short}</p>
                               <p className="text-xs sm:text-sm font-bold truncate">{ticket.tier}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">Price</p>
-                              <p className="text-xs sm:text-sm font-bold">${ticket.price}</p>
+                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">{ticket.category === "giftcard" ? "Value" : ticket.price === 0 ? "Status" : "Price"}</p>
+                              <p className="text-xs sm:text-sm font-bold">{ticket.price === 0 ? "Owned" : `$${ticket.price}`}</p>
                             </div>
                           </div>
                         </div>
 
                         <div className="absolute right-0 top-0 bottom-0 w-16 hidden sm:flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm">
-                          {qrCodes[ticket.id] ? (
-                            <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
+                          {isConcert && qrCodes[ticket.id] ? (
+                            <>
+                              <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
+                              <p className="text-[8px] mt-1 opacity-60 font-medium">SCAN</p>
+                            </>
                           ) : (
-                            <div className="w-12 h-12 rounded bg-white/20 flex items-center justify-center">
-                              <span className="text-xs opacity-60">—</span>
-                            </div>
+                            <>
+                              <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+                                <CatIcon className="h-6 w-6 text-white" />
+                              </div>
+                              <p className="text-[8px] mt-1 opacity-60 font-medium uppercase">{catMeta.short}</p>
+                            </>
                           )}
-                          <p className="text-[8px] mt-1 opacity-60 font-medium">SCAN</p>
                         </div>
                       </div>
 
                       {ticket.status === "valid" && (
                         <div className="flex gap-2 mt-2">
-                          <Button
-                            variant="outline" size="sm" className="flex-1 h-8 text-xs"
-                            onClick={() => handleListForResale(ticket.id)}
-                          >
-                            <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
-                          </Button>
-                          <Button variant="outline" size="sm" className="h-8 text-xs">
+                          {isTransferable && (
+                            <Button
+                              variant="outline" size="sm" className="flex-1 h-8 text-xs"
+                              onClick={() => handleListForResale(ticket.id)}
+                            >
+                              <ArrowUpRight className="h-3 w-3 mr-1" /> {ticket.category === "concert" ? "Resell" : ticket.category === "username" ? "Sell" : "Transfer"}
+                            </Button>
+                          )}
+                          <Button variant="outline" size="sm" className={`h-8 text-xs ${isTransferable ? "" : "flex-1"}`}>
                             <Download className="h-3 w-3 mr-1" /> Save
                           </Button>
                         </div>
@@ -449,7 +555,7 @@ const UserDashboard = () => {
                         </>
                       )}
                     </div>
-                  ))}
+                  );})}
                 </div>
               );
             })()}
