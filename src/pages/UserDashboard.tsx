@@ -16,8 +16,19 @@ import {
   Calendar, MapPin, Trophy, Clock, Camera, Wallet,
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
   TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault,
-  LayoutGrid, Rows3
+  LayoutGrid, Rows3, Music, BadgeCheck, GraduationCap, Gift, Award, AtSign, Sparkles
 } from "lucide-react";
+
+type VaultCategory = "concert" | "membership" | "course" | "giftcard" | "badge" | "username";
+
+const CATEGORY_META: Record<VaultCategory, { label: string; short: string; icon: any; accent: string }> = {
+  concert:    { label: "Concert Tickets",    short: "Tickets",     icon: Music,         accent: "from-violet-600 to-pink-500" },
+  membership: { label: "Membership Passes",  short: "Memberships", icon: BadgeCheck,    accent: "from-amber-500 to-orange-600" },
+  course:     { label: "Course Credentials", short: "Credentials", icon: GraduationCap, accent: "from-emerald-500 to-teal-600" },
+  giftcard:   { label: "Gift Cards",         short: "Gift Cards",  icon: Gift,          accent: "from-rose-500 to-red-600" },
+  badge:      { label: "Attendance Badges",  short: "Badges",      icon: Award,         accent: "from-cyan-500 to-blue-600" },
+  username:   { label: "Usernames",          short: "Usernames",   icon: AtSign,        accent: "from-fuchsia-500 to-purple-600" },
+};
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
