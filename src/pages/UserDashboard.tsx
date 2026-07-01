@@ -55,24 +55,69 @@ const UserDashboard = () => {
 
   const stats = { eventsAttended: 12, upcoming: 2, totalSpent: 1250, resaleEarnings: 320 };
 
-  const myTickets = [
+  const myTickets: Array<{
+    id: string; title: string; date: string; time: string; location: string;
+    tier: string; status: string; price: number; bgGradient: string; organizer: string;
+    ticketNumber: string; sortDate: string; category: VaultCategory;
+    meta?: string; subtitle?: string;
+  }> = [
     {
       id: "1", title: "Bass Drop Festival 2024", date: "Mar 15, 2024", time: "9:00 PM",
       location: "Miami Beach Arena", tier: "VIP", status: "valid", price: 189,
       bgGradient: "from-violet-600 to-pink-500", organizer: "Live Nation",
-      ticketNumber: "TK-00142", sortDate: "2024-03-15T21:00:00"
+      ticketNumber: "TK-00142", sortDate: "2024-03-15T21:00:00", category: "concert"
     },
     {
       id: "2", title: "Tech Innovation Summit", date: "Mar 25, 2024", time: "10:00 AM",
       location: "SF Convention Center", tier: "General", status: "valid", price: 89,
       bgGradient: "from-cyan-600 to-blue-500", organizer: "TechEvents Co",
-      ticketNumber: "TK-00298", sortDate: "2024-03-25T10:00:00"
+      ticketNumber: "TK-00298", sortDate: "2024-03-25T10:00:00", category: "concert"
     },
     {
       id: "3", title: "Art Gallery Opening", date: "Feb 10, 2024", time: "7:00 PM",
       location: "Brooklyn Museum, NYC", tier: "General", status: "used", price: 75,
       bgGradient: "from-amber-500 to-orange-600", organizer: "ArtSpace NYC",
-      ticketNumber: "TK-00067", sortDate: "2024-02-10T19:00:00"
+      ticketNumber: "TK-00067", sortDate: "2024-02-10T19:00:00", category: "concert"
+    },
+    // Membership passes
+    {
+      id: "m1", title: "Vouch Insider Club", date: "Renews Jan 2025", time: "Annual",
+      location: "Members-only benefits", tier: "Gold", status: "valid", price: 120,
+      bgGradient: "from-amber-500 to-orange-600", organizer: "Vouch",
+      ticketNumber: "MEM-00812", sortDate: "2025-01-10T00:00:00", category: "membership",
+      subtitle: "Priority pre-sales · Lounge access"
+    },
+    // Course credentials
+    {
+      id: "c1", title: "Blockchain Fundamentals", date: "Issued Nov 20, 2024", time: "Verified",
+      location: "Tick3rt Academy", tier: "Certificate", status: "valid", price: 0,
+      bgGradient: "from-emerald-500 to-teal-600", organizer: "Tick3rt Academy",
+      ticketNumber: "CRED-00021", sortDate: "2024-11-20T00:00:00", category: "course",
+      subtitle: "12 modules · 40 hrs"
+    },
+    // Gift card
+    {
+      id: "g1", title: "Tick3rt Gift Card", date: "No expiry", time: "Balance available",
+      location: "Redeemable on any event", tier: "$50", status: "valid", price: 50,
+      bgGradient: "from-rose-500 to-red-600", organizer: "Tick3rt",
+      ticketNumber: "GC-9F2A-7K", sortDate: "2024-12-01T00:00:00", category: "giftcard",
+      meta: "Balance: $42.50"
+    },
+    // Attendance badge
+    {
+      id: "b1", title: "HIFA 2024 Attendee", date: "Awarded May 2024", time: "Lifetime",
+      location: "Harare International Festival", tier: "Attendance", status: "valid", price: 0,
+      bgGradient: "from-cyan-500 to-blue-600", organizer: "HIFA",
+      ticketNumber: "BDG-HIFA24", sortDate: "2024-05-08T00:00:00", category: "badge",
+      subtitle: "Proof of attendance"
+    },
+    // Username
+    {
+      id: "u1", title: "@raves", date: "Owned since Jun 2024", time: "Permanent",
+      location: "Tick3rt handle", tier: "Rare", status: "valid", price: 250,
+      bgGradient: "from-fuchsia-500 to-purple-600", organizer: "Tick3rt Names",
+      ticketNumber: "NAME-RAVES", sortDate: "2024-06-14T00:00:00", category: "username",
+      subtitle: "5-letter · Category: Music"
     },
   ];
 
