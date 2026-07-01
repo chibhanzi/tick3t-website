@@ -21,6 +21,14 @@ const navGroups = [
     ],
   },
   {
+    title: "Developers",
+    links: [
+      { label: "Developer Portal", to: "/developers" },
+      { label: "API & SDKs", to: "/developers" },
+      { label: "Token Gating", to: "/developers" },
+    ],
+  },
+  {
     title: "Support",
     links: [
       { label: "Help Center", to: "#" },
@@ -77,7 +85,7 @@ const Footer = () => {
           </div>
 
           {/* Link groups */}
-          <div className="grid grid-cols-2 gap-8 md:col-span-7 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-8 md:col-span-7 md:grid-cols-4">
             {navGroups.map((g) => (
               <div key={g.title}>
                 <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground/80">

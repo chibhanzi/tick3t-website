@@ -18,6 +18,7 @@ import UserDashboard from "./pages/UserDashboard";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import UpgradeToOrganizer from "./pages/UpgradeToOrganizer";
 import NotFound from "./pages/NotFound";
+import DeveloperPortal from "./pages/DeveloperPortal";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/upgrade-to-organizer" element={<UpgradeToOrganizer />} />
+              <Route path="/developers" element={<DeveloperPortal />} />
               
               <Route 
                 path="/dashboard" 
