@@ -446,13 +446,32 @@ const UserDashboard = () => {
                             </div>
 
                             <div className="hidden sm:flex shrink-0 flex-col items-center gap-1">
-                              {qrCodes[ticket.id] ? (
+                              {isConcert && qrCodes[ticket.id] ? (
                                 <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded border border-border" />
                               ) : (
-                                <div className="w-12 h-12 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">—</div>
+                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-white`}>
+                                  <CatIcon className="h-5 w-5" />
+                                </div>
                               )}
+                              <span className="text-[9px] text-muted-foreground uppercase tracking-wider">{catMeta.short}</span>
                             </div>
                           </div>
+
+                          {ticket.status === "valid" && (
+                            <div className="px-4 pb-4 flex gap-2">
+                              {isTransferable && (
+                                <Button
+                                  variant="outline" size="sm" className="flex-1 h-8 text-xs"
+                                  onClick={() => handleListForResale(ticket.id)}
+                                >
+                                  <ArrowUpRight className="h-3 w-3 mr-1" /> {ticket.category === "concert" ? "List for Resale" : ticket.category === "username" ? "List for Sale" : "Transfer / Sell"}
+                                </Button>
+                              )}
+                              <Button variant="outline" size="sm" className={`h-8 text-xs ${isTransferable ? "" : "flex-1"}`}>
+                                <Download className="h-3 w-3 mr-1" /> Save
+                              </Button>
+                            </div>
+                          )}
 
                           {ticket.status === "valid" && (
                             <div className="px-4 pb-4 flex gap-2">
