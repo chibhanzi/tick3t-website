@@ -542,7 +542,7 @@ const UserDashboard = () => {
                         </>
                       )}
                     </div>
-                  ))}
+                  );})}
                 </div>
               );
             })()}
