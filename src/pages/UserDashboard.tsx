@@ -402,8 +402,14 @@ const UserDashboard = () => {
 
               return (
                 <div key={vaultLayout} className={vaultLayout === "grid" ? "grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6" : "flex flex-col gap-3"}>
-                  {visibleVaultTickets.map((ticket) => (
+                  {visibleVaultTickets.map((ticket) => {
+                    const catMeta = CATEGORY_META[ticket.category];
+                    const CatIcon = catMeta.icon;
+                    const isTransferable = ticket.category !== "course" && ticket.category !== "badge";
+                    const isConcert = ticket.category === "concert";
+                    return (
                     <div key={ticket.id} className={vaultLayout === "list" ? "group rounded-2xl border border-border/60 bg-card/70 backdrop-blur-sm overflow-hidden shadow-sm" : "group"}>
+
                       {vaultLayout === "list" ? (
                         <>
                           <div className={`h-1.5 bg-gradient-to-r ${ticket.bgGradient}`} />
