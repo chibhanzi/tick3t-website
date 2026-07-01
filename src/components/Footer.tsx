@@ -85,7 +85,7 @@ const Footer = () => {
           </div>
 
           {/* Link groups */}
-          <div className="grid grid-cols-2 gap-8 md:col-span-7 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-8 md:col-span-7 md:grid-cols-4">
             {navGroups.map((g) => (
               <div key={g.title}>
                 <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground/80">
