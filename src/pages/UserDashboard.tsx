@@ -415,8 +415,9 @@ const UserDashboard = () => {
                           <div className={`h-1.5 bg-gradient-to-r ${ticket.bgGradient}`} />
                           <div className="p-4 flex items-start gap-3">
                             <div className={`shrink-0 h-14 w-14 rounded-xl bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-primary-foreground shadow-md`}>
-                              <Vault className="h-6 w-6" />
+                              <CatIcon className="h-6 w-6" />
                             </div>
+
 
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-2 mb-1">
