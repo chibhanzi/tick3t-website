@@ -510,37 +510,44 @@ const UserDashboard = () => {
 
                           <div className="flex items-end justify-between pt-2 border-t border-white/20 gap-2">
                             <div className="min-w-0">
-                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">Tier</p>
+                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">{isConcert ? "Tier" : catMeta.short}</p>
                               <p className="text-xs sm:text-sm font-bold truncate">{ticket.tier}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">Price</p>
-                              <p className="text-xs sm:text-sm font-bold">${ticket.price}</p>
+                              <p className="text-[9px] sm:text-[10px] opacity-60 uppercase tracking-wider">{ticket.category === "giftcard" ? "Value" : ticket.price === 0 ? "Status" : "Price"}</p>
+                              <p className="text-xs sm:text-sm font-bold">{ticket.price === 0 ? "Owned" : `$${ticket.price}`}</p>
                             </div>
                           </div>
                         </div>
 
                         <div className="absolute right-0 top-0 bottom-0 w-16 hidden sm:flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm">
-                          {qrCodes[ticket.id] ? (
-                            <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
+                          {isConcert && qrCodes[ticket.id] ? (
+                            <>
+                              <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded" />
+                              <p className="text-[8px] mt-1 opacity-60 font-medium">SCAN</p>
+                            </>
                           ) : (
-                            <div className="w-12 h-12 rounded bg-white/20 flex items-center justify-center">
-                              <span className="text-xs opacity-60">—</span>
-                            </div>
+                            <>
+                              <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+                                <CatIcon className="h-6 w-6 text-white" />
+                              </div>
+                              <p className="text-[8px] mt-1 opacity-60 font-medium uppercase">{catMeta.short}</p>
+                            </>
                           )}
-                          <p className="text-[8px] mt-1 opacity-60 font-medium">SCAN</p>
                         </div>
                       </div>
 
                       {ticket.status === "valid" && (
                         <div className="flex gap-2 mt-2">
-                          <Button
-                            variant="outline" size="sm" className="flex-1 h-8 text-xs"
-                            onClick={() => handleListForResale(ticket.id)}
-                          >
-                            <ArrowUpRight className="h-3 w-3 mr-1" /> List for Resale
-                          </Button>
-                          <Button variant="outline" size="sm" className="h-8 text-xs">
+                          {isTransferable && (
+                            <Button
+                              variant="outline" size="sm" className="flex-1 h-8 text-xs"
+                              onClick={() => handleListForResale(ticket.id)}
+                            >
+                              <ArrowUpRight className="h-3 w-3 mr-1" /> {ticket.category === "concert" ? "Resell" : ticket.category === "username" ? "Sell" : "Transfer"}
+                            </Button>
+                          )}
+                          <Button variant="outline" size="sm" className={`h-8 text-xs ${isTransferable ? "" : "flex-1"}`}>
                             <Download className="h-3 w-3 mr-1" /> Save
                           </Button>
                         </div>
