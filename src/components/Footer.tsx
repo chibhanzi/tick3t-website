@@ -21,6 +21,14 @@ const navGroups = [
     ],
   },
   {
+    title: "Developers",
+    links: [
+      { label: "Developer Portal", to: "/developers" },
+      { label: "API & SDKs", to: "/developers" },
+      { label: "Token Gating", to: "/developers" },
+    ],
+  },
+  {
     title: "Support",
     links: [
       { label: "Help Center", to: "#" },
