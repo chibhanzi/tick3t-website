@@ -43,6 +43,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/upgrade-to-organizer" element={<UpgradeToOrganizer />} />
+              <Route path="/developers" element={<DeveloperPortal />} />
               
               <Route 
                 path="/dashboard" 
