@@ -285,6 +285,35 @@ const UserDashboard = () => {
                 />
               </div>
 
+              {/* Category chips */}
+              <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-0.5">
+                {([
+                  { v: "all" as const, label: "All", icon: Sparkles },
+                  ...(Object.entries(CATEGORY_META).map(([v, m]) => ({ v: v as VaultCategory, label: m.short, icon: m.icon }))),
+                ]).map((c) => {
+                  const active = vaultCategory === c.v;
+                  const count = c.v === "all" ? myTickets.length : myTickets.filter(t => t.category === c.v).length;
+                  const Icon = c.icon;
+                  return (
+                    <button
+                      key={c.v}
+                      type="button"
+                      onClick={() => setVaultCategory(c.v)}
+                      className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs font-medium transition-colors border ${
+                        active
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background/40 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {c.label}
+                      <span className={`text-[10px] px-1.5 rounded-full ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+
               {/* Status pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-0.5">
                 {([
