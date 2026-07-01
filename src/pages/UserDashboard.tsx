@@ -184,6 +184,7 @@ const UserDashboard = () => {
   };
 
   const visibleVaultTickets = [...myTickets]
+    .filter((ticket) => vaultCategory === "all" || ticket.category === vaultCategory)
     .filter((ticket) => vaultStatus === "all" || ticket.status === vaultStatus)
     .filter((ticket) => {
       const query = vaultSearch.trim().toLowerCase();
