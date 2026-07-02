@@ -72,6 +72,38 @@ const Header = () => {
               <span>{item.label}</span>
             </Link>
           ))}
+          {!isOrganizer && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary outline-none ${location.pathname.startsWith("/marketplace") ? "text-primary" : ""}`}
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>Marketplace</span>
+                  <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Browse
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {marketplaceItems.map((m) => (
+                  <DropdownMenuItem key={m.href} asChild>
+                    <Link to={m.href} className="flex items-start gap-3 py-2 cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary shrink-0">
+                        <m.icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-tight">{m.label}</p>
+                        <p className="text-xs text-muted-foreground">{m.description}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </nav>
 
         <div className="hidden items-center space-x-3 md:flex">
