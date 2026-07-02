@@ -170,6 +170,41 @@ const Header = () => {
                     })}
                   </div>
 
+                  {!isOrganizer && (
+                    <>
+                      <div className="mt-4 mb-2 px-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Marketplace
+                      </div>
+                      <div className="space-y-1">
+                        {marketplaceItems.map((m) => {
+                          const isActive = location.pathname === m.href;
+                          return (
+                            <Link
+                              key={m.href}
+                              to={m.href}
+                              onClick={() => setIsOpen(false)}
+                              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                                isActive
+                                  ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+                                  : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                              }`}
+                            >
+                              <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                                isActive ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                              }`}>
+                                <m.icon className="h-4 w-4" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="leading-tight">{m.label}</p>
+                                <p className="text-[11px] text-muted-foreground">{m.description}</p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+
                   {user && (
                     <>
                       <div className="my-4 border-t border-border/40" />
