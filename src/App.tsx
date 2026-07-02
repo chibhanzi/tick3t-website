@@ -19,6 +19,7 @@ import OrganizerDashboard from "./pages/OrganizerDashboard";
 import UpgradeToOrganizer from "./pages/UpgradeToOrganizer";
 import NotFound from "./pages/NotFound";
 import DeveloperPortal from "./pages/DeveloperPortal";
+import UsernameMarketplace from "./pages/UsernameMarketplace";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/events" element={<Events />} />
               <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/usernames" element={<UsernameMarketplace />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/event/:id" element={<EventDetail />} />

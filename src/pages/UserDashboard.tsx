@@ -32,6 +32,7 @@ const CATEGORY_META: Record<VaultCategory, { label: string; short: string; icon:
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
+import { VaultToolbar } from "@/components/vault/VaultToolbar";
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -273,110 +274,19 @@ const UserDashboard = () => {
           {/* Vault - Visual ticket cards with search/filter/sort */}
           <TabsContent value="tickets" className="space-y-6">
             {/* Vault toolbar */}
-            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-3 space-y-3">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search your vault..."
-                  value={vaultSearch}
-                  onChange={(e) => setVaultSearch(e.target.value)}
-                  className="pl-9 h-10 bg-background/50 border-border/60"
-                />
-              </div>
-
-              {/* Category chips */}
-              <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-0.5">
-                {([
-                  { v: "all" as const, label: "All", icon: Sparkles },
-                  ...(Object.entries(CATEGORY_META).map(([v, m]) => ({ v: v as VaultCategory, label: m.short, icon: m.icon }))),
-                ]).map((c) => {
-                  const active = vaultCategory === c.v;
-                  const count = c.v === "all" ? myTickets.length : myTickets.filter(t => t.category === c.v).length;
-                  const Icon = c.icon;
-                  return (
-                    <button
-                      key={c.v}
-                      type="button"
-                      onClick={() => setVaultCategory(c.v)}
-                      className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs font-medium transition-colors border ${
-                        active
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-background/40 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      {c.label}
-                      <span className={`text-[10px] px-1.5 rounded-full ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>{count}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-
-              {/* Status pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-0.5">
-                {([
-                  { v: "all", label: "All", count: myTickets.length },
-                  { v: "valid", label: "Valid", count: myTickets.filter(t => t.status === "valid").length },
-                  { v: "used", label: "Used", count: myTickets.filter(t => t.status === "used").length },
-                ] as const).map((s) => (
-                  <button
-                    key={s.v}
-                    type="button"
-                    onClick={() => setVaultStatus(s.v as typeof vaultStatus)}
-                    className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs font-medium transition-colors ${
-                      vaultStatus === s.v
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted/60 text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {s.label}
-                    <span className={`text-[10px] px-1.5 rounded-full ${vaultStatus === s.v ? "bg-primary-foreground/20" : "bg-background/60"}`}>
-                      {s.count}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Sort + Layout */}
-              <div className="flex items-center gap-2">
-                <Select value={vaultSort} onValueChange={(v) => setVaultSort(v as typeof vaultSort)}>
-                  <SelectTrigger className="h-9 flex-1 bg-background/50 border-border/60 text-xs">
-                    <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground mr-1 hidden xs:inline">Sort:</span>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date-desc">Newest first</SelectItem>
-                    <SelectItem value="date-asc">Oldest first</SelectItem>
-                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                    <SelectItem value="name">Name (A → Z)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="inline-flex h-9 items-center rounded-md border border-border/60 bg-background/50 p-0.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setVaultLayout("grid")}
-                    aria-label="Grid view"
-                    aria-pressed={vaultLayout === "grid"}
-                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "grid" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVaultLayout("list")}
-                    aria-label="List view"
-                    aria-pressed={vaultLayout === "list"}
-                    className={`flex h-8 w-8 items-center justify-center rounded-sm transition-colors ${vaultLayout === "list" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <Rows3 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+            <VaultToolbar
+              search={vaultSearch}
+              onSearchChange={setVaultSearch}
+              category={vaultCategory}
+              onCategoryChange={setVaultCategory}
+              status={vaultStatus}
+              onStatusChange={setVaultStatus}
+              sort={vaultSort}
+              onSortChange={setVaultSort}
+              layout={vaultLayout}
+              onLayoutChange={setVaultLayout}
+              tickets={myTickets}
+            />
 
             {(() => {
               if (visibleVaultTickets.length === 0) {

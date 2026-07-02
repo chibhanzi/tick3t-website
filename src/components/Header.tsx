@@ -3,7 +3,10 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket, AtSign, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -29,8 +32,12 @@ const Header = () => {
       ]
     : [
         { href: "/events", label: "Events", icon: Calendar },
-        { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
       ];
+
+  const marketplaceItems = [
+    { href: "/marketplace", label: "Ticket Resale", description: "Verified resale market", icon: ShoppingBag },
+    { href: "/marketplace/usernames", label: "Usernames", description: "Own your @handle", icon: AtSign },
+  ];
 
   const logoDark = "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png";
   const logoLight = "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
@@ -65,6 +72,38 @@ const Header = () => {
               <span>{item.label}</span>
             </Link>
           ))}
+          {!isOrganizer && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary outline-none ${location.pathname.startsWith("/marketplace") ? "text-primary" : ""}`}
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>Marketplace</span>
+                  <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Browse
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {marketplaceItems.map((m) => (
+                  <DropdownMenuItem key={m.href} asChild>
+                    <Link to={m.href} className="flex items-start gap-3 py-2 cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary shrink-0">
+                        <m.icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-tight">{m.label}</p>
+                        <p className="text-xs text-muted-foreground">{m.description}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </nav>
 
         <div className="hidden items-center space-x-3 md:flex">
@@ -130,6 +169,41 @@ const Header = () => {
                       );
                     })}
                   </div>
+
+                  {!isOrganizer && (
+                    <>
+                      <div className="mt-4 mb-2 px-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Marketplace
+                      </div>
+                      <div className="space-y-1">
+                        {marketplaceItems.map((m) => {
+                          const isActive = location.pathname === m.href;
+                          return (
+                            <Link
+                              key={m.href}
+                              to={m.href}
+                              onClick={() => setIsOpen(false)}
+                              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                                isActive
+                                  ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+                                  : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                              }`}
+                            >
+                              <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                                isActive ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                              }`}>
+                                <m.icon className="h-4 w-4" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="leading-tight">{m.label}</p>
+                                <p className="text-[11px] text-muted-foreground">{m.description}</p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
 
                   {user && (
                     <>
