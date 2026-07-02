@@ -32,8 +32,12 @@ const Header = () => {
       ]
     : [
         { href: "/events", label: "Events", icon: Calendar },
-        { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
       ];
+
+  const marketplaceItems = [
+    { href: "/marketplace", label: "Ticket Resale", description: "Verified resale market", icon: ShoppingBag },
+    { href: "/marketplace/usernames", label: "Usernames", description: "Own your @handle", icon: AtSign },
+  ];
 
   const logoDark = "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png";
   const logoLight = "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
