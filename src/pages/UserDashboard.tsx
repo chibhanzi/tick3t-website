@@ -32,6 +32,7 @@ const CATEGORY_META: Record<VaultCategory, { label: string; short: string; icon:
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
+import { VaultToolbar } from "@/components/vault/VaultToolbar";
 
 const UserDashboard = () => {
   const { user } = useAuth();
