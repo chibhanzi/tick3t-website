@@ -109,6 +109,56 @@ const PLATFORM_POLICY: Record<Platform, { policy: TransferPolicy; note: string }
   youtube:   { policy: "restricted", note: "YouTube handles are non-transferable per platform policy. Offers disabled." },
   telegram:  { policy: "assisted",   note: "Assisted transfer using Telegram's Fragment auction bridge or direct handover." },
 };
+
+/* Seed a small mix of in-flight negotiations so the Offers tab is realistic. */
+function seedOffers(): Offer[] {
+  const now = Date.now();
+  const iso = (mins: number) => new Date(now - mins * 60_000).toISOString();
+  const exp = (days: number) => new Date(now + days * 24 * 3600_000).toISOString();
+  return [
+    {
+      id: "o_seed_1", listingId: "3", handle: "harare", platform: "x",
+      asking: 9500, amount: 7200, status: "countered", role: "buyer",
+      counterparty: "@nightlife", createdAt: iso(180), expiresAt: exp(6),
+      history: [
+        { at: iso(180), by: "buyer",  label: "Offer sent", amount: 6800 },
+        { at: iso(140), by: "seller", label: "Countered",  amount: 7200 },
+      ],
+    },
+    {
+      id: "o_seed_2", listingId: "11", handle: "sadza", platform: "tick3rt",
+      asking: 3500, amount: 3200, status: "in_escrow", role: "buyer",
+      counterparty: "@culture", createdAt: iso(1200), expiresAt: exp(2),
+      history: [
+        { at: iso(1200), by: "buyer",  label: "Offer sent",     amount: 3200 },
+        { at: iso(1150), by: "seller", label: "Accepted",       amount: 3200 },
+        { at: iso(1100), by: "buyer",  label: "Escrow funded",  amount: 3200 },
+        { at: iso(1099), by: "system", label: "Awaiting on-chain transfer from seller." },
+      ],
+    },
+    {
+      id: "o_seed_3", listingId: "9", handle: "hifa", platform: "instagram",
+      asking: 900, amount: 750, status: "pending", role: "seller",
+      counterparty: "@buyer.hre", createdAt: iso(40), expiresAt: exp(7),
+      message: "Long-time follower — would love this handle for the festival account.",
+      history: [
+        { at: iso(40), by: "buyer", label: "Offer sent", amount: 750 },
+      ],
+    },
+    {
+      id: "o_seed_4", listingId: "14", handle: "gamer", platform: "twitch",
+      asking: 5400, amount: 5400, status: "transferring", role: "buyer",
+      counterparty: "@arena", createdAt: iso(2600), expiresAt: exp(1),
+      history: [
+        { at: iso(2600), by: "buyer",  label: "Offer sent",       amount: 5000 },
+        { at: iso(2500), by: "seller", label: "Countered",        amount: 5400 },
+        { at: iso(2400), by: "buyer",  label: "Accepted",         amount: 5400 },
+        { at: iso(2300), by: "buyer",  label: "Escrow funded",    amount: 5400 },
+        { at: iso(300),  by: "seller", label: "Transfer initiated (assisted)" },
+      ],
+    },
+  ];
+}
 /* -----------------------------------------------------------
    Meta
 ----------------------------------------------------------- */
