@@ -310,11 +310,116 @@ const UsernameMarketplace = () => {
       toast({ title: "Enter a valid offer", variant: "destructive" });
       return;
     }
+    const pol = PLATFORM_POLICY[offerFor.platform];
+    if (pol.policy === "restricted") {
+      toast({
+        title: `${PLATFORM_META[offerFor.platform].label} does not permit transfers`,
+        description: pol.note,
+        variant: "destructive",
+      });
+      return;
+    }
+    const now = new Date();
+    const expires = new Date(now.getTime() + 7 * 24 * 3600 * 1000).toISOString();
+    const newOffer: Offer = {
+      id: `o_${Date.now()}`,
+      listingId: offerFor.id,
+      handle: offerFor.handle,
+      platform: offerFor.platform,
+      asking: offerFor.price,
+      amount: amt,
+      status: "pending",
+      role: "buyer",
+      counterparty: offerFor.seller,
+      createdAt: now.toISOString(),
+      expiresAt: expires,
+      message: offerMsg || undefined,
+      history: [
+        { at: now.toISOString(), by: "buyer", label: "Offer sent", amount: amt },
+        { at: now.toISOString(), by: "system", label: `Escrow reserved. Transfer policy: ${pol.policy}.` },
+      ],
+    };
+    setOffers((prev) => [newOffer, ...prev]);
     toast({
       title: `Offer sent for ${PLATFORM_META[offerFor.platform].prefix}${offerFor.handle}`,
-      description: `Your offer of $${amt.toLocaleString()} has been sent to ${offerFor.seller} on ${PLATFORM_META[offerFor.platform].label}.`,
+      description: `$${amt.toLocaleString()} sent to ${offerFor.seller}. Track it in the Offers tab.`,
     });
     setOfferFor(null); setOfferAmount(""); setOfferMsg("");
+    setTab("offers");
+  };
+
+  /* -------- negotiation actions -------- */
+  const pushEvent = (id: string, ev: OfferEvent, patch: Partial<Offer> = {}) => {
+    setOffers((prev) => prev.map((o) => o.id === id ? { ...o, ...patch, history: [...o.history, ev] } : o));
+  };
+
+  const acceptOffer = (o: Offer) => {
+    const by = o.role === "seller" ? "seller" : "buyer";
+    pushEvent(o.id, { at: new Date().toISOString(), by, label: "Accepted", amount: o.amount },
+      { status: "awaiting_escrow" });
+    toast({ title: "Offer accepted", description: `Buyer must fund escrow to proceed with transfer of ${PLATFORM_META[o.platform].prefix}${o.handle}.` });
+  };
+
+  const declineOffer = (o: Offer) => {
+    const by = o.role === "seller" ? "seller" : "buyer";
+    pushEvent(o.id, { at: new Date().toISOString(), by, label: "Declined" }, { status: "declined" });
+    toast({ title: "Offer declined" });
+  };
+
+  const withdrawOffer = (o: Offer) => {
+    pushEvent(o.id, { at: new Date().toISOString(), by: "buyer", label: "Withdrawn" }, { status: "declined" });
+    toast({ title: "Offer withdrawn" });
+  };
+
+  const openCounter = (o: Offer) => {
+    setCounterFor(o);
+    setCounterAmount(String(Math.round((o.amount + o.asking) / 2)));
+  };
+
+  const submitCounter = () => {
+    if (!counterFor) return;
+    const amt = Number(counterAmount);
+    if (!amt || amt <= 0) {
+      toast({ title: "Enter a counter amount", variant: "destructive" });
+      return;
+    }
+    const by = counterFor.role === "seller" ? "seller" : "buyer";
+    // after a counter, the ball is in the other party's court, so flip role
+    pushEvent(counterFor.id,
+      { at: new Date().toISOString(), by, label: "Countered", amount: amt },
+      { status: "countered", amount: amt, role: counterFor.role === "seller" ? "buyer" : "seller" });
+    toast({ title: `Counter sent: $${amt.toLocaleString()}` });
+    setCounterFor(null); setCounterAmount("");
+  };
+
+  const fundEscrow = (o: Offer) => {
+    pushEvent(o.id,
+      { at: new Date().toISOString(), by: "buyer", label: "Escrow funded", amount: o.amount },
+      { status: "in_escrow" });
+    toast({ title: "Escrow funded", description: `$${o.amount.toLocaleString()} held securely. Seller notified to initiate transfer.` });
+  };
+
+  const markTransferred = (o: Offer) => {
+    pushEvent(o.id,
+      { at: new Date().toISOString(), by: "seller", label: `Transfer initiated (${PLATFORM_POLICY[o.platform].policy})` },
+      { status: "transferring" });
+    toast({ title: "Transfer initiated", description: PLATFORM_POLICY[o.platform].note });
+  };
+
+  const confirmReceipt = (o: Offer) => {
+    pushEvent(o.id,
+      { at: new Date().toISOString(), by: "buyer", label: "Receipt confirmed" },
+      { status: "settled" });
+    pushEvent(o.id,
+      { at: new Date().toISOString(), by: "system", label: `Funds released to ${o.counterparty}. Trade settled.` });
+    toast({ title: "Trade settled", description: `${PLATFORM_META[o.platform].prefix}${o.handle} is yours.` });
+  };
+
+  const raiseDispute = (o: Offer) => {
+    pushEvent(o.id,
+      { at: new Date().toISOString(), by: o.role, label: "Dispute opened" },
+      { status: "disputed" });
+    toast({ title: "Dispute opened", description: "Escrow frozen. Our team will review within 24h." });
   };
 
   const submitBid = () => {
