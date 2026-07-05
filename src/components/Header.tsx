@@ -146,7 +146,7 @@ const Header = () => {
                 {/* Navigation Links */}
                 <nav className="flex-1 overflow-y-auto px-3 py-4">
                   <div className="space-y-1">
-                    {navigationItems.map((item) => {
+                    {[{ href: "/", label: "Home", icon: Home }, ...navigationItems].map((item) => {
                       const isActive = location.pathname === item.href;
                       return (
                         <Link
