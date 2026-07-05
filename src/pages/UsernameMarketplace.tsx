@@ -1122,3 +1122,269 @@ const ListingTable = ({
 );
 
 export default UsernameMarketplace;
+
+/* -----------------------------------------------------------
+   Policy note (per-platform transfer legality)
+----------------------------------------------------------- */
+const PolicyNote = ({ platform }: { platform: Platform }) => {
+  const p = PLATFORM_POLICY[platform];
+  const meta = PLATFORM_META[platform];
+  const map = {
+    onchain:    { icon: ShieldCheck, tone: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20", label: "On-chain transfer" },
+    assisted:   { icon: Handshake,   tone: "text-amber-600 dark:text-amber-400",     bg: "bg-amber-500/10 border-amber-500/20",     label: "Assisted transfer" },
+    restricted: { icon: Ban,         tone: "text-red-600 dark:text-red-400",         bg: "bg-red-500/10 border-red-500/20",         label: "Transfers not permitted" },
+  } as const;
+  const s = map[p.policy];
+  return (
+    <div className={`rounded-md border p-2.5 text-[11px] flex items-start gap-2 ${s.bg}`}>
+      <s.icon className={`h-4 w-4 shrink-0 mt-0.5 ${s.tone}`} />
+      <div className="space-y-0.5">
+        <p className={`font-semibold ${s.tone}`}>{meta.label} · {s.label}</p>
+        <p className="text-muted-foreground">{p.note}</p>
+      </div>
+    </div>
+  );
+};
+
+/* -----------------------------------------------------------
+   Offers panel — negotiation & escrow settlement
+----------------------------------------------------------- */
+const STATUS_META: Record<OfferStatus, { label: string; tone: string; icon: typeof Handshake }> = {
+  pending:         { label: "Pending",          tone: "bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30",              icon: MessageSquare },
+  countered:       { label: "Countered",        tone: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30",      icon: RefreshCw },
+  accepted:        { label: "Accepted",         tone: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30", icon: Check },
+  awaiting_escrow: { label: "Awaiting escrow",  tone: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30",      icon: Wallet },
+  in_escrow:       { label: "In escrow",        tone: "bg-primary/15 text-primary border-primary/30",                                 icon: Lock },
+  transferring:    { label: "Transferring",     tone: "bg-primary/15 text-primary border-primary/30",                                 icon: RefreshCw },
+  settled:         { label: "Settled",          tone: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30", icon: ShieldCheck },
+  declined:        { label: "Declined",         tone: "bg-muted text-muted-foreground border-border",                                 icon: XIcon },
+  expired:         { label: "Expired",          tone: "bg-muted text-muted-foreground border-border",                                 icon: Clock },
+  disputed:        { label: "Disputed",         tone: "bg-red-500/15 text-red-600 dark:text-red-300 border-red-500/30",              icon: AlertTriangle },
+};
+
+const OFFER_STEPS: OfferStatus[] = ["pending", "accepted", "in_escrow", "transferring", "settled"];
+
+type OffersPanelProps = {
+  offers: Offer[];
+  onAccept: (o: Offer) => void;
+  onDecline: (o: Offer) => void;
+  onWithdraw: (o: Offer) => void;
+  onCounter: (o: Offer) => void;
+  onFund: (o: Offer) => void;
+  onMarkTransferred: (o: Offer) => void;
+  onConfirm: (o: Offer) => void;
+  onDispute: (o: Offer) => void;
+};
+
+const OffersPanel = (props: OffersPanelProps) => {
+  const { offers } = props;
+  const [filter, setFilter] = useState<"active" | "buying" | "selling" | "closed">("active");
+
+  const active = (o: Offer) =>
+    ["pending", "countered", "accepted", "awaiting_escrow", "in_escrow", "transferring", "disputed"].includes(o.status);
+
+  const list = useMemo(() => {
+    switch (filter) {
+      case "buying":  return offers.filter((o) => o.role === "buyer" && active(o));
+      case "selling": return offers.filter((o) => o.role === "seller" && active(o));
+      case "closed":  return offers.filter((o) => !active(o));
+      case "active":
+      default:        return offers.filter(active);
+    }
+  }, [offers, filter]);
+
+  const counts = {
+    active:  offers.filter(active).length,
+    buying:  offers.filter((o) => o.role === "buyer" && active(o)).length,
+    selling: offers.filter((o) => o.role === "seller" && active(o)).length,
+    closed:  offers.filter((o) => !active(o)).length,
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        {(["active", "buying", "selling", "closed"] as const).map((k) => (
+          <button
+            key={k}
+            onClick={() => setFilter(k)}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs font-medium border transition-colors ${
+              filter === k
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background/40 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            {k.charAt(0).toUpperCase() + k.slice(1)}
+            <span className="text-[10px] opacity-70 tabular-nums">{counts[k]}</span>
+          </button>
+        ))}
+      </div>
+
+      {list.length === 0 ? (
+        <Card className="border-dashed border-2">
+          <CardContent className="p-12 text-center">
+            <Handshake className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+            <h3 className="font-semibold mb-1">No {filter} offers</h3>
+            <p className="text-sm text-muted-foreground">Send an offer on any listing to start a negotiation.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2">
+          {list.map((o) => <OfferCard key={o.id} o={o} {...props} />)}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const OfferCard = ({
+  o, onAccept, onDecline, onWithdraw, onCounter, onFund, onMarkTransferred, onConfirm, onDispute,
+}: { o: Offer } & Omit<OffersPanelProps, "offers">) => {
+  const meta = PLATFORM_META[o.platform];
+  const policy = PLATFORM_POLICY[o.platform];
+  const s = STATUS_META[o.status];
+  const stepIndex = OFFER_STEPS.indexOf(o.status);
+  const closed = ["declined", "expired"].includes(o.status);
+
+  return (
+    <Card className="border-border/60 overflow-hidden">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="shrink-0 h-10 w-10 rounded-lg bg-muted grid place-items-center">
+              <span className={`h-2.5 w-2.5 rounded-full ${meta.dot}`} />
+            </div>
+            <div className="min-w-0">
+              <p className="font-semibold truncate">{meta.prefix}{o.handle}</p>
+              <p className="text-[11px] text-muted-foreground truncate">
+                {meta.label} · {o.role === "buyer" ? "You → " : "From "}<span className="font-mono">{o.counterparty}</span>
+              </p>
+            </div>
+          </div>
+          <Badge variant="outline" className={`gap-1 text-[10px] ${s.tone}`}>
+            <s.icon className="h-3 w-3" />{s.label}
+          </Badge>
+        </div>
+
+        {/* Progress rail (only for active flows) */}
+        {stepIndex >= 0 && (
+          <div className="flex items-center gap-1">
+            {OFFER_STEPS.map((step, i) => (
+              <div key={step} className={`h-1.5 flex-1 rounded-full ${i <= stepIndex ? "bg-primary" : "bg-muted"}`} />
+            ))}
+          </div>
+        )}
+
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Offer</p>
+            <p className="font-bold tabular-nums text-sm">${o.amount.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Ask</p>
+            <p className="tabular-nums text-sm">${o.asking.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Δ</p>
+            <p className={`tabular-nums text-sm ${o.amount >= o.asking ? "text-emerald-500" : "text-red-500"}`}>
+              {o.amount >= o.asking ? "+" : ""}{Math.round(((o.amount - o.asking) / o.asking) * 100)}%
+            </p>
+          </div>
+        </div>
+
+        {o.message && (
+          <p className="text-xs text-muted-foreground bg-muted/50 rounded-md p-2 border-l-2 border-primary/40">
+            “{o.message}”
+          </p>
+        )}
+
+        {/* Timeline (compact) */}
+        <details className="text-xs">
+          <summary className="cursor-pointer text-muted-foreground hover:text-foreground select-none">
+            History ({o.history.length})
+          </summary>
+          <ol className="mt-2 space-y-1.5 border-l border-border/60 pl-3">
+            {o.history.map((e, i) => (
+              <li key={i} className="flex items-baseline gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground w-14">{e.by}</span>
+                <span className="flex-1">{e.label}{e.amount ? ` · $${e.amount.toLocaleString()}` : ""}</span>
+                <span className="text-[10px] text-muted-foreground tabular-nums">{new Date(e.at).toLocaleDateString()}</span>
+              </li>
+            ))}
+          </ol>
+        </details>
+
+        {/* Policy line */}
+        <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 border-t border-border/40 pt-2">
+          <ShieldCheck className="h-3 w-3" /> {policy.policy === "onchain" ? "On-chain settlement" : policy.policy === "assisted" ? "Assisted transfer" : "Non-transferable"}
+          <span className="ml-auto">Expires {new Date(o.expiresAt).toLocaleDateString()}</span>
+        </div>
+
+        {/* Actions per state / role */}
+        {!closed && o.status !== "settled" && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {/* Pending — seller responds, buyer can withdraw */}
+            {o.status === "pending" && o.role === "seller" && (
+              <>
+                <Button size="sm" className="h-8 text-xs gap-1" onClick={() => onAccept(o)}><Check className="h-3.5 w-3.5" />Accept</Button>
+                <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={() => onCounter(o)}><RefreshCw className="h-3.5 w-3.5" />Counter</Button>
+                <Button size="sm" variant="ghost" className="h-8 text-xs gap-1 text-muted-foreground" onClick={() => onDecline(o)}><XIcon className="h-3.5 w-3.5" />Decline</Button>
+              </>
+            )}
+            {o.status === "pending" && o.role === "buyer" && (
+              <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => onWithdraw(o)}>Withdraw offer</Button>
+            )}
+
+            {/* Countered — the one whose role it now is responds */}
+            {o.status === "countered" && (
+              <>
+                <Button size="sm" className="h-8 text-xs gap-1" onClick={() => onAccept(o)}><Check className="h-3.5 w-3.5" />Accept ${o.amount.toLocaleString()}</Button>
+                <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={() => onCounter(o)}><RefreshCw className="h-3.5 w-3.5" />Counter</Button>
+                <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground" onClick={() => onDecline(o)}>Decline</Button>
+              </>
+            )}
+
+            {/* Awaiting escrow — buyer funds */}
+            {o.status === "awaiting_escrow" && o.role === "buyer" && (
+              <Button size="sm" className="h-8 text-xs gap-1" onClick={() => onFund(o)}><Wallet className="h-3.5 w-3.5" />Fund escrow</Button>
+            )}
+            {o.status === "awaiting_escrow" && o.role === "seller" && (
+              <p className="text-[11px] text-muted-foreground">Waiting for buyer to fund escrow…</p>
+            )}
+
+            {/* In escrow — seller initiates transfer */}
+            {o.status === "in_escrow" && o.role === "seller" && (
+              <Button size="sm" className="h-8 text-xs gap-1" onClick={() => onMarkTransferred(o)}>
+                <Handshake className="h-3.5 w-3.5" />Initiate transfer
+              </Button>
+            )}
+            {o.status === "in_escrow" && o.role === "buyer" && (
+              <p className="text-[11px] text-muted-foreground">Funds locked. Awaiting seller's transfer…</p>
+            )}
+
+            {/* Transferring — buyer confirms or disputes */}
+            {o.status === "transferring" && o.role === "buyer" && (
+              <>
+                <Button size="sm" className="h-8 text-xs gap-1" onClick={() => onConfirm(o)}>
+                  <Check className="h-3.5 w-3.5" />Confirm receipt · release funds
+                </Button>
+                <Button size="sm" variant="outline" className="h-8 text-xs gap-1 text-red-500 border-red-500/40 hover:bg-red-500/10" onClick={() => onDispute(o)}>
+                  <AlertTriangle className="h-3.5 w-3.5" />Dispute
+                </Button>
+              </>
+            )}
+            {o.status === "transferring" && o.role === "seller" && (
+              <p className="text-[11px] text-muted-foreground">Awaiting buyer confirmation to release funds…</p>
+            )}
+
+            {/* Disputed */}
+            {o.status === "disputed" && (
+              <p className="text-[11px] text-red-500 flex items-center gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5" /> Escrow frozen. Support is reviewing.
+              </p>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
