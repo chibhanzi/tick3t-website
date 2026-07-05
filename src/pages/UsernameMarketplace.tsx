@@ -57,6 +57,59 @@ type Listing = {
 };
 
 /* -----------------------------------------------------------
+   Escrow / Negotiation model
+----------------------------------------------------------- */
+type OfferStatus =
+  | "pending"        // buyer sent, seller hasn't responded
+  | "countered"      // seller countered, buyer to respond
+  | "accepted"       // both parties agreed on price
+  | "awaiting_escrow"// waiting for buyer to fund
+  | "in_escrow"      // funds held, awaiting seller transfer
+  | "transferring"   // seller marked transferred, buyer to confirm
+  | "settled"        // funds released, transfer complete
+  | "declined"
+  | "expired"
+  | "disputed";
+
+type OfferEvent = {
+  at: string;             // ISO
+  by: "buyer" | "seller" | "system";
+  label: string;
+  amount?: number;
+};
+
+type Offer = {
+  id: string;
+  listingId: string;
+  handle: string;
+  platform: Platform;
+  asking: number;
+  amount: number;         // current negotiated amount
+  status: OfferStatus;
+  role: "buyer" | "seller"; // current user's role in this offer
+  counterparty: string;
+  createdAt: string;
+  expiresAt: string;
+  message?: string;
+  history: OfferEvent[];
+};
+
+/* Platform transfer policy — what the Exchange can/can't do per platform.
+   Reflects real third-party rules: on-chain identities transfer instantly,
+   assisted transfers use platform-official flows, restricted platforms
+   forbid handle transfers (offers are blocked with an explanation).      */
+type TransferPolicy = "onchain" | "assisted" | "restricted";
+const PLATFORM_POLICY: Record<Platform, { policy: TransferPolicy; note: string }> = {
+  tick3rt:   { policy: "onchain",    note: "On-chain settlement. Instant transfer via smart contract." },
+  ens:       { policy: "onchain",    note: "ERC-721 transfer on Ethereum. Escrow releases atomically." },
+  instagram: { policy: "assisted",   note: "Assisted transfer. Meta does not officially support handle sales; we facilitate a coordinated swap where both parties consent." },
+  x:         { policy: "assisted",   note: "Assisted transfer via account credential handover under escrow supervision." },
+  tiktok:    { policy: "assisted",   note: "Assisted transfer. Requires both parties to complete official account recovery steps." },
+  twitch:    { policy: "assisted",   note: "Assisted username release + reclaim window supervised by escrow." },
+  youtube:   { policy: "restricted", note: "YouTube handles are non-transferable per platform policy. Offers disabled." },
+  telegram:  { policy: "assisted",   note: "Assisted transfer using Telegram's Fragment auction bridge or direct handover." },
+};
+/* -----------------------------------------------------------
    Meta
 ----------------------------------------------------------- */
 const PLATFORM_META: Record<Platform, { label: string; prefix: string; accent: string; dot: string; }> = {
