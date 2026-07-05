@@ -525,31 +525,31 @@ const UsernameMarketplace = () => {
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* Hero */}
-        <section className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-fuchsia-500/10 via-purple-500/5 to-transparent p-6 sm:p-8">
-          <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-fuchsia-500/10 blur-3xl" />
-          <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-sky-500/10 blur-3xl" />
+        <section className="relative overflow-hidden rounded-3xl border border-border/50 bg-card p-6 sm:p-8">
+          <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
           <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div className="max-w-2xl">
               <div className="flex items-center gap-2 mb-3">
-                <Badge className="bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-300 border-fuchsia-500/20 hover:bg-fuchsia-500/15">
-                  <Sparkles className="h-3 w-3 mr-1" /> TickID Exchange
+                <Badge variant="secondary" className="gap-1">
+                  <Sparkles className="h-3 w-3" /> TickID Exchange
                 </Badge>
-                <Badge variant="outline" className="text-[10px] font-mono">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse" /> LIVE
+                <Badge variant="outline" className="text-[10px] font-mono gap-1.5">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
                 </Badge>
               </div>
               <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-3">Username Exchange</h1>
               <p className="text-sm sm:text-base text-muted-foreground">
                 The global marketplace for digital identities. Discover, negotiate, buy, sell and mint premium handles across
-                Instagram, X, TikTok, Twitch, YouTube, Telegram, ENS and Tick3rt — all in one terminal.
+                Instagram, X, TikTok, Twitch, YouTube, Telegram, ENS and Tick3rt.
               </p>
               <p className="mt-2 text-[11px] text-muted-foreground/80">
-                Bloomberg-grade market data. Sotheby's-grade escrow. Transfers only where each platform's rules permit.
+                Live market data · Escrow-backed transfers · Only where each platform's rules permit.
               </p>
             </div>
             <div className="grid grid-cols-3 gap-3 lg:min-w-[420px]">
               <StatTile icon={BarChart3} label="30d Volume" value={money(kpis.volume)} accent="text-emerald-500" />
-              <StatTile icon={AtSign}    label="Listings"    value={fmt(kpis.listed)} accent="text-fuchsia-500" />
+              <StatTile icon={AtSign}    label="Listings"    value={fmt(kpis.listed)} accent="text-primary" />
               <StatTile icon={Gavel}     label="Auctions"    value={fmt(kpis.auctions)} accent="text-amber-500" />
               <StatTile icon={Flame}     label="Hot (24h)"   value={fmt(kpis.hot)} accent="text-orange-500" />
               <StatTile icon={Activity}  label="Avg Price"   value={money(kpis.avg)} accent="text-sky-500" />
@@ -560,12 +560,36 @@ const UsernameMarketplace = () => {
 
         {/* Tabs */}
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-          <TabsList className="w-full sm:w-auto grid grid-cols-4 sm:inline-flex">
+          <TabsList className="w-full sm:w-auto grid grid-cols-5 sm:inline-flex">
             <TabsTrigger value="market" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" />Market</TabsTrigger>
             <TabsTrigger value="auctions" className="gap-1.5"><Gavel className="h-3.5 w-3.5" />Auctions</TabsTrigger>
             <TabsTrigger value="watchlist" className="gap-1.5"><Star className="h-3.5 w-3.5" />Watchlist</TabsTrigger>
+            <TabsTrigger value="offers" className="gap-1.5 relative">
+              <Handshake className="h-3.5 w-3.5" />Offers
+              {offers.filter((o) => ["pending","countered","awaiting_escrow","in_escrow","transferring","disputed"].includes(o.status)).length > 0 && (
+                <span className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] tabular-nums">
+                  {offers.filter((o) => ["pending","countered","awaiting_escrow","in_escrow","transferring","disputed"].includes(o.status)).length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="mint" className="gap-1.5"><Hammer className="h-3.5 w-3.5" />Mint</TabsTrigger>
           </TabsList>
+
+          {/* OFFERS TAB */}
+          <TabsContent value="offers" className="mt-6">
+            <OffersPanel
+              offers={offers}
+              onAccept={acceptOffer}
+              onDecline={declineOffer}
+              onWithdraw={withdrawOffer}
+              onCounter={openCounter}
+              onFund={fundEscrow}
+              onMarkTransferred={markTransferred}
+              onConfirm={confirmReceipt}
+              onDispute={raiseDispute}
+            />
+          </TabsContent>
+
 
           {/* MINT TAB */}
           <TabsContent value="mint" className="mt-6">
