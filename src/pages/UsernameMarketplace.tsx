@@ -230,7 +230,7 @@ const UsernameMarketplace = () => {
   const [priceMax, setPriceMax] = useState<string>("");
   const [sort, setSort] = useState<"trending" | "price-asc" | "price-desc" | "length" | "offers" | "ending" | "change">("trending");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
-  const [tab, setTab] = useState<"market" | "auctions" | "watchlist" | "mint">("market");
+  const [tab, setTab] = useState<"market" | "auctions" | "watchlist" | "offers" | "mint">("market");
   const [watchlist, setWatchlist] = useState<string[]>(["4", "10", "16"]);
 
   // negotiation dialogs
@@ -239,6 +239,13 @@ const UsernameMarketplace = () => {
   const [offerMsg, setOfferMsg] = useState("");
   const [bidFor, setBidFor] = useState<Listing | null>(null);
   const [bidAmount, setBidAmount] = useState("");
+
+  // counter-offer dialog (from Offers tab)
+  const [counterFor, setCounterFor] = useState<Offer | null>(null);
+  const [counterAmount, setCounterAmount] = useState("");
+
+  // escrow-backed offers (mock persisted state)
+  const [offers, setOffers] = useState<Offer[]>(() => seedOffers());
 
   // mint form
   const [mintHandle, setMintHandle] = useState("");
