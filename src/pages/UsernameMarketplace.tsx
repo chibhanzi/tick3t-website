@@ -889,6 +889,36 @@ const UsernameMarketplace = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Counter-offer dialog */}
+      <Dialog open={!!counterFor} onOpenChange={(o) => !o && setCounterFor(null)}>
+        <DialogContent>
+          {counterFor && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Counter offer · {PLATFORM_META[counterFor.platform].prefix}{counterFor.handle}</DialogTitle>
+                <DialogDescription>
+                  Current offer: <span className="font-semibold text-foreground">${counterFor.amount.toLocaleString()}</span> ·
+                  {" "}Ask: ${counterFor.asking.toLocaleString()}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label>Your counter (USD)</Label>
+                  <Input value={counterAmount} onChange={(e) => setCounterAmount(e.target.value.replace(/\D/g, ""))} />
+                </div>
+                <div className="rounded-md bg-muted/60 p-2 text-[11px] text-muted-foreground flex items-center gap-2">
+                  <RefreshCw className="h-3.5 w-3.5" /> The counterparty will have 7 days to accept, counter, or decline.
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setCounterFor(null)}>Cancel</Button>
+                <Button onClick={submitCounter} className="gap-1.5"><RefreshCw className="h-4 w-4" />Send counter</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
