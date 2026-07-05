@@ -19,6 +19,7 @@ import {
   AtSign, Search, Sparkles, Flame, Crown, Tag, TrendingUp, TrendingDown, Shield,
   LayoutGrid, Rows3, Gavel, Star, Eye, Zap, Globe, Clock, ArrowUpRight, ArrowDownRight,
   Activity, Hammer, Wallet, ShieldCheck, Info, ChevronRight, Filter, BarChart3,
+  MessageSquare, Check, X as XIcon, RefreshCw, Lock, Handshake, AlertTriangle, Ban,
 } from "lucide-react";
 
 /* -----------------------------------------------------------
