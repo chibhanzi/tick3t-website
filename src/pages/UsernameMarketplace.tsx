@@ -840,8 +840,9 @@ const UsernameMarketplace = () => {
                   <Label>Message (optional)</Label>
                   <Textarea value={offerMsg} onChange={(e) => setOfferMsg(e.target.value)} placeholder="A short note to the seller…" rows={3} />
                 </div>
+                <PolicyNote platform={offerFor.platform} />
                 <div className="rounded-md bg-muted/60 p-2 text-[11px] text-muted-foreground flex items-center gap-2">
-                  <Wallet className="h-3.5 w-3.5" /> Offers are held in escrow. Nothing is charged until the seller accepts.
+                  <Wallet className="h-3.5 w-3.5" /> Offers are escrow-reserved. Funds are only captured when both parties accept and buyer funds escrow.
                 </div>
               </div>
               <DialogFooter>
