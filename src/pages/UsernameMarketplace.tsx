@@ -195,18 +195,18 @@ const TICKER = [
 ];
 
 const Ticker = () => (
-  <div className="relative overflow-hidden border-y border-border/60 bg-black/90 dark:bg-black text-white">
-    <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black to-transparent z-10" />
-    <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-black to-transparent z-10" />
+  <div className="relative overflow-hidden border-y border-border/60 bg-muted/40 backdrop-blur-sm">
+    <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent z-10" />
+    <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent z-10" />
     <div className="flex whitespace-nowrap animate-[ticker_60s_linear_infinite] gap-8 py-2 text-xs font-mono">
       {[...TICKER, ...TICKER].map((t, i) => (
         <span key={i} className="inline-flex items-center gap-2">
-          <span className="text-white/60">{t.sym}</span>
-          <span className="tabular-nums">${t.val.toLocaleString()}</span>
-          <span className={`tabular-nums ${t.chg >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+          <span className="text-muted-foreground">{t.sym}</span>
+          <span className="tabular-nums text-foreground/90">${t.val.toLocaleString()}</span>
+          <span className={`tabular-nums ${t.chg >= 0 ? "text-emerald-500" : "text-red-500"}`}>
             {t.chg >= 0 ? "▲" : "▼"} {Math.abs(t.chg).toFixed(1)}%
           </span>
-          <span className="text-white/20">•</span>
+          <span className="text-border">•</span>
         </span>
       ))}
     </div>
