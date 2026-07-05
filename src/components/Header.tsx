@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket, AtSign, ChevronDown } from "lucide-react";
+import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket, AtSign, ChevronDown, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -146,7 +146,7 @@ const Header = () => {
                 {/* Navigation Links */}
                 <nav className="flex-1 overflow-y-auto px-3 py-4">
                   <div className="space-y-1">
-                    {navigationItems.map((item) => {
+                    {[{ href: "/", label: "Home", icon: Home }, ...navigationItems].map((item) => {
                       const isActive = location.pathname === item.href;
                       return (
                         <Link
