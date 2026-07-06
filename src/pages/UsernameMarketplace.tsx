@@ -20,6 +20,7 @@ import {
   LayoutGrid, Rows3, Gavel, Star, Eye, Zap, Globe, Clock, ArrowUpRight, ArrowDownRight,
   Activity, Hammer, Wallet, ShieldCheck, Info, ChevronRight, Filter, BarChart3,
   MessageSquare, Check, X as XIcon, RefreshCw, Lock, Handshake, AlertTriangle, Ban,
+  SlidersHorizontal, ChevronDown,
 } from "lucide-react";
 
 /* -----------------------------------------------------------
@@ -281,6 +282,7 @@ const UsernameMarketplace = () => {
   const [sort, setSort] = useState<"trending" | "price-asc" | "price-desc" | "length" | "offers" | "ending" | "change">("trending");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [tab, setTab] = useState<"market" | "auctions" | "watchlist" | "offers" | "mint">("market");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [watchlist, setWatchlist] = useState<string[]>(["4", "10", "16"]);
 
   // negotiation dialogs
@@ -682,87 +684,135 @@ const UsernameMarketplace = () => {
               </div>
 
               {/* Toolbar */}
-              <Card className="border-border/60">
-                <CardContent className="p-3 space-y-3">
-                  <div className="flex flex-col lg:flex-row gap-2">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search handles or platforms (e.g. @dj, ENS, tiktok)…"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        className="pl-9 h-10 font-mono text-sm"
-                      />
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Select value={category} onValueChange={(v) => setCategory(v as typeof category)}>
-                        <SelectTrigger className="h-10 w-[130px] text-xs"><SelectValue placeholder="Category" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All categories</SelectItem>
-                          <SelectItem value="short">Short</SelectItem>
-                          <SelectItem value="brand">Brand</SelectItem>
-                          <SelectItem value="word">Word</SelectItem>
-                          <SelectItem value="numeric">Numeric</SelectItem>
-                          <SelectItem value="premium">Premium</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select value={rarity} onValueChange={(v) => setRarity(v as typeof rarity)}>
-                        <SelectTrigger className="h-10 w-[130px] text-xs"><SelectValue placeholder="Rarity" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All rarities</SelectItem>
-                          {(Object.keys(RARITY_META) as Rarity[]).map((r) => (
-                            <SelectItem key={r} value={r}>{RARITY_META[r].label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={sale} onValueChange={(v) => setSale(v as typeof sale)}>
-                        <SelectTrigger className="h-10 w-[130px] text-xs"><SelectValue placeholder="Sale type" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All types</SelectItem>
-                          <SelectItem value="buy_now">Buy now</SelectItem>
-                          <SelectItem value="auction">Auction</SelectItem>
-                          <SelectItem value="make_offer">Make offer</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <div className="flex items-center gap-1">
-                        <Input value={priceMin} onChange={(e) => setPriceMin(e.target.value.replace(/\D/g, ""))} placeholder="Min $" className="h-10 w-24 text-xs" />
-                        <span className="text-muted-foreground text-xs">–</span>
-                        <Input value={priceMax} onChange={(e) => setPriceMax(e.target.value.replace(/\D/g, ""))} placeholder="Max $" className="h-10 w-24 text-xs" />
-                      </div>
-                      <Select value={sort} onValueChange={(v) => setSort(v as typeof sort)}>
-                        <SelectTrigger className="h-10 w-[150px] text-xs"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="trending">Trending</SelectItem>
-                          <SelectItem value="change">Top movers 24h</SelectItem>
-                          <SelectItem value="price-asc">Price ↑</SelectItem>
-                          <SelectItem value="price-desc">Price ↓</SelectItem>
-                          <SelectItem value="length">Shortest</SelectItem>
-                          <SelectItem value="offers">Most offers</SelectItem>
-                          <SelectItem value="ending">Ending soon</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <div className="inline-flex h-10 items-center rounded-md border border-border/60 p-0.5">
-                        <button type="button" onClick={() => setLayout("grid")} aria-label="Grid"
-                          className={`flex h-9 w-9 items-center justify-center rounded-sm ${layout === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-                          <LayoutGrid className="h-4 w-4" />
-                        </button>
-                        <button type="button" onClick={() => setLayout("list")} aria-label="List"
-                          className={`flex h-9 w-9 items-center justify-center rounded-sm ${layout === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-                          <Rows3 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
+              <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-3 space-y-3">
+                {/* Row 1: Search + Filters + Layout */}
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1 min-w-0">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search handles or platforms…"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="pl-9 h-10 bg-background/50 border-border/60 font-mono text-sm"
+                    />
                   </div>
+                  <Button
+                    type="button"
+                    variant={filtersOpen || activeFilters > 0 ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFiltersOpen((v) => !v)}
+                    className="h-10 shrink-0 gap-1.5 px-3"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    <span className="hidden sm:inline">Filters</span>
+                    {activeFilters > 0 && (
+                      <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-full bg-background/25 text-[10px] font-semibold">
+                        {activeFilters}
+                      </span>
+                    )}
+                    <ChevronDown className={`h-3.5 w-3.5 opacity-70 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+                  </Button>
+                  <div className="inline-flex h-10 items-center rounded-md border border-border/60 bg-background/50 p-0.5 shrink-0">
+                    <button type="button" onClick={() => setLayout("grid")} aria-label="Grid"
+                      className={`flex h-9 w-9 items-center justify-center rounded-sm transition-colors ${layout === "grid" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                      <LayoutGrid className="h-4 w-4" />
+                    </button>
+                    <button type="button" onClick={() => setLayout("list")} aria-label="List"
+                      className={`flex h-9 w-9 items-center justify-center rounded-sm transition-colors ${layout === "list" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                      <Rows3 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Result count line (always shown) */}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   {activeFilters > 0 && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <>
                       <Filter className="h-3.5 w-3.5" />
-                      {activeFilters} filter{activeFilters === 1 ? "" : "s"} active
+                      <span>{activeFilters} filter{activeFilters === 1 ? "" : "s"}</span>
                       <button onClick={clearFilters} className="text-primary hover:underline">Clear all</button>
-                      <span className="ml-auto tabular-nums">{filtered.length} result{filtered.length === 1 ? "" : "s"}</span>
-                    </div>
+                    </>
                   )}
-                </CardContent>
-              </Card>
+                  <span className="ml-auto tabular-nums">{filtered.length} result{filtered.length === 1 ? "" : "s"}</span>
+                </div>
+
+                {/* Collapsible filter panel */}
+                {filtersOpen && (
+                  <div className="rounded-xl border border-border/60 bg-background/40 p-3 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Category</p>
+                        <Select value={category} onValueChange={(v) => setCategory(v as typeof category)}>
+                          <SelectTrigger className="h-9 bg-background/60 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All categories</SelectItem>
+                            <SelectItem value="short">Short</SelectItem>
+                            <SelectItem value="brand">Brand</SelectItem>
+                            <SelectItem value="word">Word</SelectItem>
+                            <SelectItem value="numeric">Numeric</SelectItem>
+                            <SelectItem value="premium">Premium</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Rarity</p>
+                        <Select value={rarity} onValueChange={(v) => setRarity(v as typeof rarity)}>
+                          <SelectTrigger className="h-9 bg-background/60 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All rarities</SelectItem>
+                            {(Object.keys(RARITY_META) as Rarity[]).map((r) => (
+                              <SelectItem key={r} value={r}>{RARITY_META[r].label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Sale type</p>
+                        <Select value={sale} onValueChange={(v) => setSale(v as typeof sale)}>
+                          <SelectTrigger className="h-9 bg-background/60 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All types</SelectItem>
+                            <SelectItem value="buy_now">Buy now</SelectItem>
+                            <SelectItem value="auction">Auction</SelectItem>
+                            <SelectItem value="make_offer">Make offer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Price range (USD)</p>
+                        <div className="flex items-center gap-1.5">
+                          <Input value={priceMin} onChange={(e) => setPriceMin(e.target.value.replace(/\D/g, ""))} placeholder="Min" className="h-9 bg-background/60 text-xs" />
+                          <span className="text-muted-foreground text-xs">–</span>
+                          <Input value={priceMax} onChange={(e) => setPriceMax(e.target.value.replace(/\D/g, ""))} placeholder="Max" className="h-9 bg-background/60 text-xs" />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Sort by</p>
+                        <Select value={sort} onValueChange={(v) => setSort(v as typeof sort)}>
+                          <SelectTrigger className="h-9 bg-background/60 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="trending">Trending</SelectItem>
+                            <SelectItem value="change">Top movers 24h</SelectItem>
+                            <SelectItem value="price-asc">Price ↑</SelectItem>
+                            <SelectItem value="price-desc">Price ↓</SelectItem>
+                            <SelectItem value="length">Shortest</SelectItem>
+                            <SelectItem value="offers">Most offers</SelectItem>
+                            <SelectItem value="ending">Ending soon</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {activeFilters > 0 && (
+                      <div className="flex justify-end pt-1">
+                        <button type="button" onClick={clearFilters} className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2">
+                          Reset filters
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
 
               {/* Results */}
               {filtered.length === 0 ? (
@@ -928,12 +978,21 @@ const UsernameMarketplace = () => {
    Sub-components
 ----------------------------------------------------------- */
 
+const STAT_BG: Record<string, string> = {
+  "text-emerald-500": "bg-emerald-500/10",
+  "text-primary": "bg-primary/10",
+  "text-amber-500": "bg-amber-500/10",
+  "text-orange-500": "bg-orange-500/10",
+  "text-sky-500": "bg-sky-500/10",
+};
+
 const StatTile = ({ icon: Icon, label, value, accent }: { icon: typeof BarChart3; label: string; value: string; accent: string }) => (
-  <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm p-3">
-    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-      <Icon className={`h-3 w-3 ${accent}`} /> {label}
+  <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 text-center">
+    <div className={`flex h-9 w-9 items-center justify-center rounded-full ${STAT_BG[accent] ?? "bg-muted"}`}>
+      <Icon className={`h-4 w-4 ${accent}`} />
     </div>
-    <div className="mt-1 text-lg font-bold tabular-nums">{value}</div>
+    <div className="text-xl font-bold tabular-nums tracking-tight">{value}</div>
+    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
   </div>
 );
 
