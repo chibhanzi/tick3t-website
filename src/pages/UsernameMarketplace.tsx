@@ -281,6 +281,7 @@ const UsernameMarketplace = () => {
   const [sort, setSort] = useState<"trending" | "price-asc" | "price-desc" | "length" | "offers" | "ending" | "change">("trending");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [tab, setTab] = useState<"market" | "auctions" | "watchlist" | "offers" | "mint">("market");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [watchlist, setWatchlist] = useState<string[]>(["4", "10", "16"]);
 
   // negotiation dialogs
