@@ -989,12 +989,12 @@ const STAT_BG: Record<string, string> = {
 };
 
 const StatTile = ({ icon: Icon, label, value, accent }: { icon: typeof BarChart3; label: string; value: string; accent: string }) => (
-  <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 text-center">
+  <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
     <div className={`flex h-9 w-9 items-center justify-center rounded-full ${STAT_BG[accent] ?? "bg-muted"}`}>
       <Icon className={`h-4 w-4 ${accent}`} />
     </div>
     <div className="text-xl font-bold tabular-nums tracking-tight">{value}</div>
-    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground leading-tight">{label}</div>
   </div>
 );
 
