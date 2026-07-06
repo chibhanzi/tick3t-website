@@ -549,13 +549,15 @@ const UsernameMarketplace = () => {
                 Live market data · Escrow-backed transfers · Only where each platform's rules permit.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-3 lg:min-w-[420px]">
-              <StatTile icon={BarChart3} label="30d Volume" value={money(kpis.volume)} accent="text-emerald-500" />
-              <StatTile icon={AtSign}    label="Listings"    value={fmt(kpis.listed)} accent="text-primary" />
-              <StatTile icon={Gavel}     label="Auctions"    value={fmt(kpis.auctions)} accent="text-amber-500" />
-              <StatTile icon={Flame}     label="Hot (24h)"   value={fmt(kpis.hot)} accent="text-orange-500" />
-              <StatTile icon={Activity}  label="Avg Price"   value={money(kpis.avg)} accent="text-sky-500" />
-              <StatTile icon={ShieldCheck} label="Escrowed"  value="100%" accent="text-emerald-500" />
+            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm overflow-hidden lg:min-w-[420px]">
+              <div className="grid grid-cols-3 divide-x divide-y divide-border/60 [&>*:nth-child(-n+3)]:border-t-0">
+                <StatTile icon={BarChart3}   label="30d Volume" value={money(kpis.volume)}   accent="text-emerald-500" />
+                <StatTile icon={AtSign}      label="Listings"   value={fmt(kpis.listed)}     accent="text-primary" />
+                <StatTile icon={Gavel}       label="Auctions"   value={fmt(kpis.auctions)}   accent="text-amber-500" />
+                <StatTile icon={Flame}       label="Hot (24h)"  value={fmt(kpis.hot)}        accent="text-orange-500" />
+                <StatTile icon={Activity}    label="Avg Price"  value={money(kpis.avg)}      accent="text-sky-500" />
+                <StatTile icon={ShieldCheck} label="Escrowed"   value="100%"                 accent="text-emerald-500" />
+              </div>
             </div>
           </div>
         </section>
@@ -987,12 +989,12 @@ const STAT_BG: Record<string, string> = {
 };
 
 const StatTile = ({ icon: Icon, label, value, accent }: { icon: typeof BarChart3; label: string; value: string; accent: string }) => (
-  <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 text-center">
+  <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
     <div className={`flex h-9 w-9 items-center justify-center rounded-full ${STAT_BG[accent] ?? "bg-muted"}`}>
       <Icon className={`h-4 w-4 ${accent}`} />
     </div>
     <div className="text-xl font-bold tabular-nums tracking-tight">{value}</div>
-    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground leading-tight">{label}</div>
   </div>
 );
 
