@@ -1499,3 +1499,63 @@ const OfferCard = ({
     </Card>
   );
 };
+
+/* -----------------------------------------------------------
+   Loading skeleton for the marketplace grid / table
+----------------------------------------------------------- */
+const ListingSkeleton = ({ layout }: { layout: "grid" | "list" }) => {
+  if (layout === "list") {
+    return (
+      <div className="rounded-2xl border border-border/60 bg-card/60 overflow-hidden">
+        <div className="hidden md:grid grid-cols-[1.6fr_0.9fr_0.9fr_0.7fr_0.9fr_0.9fr_1.4fr] gap-3 px-4 py-2 border-b border-border/60 bg-muted/30">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="h-3 bg-muted rounded animate-pulse" />
+          ))}
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="grid grid-cols-2 md:grid-cols-[1.6fr_0.9fr_0.9fr_0.7fr_0.9fr_0.9fr_1.4fr] gap-3 px-3 md:px-4 py-3 items-center border-b border-border/40 last:border-b-0 animate-pulse">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="h-9 w-9 rounded-lg bg-muted shrink-0" />
+              <div className="space-y-1.5 min-w-0 flex-1">
+                <div className="h-3 w-24 bg-muted rounded" />
+                <div className="h-2 w-16 bg-muted/70 rounded" />
+              </div>
+            </div>
+            <div className="h-3 bg-muted/70 rounded" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-8 bg-muted rounded hidden md:block" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3 animate-pulse">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-2">
+              <div className="h-3 w-16 bg-muted/70 rounded" />
+              <div className="h-5 w-32 bg-muted rounded" />
+            </div>
+            <div className="h-7 w-7 rounded-full bg-muted" />
+          </div>
+          <div className="h-16 bg-muted/50 rounded-lg" />
+          <div className="grid grid-cols-3 gap-2">
+            <div className="h-8 bg-muted/60 rounded" />
+            <div className="h-8 bg-muted/60 rounded" />
+            <div className="h-8 bg-muted/60 rounded" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-8 flex-1 bg-muted rounded" />
+            <div className="h-8 flex-1 bg-muted/70 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
