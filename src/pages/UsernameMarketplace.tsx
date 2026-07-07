@@ -822,14 +822,30 @@ const UsernameMarketplace = () => {
 
 
               {/* Results */}
-              {filtered.length === 0 ? (
+              {loading ? (
+                <ListingSkeleton layout={layout} />
+              ) : filtered.length === 0 ? (
                 <Card className="border-dashed border-2">
                   <CardContent className="p-12 text-center">
-                    <AtSign className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <h3 className="font-semibold mb-1">No handles match</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t === "watchlist" ? "Star listings to add them to your watchlist." : "Try different filters or search terms."}
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                      <AtSign className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <h3 className="font-semibold mb-1">
+                      {t === "watchlist" ? "Your watchlist is empty" : "No handles match your filters"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
+                      {t === "watchlist"
+                        ? "Tap the star on any listing to save it here and track its price."
+                        : "Try clearing filters, widening your price range, or searching a different keyword."}
                     </p>
+                    {t !== "watchlist" && (
+                      <Button size="sm" variant="outline" onClick={() => {
+                        setQuery(""); setPlatform("all"); setCategory("all");
+                        setRarity("all"); setSale("all"); setPriceMin(""); setPriceMax("");
+                      }}>
+                        Reset filters
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ) : layout === "grid" ? (
