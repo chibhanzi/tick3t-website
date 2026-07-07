@@ -64,8 +64,8 @@ const Footer = () => {
               />
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Effortless event tickets for Zimbabwe — pay with EcoCash, OneMoney
-              or card, and carry your ticket in your pocket.
+              Effortless event tickets and digital identities — pay your way,
+              and carry everything in your pocket.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -79,7 +79,7 @@ const Footer = () => {
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
                 <Globe className="h-3.5 w-3.5 text-primary" />
-                Built for ZW
+                Global marketplace
               </span>
             </div>
           </div>

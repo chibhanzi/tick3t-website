@@ -284,6 +284,11 @@ const UsernameMarketplace = () => {
   const [tab, setTab] = useState<"market" | "auctions" | "watchlist" | "offers" | "mint">("market");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [watchlist, setWatchlist] = useState<string[]>(["4", "10", "16"]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 700);
+    return () => clearTimeout(t);
+  }, []);
 
   // negotiation dialogs
   const [offerFor, setOfferFor] = useState<Listing | null>(null);
@@ -583,6 +588,7 @@ const UsernameMarketplace = () => {
           <TabsContent value="offers" className="mt-6">
             <OffersPanel
               offers={offers}
+              loading={loading}
               onAccept={acceptOffer}
               onDecline={declineOffer}
               onWithdraw={withdrawOffer}
@@ -817,14 +823,30 @@ const UsernameMarketplace = () => {
 
 
               {/* Results */}
-              {filtered.length === 0 ? (
+              {loading ? (
+                <ListingSkeleton layout={layout} />
+              ) : filtered.length === 0 ? (
                 <Card className="border-dashed border-2">
                   <CardContent className="p-12 text-center">
-                    <AtSign className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <h3 className="font-semibold mb-1">No handles match</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t === "watchlist" ? "Star listings to add them to your watchlist." : "Try different filters or search terms."}
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                      <AtSign className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <h3 className="font-semibold mb-1">
+                      {t === "watchlist" ? "Your watchlist is empty" : "No handles match your filters"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
+                      {t === "watchlist"
+                        ? "Tap the star on any listing to save it here and track its price."
+                        : "Try clearing filters, widening your price range, or searching a different keyword."}
                     </p>
+                    {t !== "watchlist" && (
+                      <Button size="sm" variant="outline" onClick={() => {
+                        setQuery(""); setPlatform("all"); setCategory("all");
+                        setRarity("all"); setSale("all"); setPriceMin(""); setPriceMax("");
+                      }}>
+                        Reset filters
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ) : layout === "grid" ? (
@@ -1227,6 +1249,7 @@ const OFFER_STEPS: OfferStatus[] = ["pending", "accepted", "in_escrow", "transfe
 
 type OffersPanelProps = {
   offers: Offer[];
+  loading?: boolean;
   onAccept: (o: Offer) => void;
   onDecline: (o: Offer) => void;
   onWithdraw: (o: Offer) => void;
@@ -1238,7 +1261,7 @@ type OffersPanelProps = {
 };
 
 const OffersPanel = (props: OffersPanelProps) => {
-  const { offers } = props;
+  const { offers, loading } = props;
   const [filter, setFilter] = useState<"active" | "buying" | "selling" | "closed">("active");
 
   const active = (o: Offer) =>
@@ -1280,12 +1303,39 @@ const OffersPanel = (props: OffersPanelProps) => {
         ))}
       </div>
 
-      {list.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-muted" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-32 bg-muted rounded" />
+                  <div className="h-2.5 w-20 bg-muted/70 rounded" />
+                </div>
+                <div className="h-6 w-16 bg-muted rounded-full" />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="h-10 bg-muted/60 rounded" />
+                <div className="h-10 bg-muted/60 rounded" />
+                <div className="h-10 bg-muted/60 rounded" />
+              </div>
+              <div className="h-8 bg-muted/70 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : list.length === 0 ? (
         <Card className="border-dashed border-2">
           <CardContent className="p-12 text-center">
-            <Handshake className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <h3 className="font-semibold mb-1">No {filter} offers</h3>
-            <p className="text-sm text-muted-foreground">Send an offer on any listing to start a negotiation.</p>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+              <Handshake className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold mb-1">No {filter} negotiations</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              {filter === "closed"
+                ? "Settled, declined and expired deals will appear here."
+                : "Send an offer on any listing to start a private, escrow-backed negotiation."}
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -1449,3 +1499,63 @@ const OfferCard = ({
     </Card>
   );
 };
+
+/* -----------------------------------------------------------
+   Loading skeleton for the marketplace grid / table
+----------------------------------------------------------- */
+const ListingSkeleton = ({ layout }: { layout: "grid" | "list" }) => {
+  if (layout === "list") {
+    return (
+      <div className="rounded-2xl border border-border/60 bg-card/60 overflow-hidden">
+        <div className="hidden md:grid grid-cols-[1.6fr_0.9fr_0.9fr_0.7fr_0.9fr_0.9fr_1.4fr] gap-3 px-4 py-2 border-b border-border/60 bg-muted/30">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="h-3 bg-muted rounded animate-pulse" />
+          ))}
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="grid grid-cols-2 md:grid-cols-[1.6fr_0.9fr_0.9fr_0.7fr_0.9fr_0.9fr_1.4fr] gap-3 px-3 md:px-4 py-3 items-center border-b border-border/40 last:border-b-0 animate-pulse">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="h-9 w-9 rounded-lg bg-muted shrink-0" />
+              <div className="space-y-1.5 min-w-0 flex-1">
+                <div className="h-3 w-24 bg-muted rounded" />
+                <div className="h-2 w-16 bg-muted/70 rounded" />
+              </div>
+            </div>
+            <div className="h-3 bg-muted/70 rounded" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-3 bg-muted/70 rounded hidden md:block" />
+            <div className="h-8 bg-muted rounded hidden md:block" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3 animate-pulse">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-2">
+              <div className="h-3 w-16 bg-muted/70 rounded" />
+              <div className="h-5 w-32 bg-muted rounded" />
+            </div>
+            <div className="h-7 w-7 rounded-full bg-muted" />
+          </div>
+          <div className="h-16 bg-muted/50 rounded-lg" />
+          <div className="grid grid-cols-3 gap-2">
+            <div className="h-8 bg-muted/60 rounded" />
+            <div className="h-8 bg-muted/60 rounded" />
+            <div className="h-8 bg-muted/60 rounded" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-8 flex-1 bg-muted rounded" />
+            <div className="h-8 flex-1 bg-muted/70 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
