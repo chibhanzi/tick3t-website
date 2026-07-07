@@ -1303,12 +1303,39 @@ const OffersPanel = (props: OffersPanelProps) => {
         ))}
       </div>
 
-      {list.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-3 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-muted" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-32 bg-muted rounded" />
+                  <div className="h-2.5 w-20 bg-muted/70 rounded" />
+                </div>
+                <div className="h-6 w-16 bg-muted rounded-full" />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="h-10 bg-muted/60 rounded" />
+                <div className="h-10 bg-muted/60 rounded" />
+                <div className="h-10 bg-muted/60 rounded" />
+              </div>
+              <div className="h-8 bg-muted/70 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : list.length === 0 ? (
         <Card className="border-dashed border-2">
           <CardContent className="p-12 text-center">
-            <Handshake className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <h3 className="font-semibold mb-1">No {filter} offers</h3>
-            <p className="text-sm text-muted-foreground">Send an offer on any listing to start a negotiation.</p>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+              <Handshake className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold mb-1">No {filter} negotiations</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              {filter === "closed"
+                ? "Settled, declined and expired deals will appear here."
+                : "Send an offer on any listing to start a private, escrow-backed negotiation."}
+            </p>
           </CardContent>
         </Card>
       ) : (
