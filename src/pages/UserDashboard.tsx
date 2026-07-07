@@ -318,52 +318,40 @@ const UserDashboard = () => {
                     const isTransferable = ticket.category !== "course" && ticket.category !== "badge";
                     const isConcert = ticket.category === "concert";
                     return (
-                    <div key={ticket.id} className={vaultLayout === "list" ? "group rounded-2xl border border-border/60 bg-card/70 backdrop-blur-sm overflow-hidden shadow-sm" : "group"}>
+                    <div key={ticket.id} className={vaultLayout === "list" ? "group relative rounded-2xl border border-border/60 bg-card/70 backdrop-blur-sm overflow-hidden shadow-sm hover:shadow-md hover:border-border transition-all" : "group"}>
 
                       {vaultLayout === "list" ? (
                         <>
-                          <div className={`h-1.5 bg-gradient-to-r ${ticket.bgGradient}`} />
-                          <div className="p-4 flex items-start gap-3">
-                            <div className={`shrink-0 h-14 w-14 rounded-xl bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-primary-foreground shadow-md`}>
-                              <CatIcon className="h-6 w-6" />
+                          <div className={`absolute inset-y-0 left-0 w-1 bg-gradient-to-b ${ticket.bgGradient}`} />
+                          <div className="p-4 pl-5 flex items-start gap-3">
+                            <div className={`shrink-0 h-12 w-12 rounded-xl bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-white shadow-sm`}>
+                              <CatIcon className="h-5 w-5" />
                             </div>
 
-
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-start justify-between gap-2 mb-1">
+                              <div className="flex items-start justify-between gap-2 mb-1.5">
                                 <div className="min-w-0">
                                   <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground truncate">
                                     {ticket.organizer}
                                   </p>
-                                  <h3 className="font-bold leading-snug truncate">{ticket.title}</h3>
+                                  <h3 className="font-semibold leading-snug truncate">{ticket.title}</h3>
                                 </div>
                                 <Badge variant={ticket.status === "valid" ? "default" : "secondary"} className="shrink-0 text-[10px]">
                                   {ticket.status === "valid" ? "Valid" : "Used"}
                                 </Badge>
                               </div>
 
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1.5 min-w-0"><Calendar className="h-3 w-3 shrink-0" /> {ticket.date}</span>
-                                <span className="flex items-center gap-1.5 min-w-0"><Clock className="h-3 w-3 shrink-0" /> {ticket.time}</span>
-                                <span className="flex items-center gap-1.5 min-w-0 truncate"><MapPin className="h-3 w-3 shrink-0" /> {ticket.location}</span>
+                              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" /> {ticket.date}</span>
+                                <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> {ticket.time}</span>
+                                <span className="inline-flex items-center gap-1 min-w-0"><MapPin className="h-3 w-3 shrink-0" /> <span className="truncate">{ticket.location}</span></span>
                               </div>
 
-                              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                              <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                                 <span><span className="text-muted-foreground">Tier</span> <strong>{ticket.tier}</strong></span>
                                 <span><span className="text-muted-foreground">Price</span> <strong>${ticket.price}</strong></span>
-                                <span><span className="text-muted-foreground">No.</span> <strong>{ticket.ticketNumber}</strong></span>
+                                <span><span className="text-muted-foreground">No.</span> <strong className="font-mono text-[11px]">{ticket.ticketNumber}</strong></span>
                               </div>
-                            </div>
-
-                            <div className="hidden sm:flex shrink-0 flex-col items-center gap-1">
-                              {isConcert && qrCodes[ticket.id] ? (
-                                <img src={qrCodes[ticket.id]} alt="QR" className="w-12 h-12 rounded border border-border" />
-                              ) : (
-                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${ticket.bgGradient} flex items-center justify-center text-white`}>
-                                  <CatIcon className="h-5 w-5" />
-                                </div>
-                              )}
-                              <span className="text-[9px] text-muted-foreground uppercase tracking-wider">{catMeta.short}</span>
                             </div>
                           </div>
 
