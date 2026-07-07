@@ -284,6 +284,11 @@ const UsernameMarketplace = () => {
   const [tab, setTab] = useState<"market" | "auctions" | "watchlist" | "offers" | "mint">("market");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [watchlist, setWatchlist] = useState<string[]>(["4", "10", "16"]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 700);
+    return () => clearTimeout(t);
+  }, []);
 
   // negotiation dialogs
   const [offerFor, setOfferFor] = useState<Listing | null>(null);
