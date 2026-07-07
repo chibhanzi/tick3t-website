@@ -588,6 +588,7 @@ const UsernameMarketplace = () => {
           <TabsContent value="offers" className="mt-6">
             <OffersPanel
               offers={offers}
+              loading={loading}
               onAccept={acceptOffer}
               onDecline={declineOffer}
               onWithdraw={withdrawOffer}
