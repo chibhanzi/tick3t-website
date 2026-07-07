@@ -1249,6 +1249,7 @@ const OFFER_STEPS: OfferStatus[] = ["pending", "accepted", "in_escrow", "transfe
 
 type OffersPanelProps = {
   offers: Offer[];
+  loading?: boolean;
   onAccept: (o: Offer) => void;
   onDecline: (o: Offer) => void;
   onWithdraw: (o: Offer) => void;
@@ -1260,7 +1261,7 @@ type OffersPanelProps = {
 };
 
 const OffersPanel = (props: OffersPanelProps) => {
-  const { offers } = props;
+  const { offers, loading } = props;
   const [filter, setFilter] = useState<"active" | "buying" | "selling" | "closed">("active");
 
   const active = (o: Offer) =>
