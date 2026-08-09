@@ -82,7 +82,7 @@ const shape = (
   content: "rectangle",
   position: { x, y },
   size: { width: w, height: h },
-  style: { color, opacity, zIndex: undefined as never, borderRadius, rotation },
+  style: { color, opacity, borderRadius, rotation },
   zIndex,
 });
 
