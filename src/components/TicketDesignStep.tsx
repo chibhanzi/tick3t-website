@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Palette, Wand2, Layers, Image, Zap } from "lucide-react";
+import { Palette, Wand2, Layers, Image, Zap, LayoutTemplate } from "lucide-react";
 import AdvancedTicketDesigner from "./AdvancedTicketDesigner";
 import EnhancedTicketDesigner from "./EnhancedTicketDesigner";
 import LayeredTicketDesigner from "./LayeredTicketDesigner";
 import BackgroundImageUploader from "./BackgroundImageUploader";
+import TicketTemplates, { TicketTemplate } from "./TicketTemplates";
 
 interface TicketDesignStepProps {
   eventData: any;
@@ -15,8 +16,9 @@ interface TicketDesignStepProps {
 }
 
 const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignStepProps) => {
-  const [designMode, setDesignMode] = useState<'advanced' | 'enhanced' | 'layered' | 'background'>('advanced');
+  const [designMode, setDesignMode] = useState<'templates' | 'advanced' | 'enhanced' | 'layered' | 'background'>('templates');
   const [backgroundImage, setBackgroundImage] = useState<string>('');
+  const [selectedTemplate, setSelectedTemplate] = useState<TicketTemplate | undefined>();
 
   const handleDesignChange = (newDesign: any) => {
     onDesignChange({
@@ -34,6 +36,15 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
             Professional Ticket Designer
           </CardTitle>
           <div className="flex flex-wrap gap-2 mt-4">
+            <Button
+              variant={designMode === 'templates' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setDesignMode('templates')}
+              className="flex items-center gap-1 text-xs"
+            >
+              <LayoutTemplate className="h-3 w-3" />
+              Templates
+            </Button>
             <Button
               variant={designMode === 'advanced' ? 'default' : 'outline'}
               size="sm"
@@ -77,6 +88,17 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
           </div>
         </CardHeader>
         <CardContent className="p-2 sm:p-6">
+          {designMode === 'templates' && (
+            <TicketTemplates
+              selectedTemplateId={selectedTemplate?.id}
+              onSelectTemplate={(template) => {
+                setSelectedTemplate(template);
+                handleDesignChange({ layers: template.layers, templateId: template.id });
+                setDesignMode('layered');
+              }}
+            />
+          )}
+
           {designMode === 'advanced' && (
             <AdvancedTicketDesigner
               eventTitle={eventData.title}
@@ -104,6 +126,8 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
                 currentImage={backgroundImage}
               />
               <LayeredTicketDesigner
+                key={selectedTemplate?.id || 'blank'}
+                template={selectedTemplate}
                 eventTitle={eventData.title}
                 eventDate={eventData.date}
                 eventLocation={eventData.location}
