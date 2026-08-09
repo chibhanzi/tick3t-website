@@ -98,12 +98,19 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
           )}
           
           {designMode === 'layered' && (
-            <LayeredTicketDesigner
-              eventTitle={eventData.title}
-              eventDate={eventData.date}
-              eventLocation={eventData.location}
-              onDesignChange={handleDesignChange}
-            />
+            <div className="space-y-6">
+              <BackgroundImageUploader
+                onImageChange={setBackgroundImage}
+                currentImage={backgroundImage}
+              />
+              <LayeredTicketDesigner
+                eventTitle={eventData.title}
+                eventDate={eventData.date}
+                eventLocation={eventData.location}
+                backgroundImage={backgroundImage}
+                onDesignChange={handleDesignChange}
+              />
+            </div>
           )}
           
           {designMode === 'background' && (
