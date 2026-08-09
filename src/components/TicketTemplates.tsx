@@ -14,6 +14,11 @@ export interface TicketLayer {
     fontWeight?: string;
     opacity?: number;
     rotation?: number;
+    blur?: number;
+    borderRadius?: number;
+    objectFit?: 'cover' | 'contain';
+    blendMode?: string;
+    overlay?: number;
   };
   zIndex: number;
 }
