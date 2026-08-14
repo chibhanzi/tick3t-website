@@ -31,7 +31,7 @@ const SimplifiedOnboarding = ({ onComplete }: SimplifiedOnboardingProps) => {
   const steps: OnboardingStep[] = [
     {
       id: 'welcome',
-      title: 'Welcome to Tick3rt',
+      title: 'Welcome to Tick3t',
       description: 'Create professional NFT tickets in minutes',
       required: true,
       completed: false
@@ -82,7 +82,7 @@ const SimplifiedOnboarding = ({ onComplete }: SimplifiedOnboardingProps) => {
               <Sparkles className="h-10 w-10 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold mb-2">Welcome to Tick3rt</h2>
+              <h2 className="text-2xl font-bold mb-2">Welcome to Tick3t</h2>
               <p className="text-muted-foreground">
                 The easiest way to create professional NFT tickets for your events
               </p>
@@ -258,7 +258,7 @@ const SimplifiedOnboarding = ({ onComplete }: SimplifiedOnboardingProps) => {
             <div>
               <h2 className="text-2xl font-bold mb-2">You're All Set!</h2>
               <p className="text-muted-foreground">
-                Your Tick3rt account is ready. Start creating your first event.
+                Your Tick3t account is ready. Start creating your first event.
               </p>
             </div>
             

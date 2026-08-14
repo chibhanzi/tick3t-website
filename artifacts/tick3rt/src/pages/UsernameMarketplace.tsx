@@ -27,7 +27,7 @@ import {
    Types
 ----------------------------------------------------------- */
 type Platform =
-  | "tick3rt" | "instagram" | "x" | "tiktok" | "twitch"
+  | "tick3t" | "instagram" | "x" | "tiktok" | "twitch"
   | "youtube" | "telegram" | "ens";
 
 type Rarity = "common" | "rare" | "epic" | "legendary" | "mythic";
@@ -127,7 +127,7 @@ function seedOffers(): Offer[] {
       ],
     },
     {
-      id: "o_seed_2", listingId: "11", handle: "sadza", platform: "tick3rt",
+      id: "o_seed_2", listingId: "11", handle: "sadza", platform: "tick3t",
       asking: 3500, amount: 3200, status: "in_escrow", role: "buyer",
       counterparty: "@culture", createdAt: iso(1200), expiresAt: exp(2),
       history: [
@@ -164,7 +164,7 @@ function seedOffers(): Offer[] {
    Meta
 ----------------------------------------------------------- */
 const PLATFORM_META: Record<Platform, { label: string; prefix: string; accent: string; dot: string; }> = {
-  tick3rt:   { label: "Tick3rt",   prefix: "@",  accent: "from-fuchsia-500 to-purple-600", dot: "bg-fuchsia-500" },
+  tick3rt:   { label: "Tick3t",   prefix: "@",  accent: "from-fuchsia-500 to-purple-600", dot: "bg-fuchsia-500" },
   instagram: { label: "Instagram", prefix: "@",  accent: "from-pink-500 to-orange-500",    dot: "bg-pink-500" },
   x:         { label: "X",         prefix: "@",  accent: "from-zinc-700 to-zinc-900",      dot: "bg-zinc-500" },
   tiktok:    { label: "TikTok",    prefix: "@",  accent: "from-cyan-400 to-rose-500",      dot: "bg-cyan-400" },
@@ -186,7 +186,7 @@ const RARITY_META: Record<Rarity, { label: string; gradient: string; ring: strin
    Mock data (representative — real data will paginate from API)
 ----------------------------------------------------------- */
 const LISTINGS: Listing[] = [
-  { id: "1",  handle: "raves",     platform: "tick3rt",   price: 12000, floor: 800,  change24h:  18.2, category: "word",    length: 5, rarity: "legendary", sale: "auction",   seller: "@collector",  offers: 14, watchers: 218, views: 4210, verified: true, trending: true, endsAt: iso(2, 4), lastSale: 9400 },
+  { id: "1",  handle: "raves",     platform: "tick3t",   price: 12000, floor: 800,  change24h:  18.2, category: "word",    length: 5, rarity: "legendary", sale: "auction",   seller: "@collector",  offers: 14, watchers: 218, views: 4210, verified: true, trending: true, endsAt: iso(2, 4), lastSale: 9400 },
   { id: "2",  handle: "zw",        platform: "instagram", price: 42000, floor: 2500, change24h:  32.4, category: "short",   length: 2, rarity: "mythic",    sale: "auction",   seller: "@names.zw",   offers: 27, watchers: 612, views: 12800, verified: true, trending: true, endsAt: iso(0, 22), lastSale: 31000 },
   { id: "3",  handle: "harare",    platform: "x",         price: 9500,  floor: 400,  change24h:   4.1, category: "brand",   length: 6, rarity: "epic",      sale: "buy_now",   seller: "@nightlife",  offers: 3,  watchers: 92,  views: 1820, verified: true, lastSale: 7200 },
   { id: "4",  handle: "dj",        platform: "x",         price: 86000, floor: 5000, change24h:  12.7, category: "short",   length: 2, rarity: "mythic",    sale: "make_offer",seller: "@vault",      offers: 41, watchers: 1204, views: 21500, verified: true, trending: true, lastSale: 72000 },
@@ -196,12 +196,12 @@ const LISTINGS: Listing[] = [
   { id: "8",  handle: "chitown",   platform: "twitch",    price: 2100,  floor: 90,   change24h:  -1.4, category: "brand",   length: 7, rarity: "rare",      sale: "make_offer",seller: "@urban",      offers: 0,  watchers: 21,  views: 340, verified: false, lastSale: 2200 },
   { id: "9",  handle: "hifa",      platform: "instagram", price: 900,   floor: 60,   change24h:   0.0, category: "brand",   length: 4, rarity: "rare",      sale: "buy_now",   seller: "@fest",       offers: 0,  watchers: 12,  views: 210, verified: false },
   { id: "10", handle: "vip",       platform: "telegram",  price: 22000, floor: 900,  change24h:  22.1, category: "short",   length: 3, rarity: "legendary", sale: "auction",   seller: "@lounge",     offers: 19, watchers: 402, views: 6100, verified: true, endsAt: iso(0, 3), lastSale: 18000 },
-  { id: "11", handle: "sadza",     platform: "tick3rt",   price: 3500,  floor: 200,  change24h:   6.4, category: "word",    length: 5, rarity: "rare",      sale: "buy_now",   seller: "@culture",    offers: 4,  watchers: 61,  views: 780, verified: true, trending: true, lastSale: 3200 },
+  { id: "11", handle: "sadza",     platform: "tick3t",   price: 3500,  floor: 200,  change24h:   6.4, category: "word",    length: 5, rarity: "rare",      sale: "buy_now",   seller: "@culture",    offers: 4,  watchers: 61,  views: 780, verified: true, trending: true, lastSale: 3200 },
   { id: "12", handle: "007",       platform: "x",         price: 7800,  floor: 350,  change24h:  15.9, category: "numeric", length: 3, rarity: "epic",      sale: "auction",   seller: "@digits",     offers: 12, watchers: 188, views: 2950, verified: true, endsAt: iso(3, 1), lastSale: 6800 },
   { id: "13", handle: "afro",      platform: "ens",       price: 15200, floor: 700,  change24h:  11.3, category: "premium", length: 4, rarity: "legendary", sale: "buy_now",   seller: "0x9c…a1",     offers: 6,  watchers: 143, views: 2200, verified: true, lastSale: 13800 },
   { id: "14", handle: "gamer",     platform: "twitch",    price: 5400,  floor: 250,  change24h:  -2.1, category: "word",    length: 5, rarity: "epic",      sale: "make_offer",seller: "@arena",      offers: 3,  watchers: 55,  views: 720, verified: true, lastSale: 5600 },
   { id: "15", handle: "cash",      platform: "youtube",   price: 9900,  floor: 500,  change24h:  14.2, category: "word",    length: 4, rarity: "legendary", sale: "auction",   seller: "@vlogr",      offers: 11, watchers: 220, views: 3140, verified: true, endsAt: iso(0, 12), lastSale: 8700 },
-  { id: "16", handle: "za",        platform: "tick3rt",   price: 18500, floor: 1200, change24h:  27.5, category: "short",   length: 2, rarity: "mythic",    sale: "auction",   seller: "@vault",      offers: 22, watchers: 512, views: 7300, verified: true, trending: true, endsAt: iso(1, 2), lastSale: 14500 },
+  { id: "16", handle: "za",        platform: "tick3t",   price: 18500, floor: 1200, change24h:  27.5, category: "short",   length: 2, rarity: "mythic",    sale: "auction",   seller: "@vault",      offers: 22, watchers: 512, views: 7300, verified: true, trending: true, endsAt: iso(1, 2), lastSale: 14500 },
 ];
 
 function iso(daysFromNow: number, hours: number) {
@@ -233,9 +233,9 @@ function timeLeft(endsAt?: string) {
 const TICKER = [
   { sym: "@dj/x",         val: 86000, chg:  12.7 },
   { sym: "@zw/ig",        val: 42000, chg:  32.4 },
-  { sym: "@za/tick3rt",   val: 18500, chg:  27.5 },
+  { sym: "@za/tick3t",   val: 18500, chg:  27.5 },
   { sym: "@vip/tg",       val: 22000, chg:  22.1 },
-  { sym: "@raves/tick3rt",val: 12000, chg:  18.2 },
+  { sym: "@raves/tick3t",val: 12000, chg:  18.2 },
   { sym: "afro.eth",      val: 15200, chg:  11.3 },
   { sym: "@cash/yt",      val:  9900, chg:  14.2 },
   { sym: "@harare/x",     val:  9500, chg:   4.1 },
@@ -306,7 +306,7 @@ const UsernameMarketplace = () => {
 
   // mint form
   const [mintHandle, setMintHandle] = useState("");
-  const [mintPlatform, setMintPlatform] = useState<Platform>("tick3rt");
+  const [mintPlatform, setMintPlatform] = useState<Platform>("tick3t");
   const [mintReserve, setMintReserve] = useState("");
 
   // tick auctions per minute so countdowns re-render
@@ -548,7 +548,7 @@ const UsernameMarketplace = () => {
               <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-3">Username Exchange</h1>
               <p className="text-sm sm:text-base text-muted-foreground">
                 The global marketplace for digital identities. Discover, negotiate, buy, sell and mint premium handles across
-                Instagram, X, TikTok, Twitch, YouTube, Telegram, ENS and Tick3rt.
+                Instagram, X, TikTok, Twitch, YouTube, Telegram, ENS and Tick3t.
               </p>
               <p className="mt-2 text-[11px] text-muted-foreground/80">
                 Live market data · Escrow-backed transfers · Only where each platform's rules permit.
@@ -661,7 +661,7 @@ const UsernameMarketplace = () => {
                   <h3 className="font-semibold flex items-center gap-2"><Shield className="h-4 w-4 text-primary" />How transfers work</h3>
                   <ul className="text-xs text-muted-foreground space-y-2">
                     <li className="flex gap-2"><ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5" /> Escrow holds funds until platform-side transfer is verified.</li>
-                    <li className="flex gap-2"><ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5" /> Web3 handles (ENS, Tick3rt) settle on-chain instantly.</li>
+                    <li className="flex gap-2"><ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5" /> Web3 handles (ENS, Tick3t) settle on-chain instantly.</li>
                     <li className="flex gap-2"><ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5" /> Web2 platforms: we assist buyer & seller through the provider's official flow where permitted.</li>
                     <li className="flex gap-2"><ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5" /> Dispute resolution and chargeback protection included.</li>
                   </ul>

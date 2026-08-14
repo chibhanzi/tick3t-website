@@ -79,7 +79,7 @@ const TicketDesigner = ({
           <div className="flex justify-between items-end">
             <div className="flex items-center space-x-2">
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">Tick3rt</span>
+              <span className="text-sm font-medium">Tick3t</span>
             </div>
             <div className="text-right">
               <p className="text-lg font-bold">$89.00</p>

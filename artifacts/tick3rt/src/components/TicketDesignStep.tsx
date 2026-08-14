@@ -130,7 +130,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
                       <p className="text-xs sm:text-sm opacity-90">{eventData.location || "Event Location"}</p>
                       <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 flex items-center gap-2">
                         <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span className="text-xs sm:text-sm">Tick3rt</span>
+                        <span className="text-xs sm:text-sm">Tick3t</span>
                       </div>
                     </div>
                   </div>

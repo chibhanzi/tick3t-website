@@ -91,16 +91,16 @@ const UserDashboard = () => {
     // Course credentials
     {
       id: "c1", title: "Blockchain Fundamentals", date: "Issued Nov 20, 2024", time: "Verified",
-      location: "Tick3rt Academy", tier: "Certificate", status: "valid", price: 0,
-      bgGradient: "from-emerald-500 to-teal-600", organizer: "Tick3rt Academy",
+      location: "Tick3t Academy", tier: "Certificate", status: "valid", price: 0,
+      bgGradient: "from-emerald-500 to-teal-600", organizer: "Tick3t Academy",
       ticketNumber: "CRED-00021", sortDate: "2024-11-20T00:00:00", category: "course",
       subtitle: "12 modules · 40 hrs"
     },
     // Gift card
     {
-      id: "g1", title: "Tick3rt Gift Card", date: "No expiry", time: "Balance available",
+      id: "g1", title: "Tick3t Gift Card", date: "No expiry", time: "Balance available",
       location: "Redeemable on any event", tier: "$50", status: "valid", price: 50,
-      bgGradient: "from-rose-500 to-red-600", organizer: "Tick3rt",
+      bgGradient: "from-rose-500 to-red-600", organizer: "Tick3t",
       ticketNumber: "GC-9F2A-7K", sortDate: "2024-12-01T00:00:00", category: "giftcard",
       meta: "Balance: $42.50"
     },
@@ -115,8 +115,8 @@ const UserDashboard = () => {
     // Username
     {
       id: "u1", title: "@raves", date: "Owned since Jun 2024", time: "Permanent",
-      location: "Tick3rt handle", tier: "Rare", status: "valid", price: 250,
-      bgGradient: "from-fuchsia-500 to-purple-600", organizer: "Tick3rt Names",
+      location: "Tick3t handle", tier: "Rare", status: "valid", price: 250,
+      bgGradient: "from-fuchsia-500 to-purple-600", organizer: "Tick3t Names",
       ticketNumber: "NAME-RAVES", sortDate: "2024-06-14T00:00:00", category: "username",
       subtitle: "5-letter · Category: Music"
     },

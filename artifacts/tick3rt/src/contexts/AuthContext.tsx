@@ -40,7 +40,7 @@ interface AuthContextProps {
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-const STORAGE_KEY = "tick3rt.mock-auth.user";
+const STORAGE_KEY = "tick3t.mock-auth.user";
 
 export const useAuth = (): AuthContextProps => {
   const ctx = useContext(AuthContext);

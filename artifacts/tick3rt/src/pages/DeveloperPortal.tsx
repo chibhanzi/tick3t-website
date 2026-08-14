@@ -53,7 +53,7 @@ const platforms = [
   { name: "Instagram Live", icon: Instagram, desc: "Gate IG Lives to ticket holders via webhook + join links.", color: "from-pink-500 to-purple-600" },
   { name: "X (Twitter) Spaces", icon: Twitter, desc: "Restrict Spaces access to verified NFT ticket holders.", color: "from-sky-500 to-blue-600" },
   { name: "Twitch Events", icon: Twitch, desc: "Subscriber-only streams gated by on-chain ticket ownership.", color: "from-purple-500 to-indigo-600" },
-  { name: "YouTube Live", icon: Youtube, desc: "Unlisted premieres unlocked with a valid Tick3rt token.", color: "from-red-500 to-rose-600" },
+  { name: "YouTube Live", icon: Youtube, desc: "Unlisted premieres unlocked with a valid Tick3t token.", color: "from-red-500 to-rose-600" },
   { name: "Zoom / Meet", icon: Radio, desc: "Auto-issue meeting links to holders 15 mins before start.", color: "from-cyan-500 to-teal-600" },
   { name: "Custom / Web", icon: Globe, desc: "Drop-in JS SDK to gate any web experience.", color: "from-emerald-500 to-green-600" },
 ];
@@ -82,7 +82,7 @@ const DeveloperPortal = () => {
             </h1>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
               Gate Instagram Lives, X Spaces, Twitch streams and beyond to verified ticket & token holders.
-              One SDK. Any platform. Powered by Tick3rt.
+              One SDK. Any platform. Powered by Tick3t.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="gap-2">
@@ -142,10 +142,10 @@ const DeveloperPortal = () => {
               </TabsList>
 
               <TabsContent value="node" className="mt-4 space-y-4">
-                <CodeBlock lang="bash" code={`npm install @tick3rt/sdk`} />
-                <CodeBlock lang="typescript" code={`import { Tick3rt } from '@tick3rt/sdk';
+                <CodeBlock lang="bash" code={`npm install @tick3t/sdk`} />
+                <CodeBlock lang="typescript" code={`import { Tick3t } from '@tick3t/sdk';
 
-const tick3rt = new Tick3rt({ apiKey: process.env.TICK3RT_API_KEY });
+const tick3rt = new Tick3t({ apiKey: process.env.TICK3T_API_KEY });
 
 // Verify a fan holds a valid ticket before granting stream access
 const access = await tick3rt.gates.verify({
@@ -160,13 +160,13 @@ if (access.granted) {
               </TabsContent>
 
               <TabsContent value="js" className="mt-4 space-y-4">
-                <CodeBlock lang="html" code={`<script src="https://cdn.tick3rt.com/v1/gate.js"></script>
-<div data-tick3rt-gate="evt_9k2n" data-platform="x_spaces"></div>`} />
+                <CodeBlock lang="html" code={`<script src="https://cdn.tick3t.com/v1/gate.js"></script>
+<div data-tick3t-gate="evt_9k2n" data-platform="x_spaces"></div>`} />
               </TabsContent>
 
               <TabsContent value="curl" className="mt-4 space-y-4">
-                <CodeBlock lang="bash" code={`curl -X POST https://api.tick3rt.com/v1/gates/verify \\
-  -H "Authorization: Bearer $TICK3RT_API_KEY" \\
+                <CodeBlock lang="bash" code={`curl -X POST https://api.tick3t.com/v1/gates/verify \\
+  -H "Authorization: Bearer $TICK3T_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "eventId": "evt_9k2n",
@@ -213,7 +213,7 @@ if (access.granted) {
               <CardDescription>Receive real-time events when tickets mint, transfer or are redeemed.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Input placeholder="https://your-app.com/webhooks/tick3rt" />
+              <Input placeholder="https://your-app.com/webhooks/tick3t" />
               <div className="flex flex-wrap gap-1.5">
                 {["ticket.minted", "ticket.transferred", "gate.access_granted", "gate.access_denied"].map((e) => (
                   <Badge key={e} variant="secondary" className="text-[10px] font-mono">{e}</Badge>
@@ -231,7 +231,7 @@ if (access.granted) {
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">More than a marketplace</h2>
             <p className="mt-3 text-muted-foreground">
-              Tick3rt is becoming the industry-standard identity & access layer for
+              Tick3t is becoming the industry-standard identity & access layer for
               creators, communities and platforms. Sell once, gate everywhere.
             </p>
           </div>
@@ -254,7 +254,7 @@ if (access.granted) {
           <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background p-8 text-center">
             <h3 className="text-xl font-bold">Ready to build?</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Join the Tick3rt developer program and get early access to platform partnerships.
+              Join the Tick3t developer program and get early access to platform partnerships.
             </p>
             <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
               <Button className="gap-2"><KeyRound className="h-4 w-4" /> Request API access</Button>

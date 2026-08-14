@@ -59,7 +59,7 @@ const Footer = () => {
             <Link to="/" className="inline-flex items-center">
               <img
                 src={logoSrc}
-                alt="Tick3rt"
+                alt="Tick3t"
                 className="h-9 w-auto transition-opacity duration-300"
               />
             </Link>
@@ -110,7 +110,7 @@ const Footer = () => {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-border/40 pt-6 sm:flex-row sm:items-center">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Tick3rt. All rights reserved.
+            © {new Date().getFullYear()} Tick3t. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />

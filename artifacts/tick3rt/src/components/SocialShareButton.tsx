@@ -39,7 +39,7 @@ const SocialShareButton = ({
     priceLine,
     leftLine,
     `Grab yours 👇`,
-    `#Tick3rt`,
+    `#Tick3t`,
   ].filter(Boolean).join("\n");
 
   const encodedText = encodeURIComponent(shareText);
