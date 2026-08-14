@@ -1,12 +1,12 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Palette, Wand2, Layers, Image, Zap } from "lucide-react";
+import { Palette, Wand2, Layers, Image, Zap, LayoutTemplate } from "lucide-react";
 import AdvancedTicketDesigner from "./AdvancedTicketDesigner";
 import EnhancedTicketDesigner from "./EnhancedTicketDesigner";
 import LayeredTicketDesigner from "./LayeredTicketDesigner";
 import BackgroundImageUploader from "./BackgroundImageUploader";
+import TicketTemplateGallery, { EventTemplate } from "./TicketTemplateGallery";
 
 interface TicketDesignStepProps {
   eventData: any;
@@ -15,15 +15,44 @@ interface TicketDesignStepProps {
 }
 
 const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignStepProps) => {
-  const [designMode, setDesignMode] = useState<'advanced' | 'enhanced' | 'layered' | 'background'>('advanced');
+  const [designMode, setDesignMode] = useState<'templates' | 'advanced' | 'enhanced' | 'layered' | 'background'>('templates');
   const [backgroundImage, setBackgroundImage] = useState<string>('');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>(design?.templateId);
 
   const handleDesignChange = (newDesign: any) => {
     onDesignChange({
       ...newDesign,
-      backgroundImage: backgroundImage
+      backgroundImage,
+      templateId: selectedTemplateId,
     });
   };
+
+  const handleSelectTemplate = (template: EventTemplate) => {
+    setSelectedTemplateId(template.id);
+    // Apply the template's colours into the design state, then drop the user
+    // into the Advanced Designer so they can keep customising
+    const applied = {
+      ...design,
+      templateId: template.id,
+      templateName: template.name,
+      primaryColor: template.primaryColor,
+      secondaryColor: template.secondaryColor,
+      textColor: template.textColor,
+      gradient: template.gradient,
+      accentColor: template.accentColor,
+      backgroundImage,
+    };
+    onDesignChange(applied);
+    setDesignMode('advanced');
+  };
+
+  const tabs = [
+    { id: 'templates' as const, label: 'Templates',           shortLabel: 'Templates', icon: LayoutTemplate },
+    { id: 'advanced'  as const, label: 'Advanced Designer',   shortLabel: 'Advanced',  icon: Zap },
+    { id: 'enhanced'  as const, label: 'Smart Designer',      shortLabel: 'Smart',     icon: Wand2 },
+    { id: 'layered'   as const, label: 'Layer Editor',        shortLabel: 'Layers',    icon: Layers },
+    { id: 'background'as const, label: 'Background Images',   shortLabel: 'Images',    icon: Image },
+  ];
 
   return (
     <div className="space-y-4">
@@ -31,52 +60,53 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Palette className="h-5 w-5 text-purple-500" />
-            Professional Ticket Designer
+            Ticket Designer
           </CardTitle>
+
+          {/* Tab bar */}
           <div className="flex flex-wrap gap-2 mt-4">
-            <Button
-              variant={designMode === 'advanced' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setDesignMode('advanced')}
-              className="flex items-center gap-1 text-xs"
-            >
-              <Zap className="h-3 w-3" />
-              <span className="hidden sm:inline">Advanced Designer</span>
-              <span className="sm:hidden">Advanced</span>
-            </Button>
-            <Button
-              variant={designMode === 'enhanced' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setDesignMode('enhanced')}
-              className="flex items-center gap-1 text-xs"
-            >
-              <Wand2 className="h-3 w-3" />
-              <span className="hidden sm:inline">Smart Designer</span>
-              <span className="sm:hidden">Smart</span>
-            </Button>
-            <Button
-              variant={designMode === 'layered' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setDesignMode('layered')}
-              className="flex items-center gap-1 text-xs"
-            >
-              <Layers className="h-3 w-3" />
-              <span className="hidden sm:inline">Layer Editor</span>
-              <span className="sm:hidden">Layers</span>
-            </Button>
-            <Button
-              variant={designMode === 'background' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setDesignMode('background')}
-              className="flex items-center gap-1 text-xs"
-            >
-              <Image className="h-3 w-3" />
-              <span className="hidden sm:inline">Background Images</span>
-              <span className="sm:hidden">Images</span>
-            </Button>
+            {tabs.map((tab) => (
+              <Button
+                key={tab.id}
+                variant={designMode === tab.id ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDesignMode(tab.id)}
+                className="flex items-center gap-1 text-xs"
+              >
+                <tab.icon className="h-3 w-3" />
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.shortLabel}</span>
+                {/* Show a dot when a template has been chosen and we're on the Templates tab */}
+                {tab.id === 'templates' && selectedTemplateId && designMode !== 'templates' && (
+                  <span className="ml-1 h-1.5 w-1.5 rounded-full bg-primary inline-block" />
+                )}
+              </Button>
+            ))}
           </div>
+
+          {/* Context hint when a template is active */}
+          {selectedTemplateId && designMode !== 'templates' && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Using template <strong>{design?.templateName}</strong> — customise further below or{" "}
+              <button
+                className="underline underline-offset-2 hover:text-foreground transition-colors"
+                onClick={() => setDesignMode('templates')}
+              >
+                change template
+              </button>
+              .
+            </p>
+          )}
         </CardHeader>
+
         <CardContent className="p-2 sm:p-6">
+          {designMode === 'templates' && (
+            <TicketTemplateGallery
+              onSelectTemplate={handleSelectTemplate}
+              selectedTemplateId={selectedTemplateId}
+            />
+          )}
+
           {designMode === 'advanced' && (
             <AdvancedTicketDesigner
               eventTitle={eventData.title}
@@ -86,7 +116,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               onDesignChange={handleDesignChange}
             />
           )}
-          
+
           {designMode === 'enhanced' && (
             <EnhancedTicketDesigner
               eventTitle={eventData.title}
@@ -96,7 +126,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               onDesignChange={handleDesignChange}
             />
           )}
-          
+
           {designMode === 'layered' && (
             <LayeredTicketDesigner
               eventTitle={eventData.title}
@@ -105,7 +135,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               onDesignChange={handleDesignChange}
             />
           )}
-          
+
           {designMode === 'background' && (
             <div className="space-y-6">
               <BackgroundImageUploader
@@ -115,12 +145,12 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               {backgroundImage && (
                 <div className="mt-4">
                   <h4 className="font-medium mb-2">Preview with Background</h4>
-                  <div 
+                  <div
                     className="relative p-4 sm:p-6 h-40 sm:h-48 rounded-xl shadow-lg overflow-hidden"
                     style={{
                       backgroundImage: `url(${backgroundImage})`,
                       backgroundSize: 'cover',
-                      backgroundPosition: 'center'
+                      backgroundPosition: 'center',
                     }}
                   >
                     <div className="absolute inset-0 bg-black bg-opacity-40" />
