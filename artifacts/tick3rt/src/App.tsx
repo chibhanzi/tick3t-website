@@ -20,6 +20,7 @@ import UpgradeToOrganizer from "./pages/UpgradeToOrganizer";
 import NotFound from "./pages/NotFound";
 import DeveloperPortal from "./pages/DeveloperPortal";
 import UsernameMarketplace from "./pages/UsernameMarketplace";
+import Templates from "./pages/Templates";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/upgrade-to-organizer" element={<UpgradeToOrganizer />} />
               <Route path="/developers" element={<DeveloperPortal />} />
+              <Route path="/templates" element={<Templates />} />
               
               <Route 
                 path="/dashboard" 

@@ -1,7 +1,5 @@
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 @layer base {
   :root {
@@ -99,11 +97,11 @@
   .glass-effect {
     @apply bg-white/10 backdrop-blur-lg border border-white/20;
   }
-  
+
   .neon-border {
     @apply border border-blue-500 shadow-lg shadow-blue-500/25;
   }
-  
+
   .ticket-card {
     @apply bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02];
   }
@@ -111,12 +109,12 @@
   .btn-premium {
     @apply relative overflow-hidden transition-all duration-300 transform hover:scale-105;
   }
-  
+
   .btn-premium::before {
     content: '';
     @apply absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 transition-opacity duration-300;
   }
-  
+
   .btn-premium:hover::before {
     @apply opacity-20;
   }

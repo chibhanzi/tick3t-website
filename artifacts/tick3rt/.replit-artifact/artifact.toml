@@ -1,6 +1,7 @@
 kind = "web"
 previewPath = "/"
 title = "Tick3rt"
+description = "Event ticketing platform with NFT tickets and template gallery"
 version = "1.0.0"
 id = "artifacts/tick3rt"
 router = "path"

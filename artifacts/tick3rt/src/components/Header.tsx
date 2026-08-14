@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket, AtSign, ChevronDown, Home } from "lucide-react";
+import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket, AtSign, ChevronDown, Home, LayoutTemplate } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -29,9 +29,11 @@ const Header = () => {
         { href: "/organizer-dashboard", label: "Organizer Dashboard", icon: LayoutDashboard },
         { href: "/create-event", label: "Create Event", icon: Plus },
         { href: "/events", label: "Events", icon: Calendar },
+        { href: "/templates", label: "Templates", icon: LayoutTemplate },
       ]
     : [
         { href: "/events", label: "Events", icon: Calendar },
+        { href: "/templates", label: "Templates", icon: LayoutTemplate },
       ];
 
   const marketplaceItems = [
