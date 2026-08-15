@@ -12,6 +12,8 @@ import DashboardStats from "@/components/organizer/DashboardStats";
 import DraftEventBanner from "@/components/DraftEventBanner";
 import RecentEvents from "@/components/organizer/RecentEvents";
 import QuickAnalytics from "@/components/organizer/QuickAnalytics";
+import AnalyticsSummaryStats from "@/components/organizer/AnalyticsSummaryStats";
+import AudienceSnapshot from "@/components/organizer/AudienceSnapshot";
 import MobileAnalyticsDashboard from "@/components/organizer/MobileAnalyticsDashboard";
 import EventManagement from "@/components/organizer/EventManagement";
 import AttendeeManagement from "@/components/organizer/AttendeeManagement";
@@ -77,6 +79,9 @@ const OrganizerDashboard = () => {
           </div>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Animated stat row + 30-day sparkline */}
+            <AnalyticsSummaryStats />
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RecentEvents />
               <QuickAnalytics />
@@ -171,6 +176,8 @@ const OrganizerDashboard = () => {
 
           <TabsContent value="analytics" className="space-y-6">
             <MobileAnalyticsDashboard />
+            {/* Audience snapshot — tier split donut + referral sources */}
+            <AudienceSnapshot />
           </TabsContent>
 
           <TabsContent value="settings">
