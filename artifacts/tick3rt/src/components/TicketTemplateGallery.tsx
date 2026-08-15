@@ -22,6 +22,12 @@ export interface EventTemplate {
   gradient: string;
 }
 
+export interface PreviewProps {
+  title?: string;
+  date?: string;
+  location?: string;
+}
+
 // ─────────────────────────────────────────────
 // Individual ticket preview renderers
 // Every template has a completely unique shape,
@@ -29,7 +35,11 @@ export interface EventTemplate {
 // ─────────────────────────────────────────────
 
 /** 1 · Classic Stub — horizontal, right perforated stub, neon glow */
-const ElectricStagePreview = () => (
+const ElectricStagePreview = ({
+  title = "Electric Stage",
+  date = "Sat, Dec 20 · 8:00 PM",
+  location = "City Arena, Main Stage",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #0f0c29 0%, #302b63 55%, #24243e 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Glow orb */}
     <div className="absolute top-[-20%] left-[15%] w-24 h-24 rounded-full opacity-30" style={{ background: "radial-gradient(circle, #a855f7, transparent)" }} />
@@ -43,12 +53,12 @@ const ElectricStagePreview = () => (
     <div className="absolute inset-0 right-[27%] flex flex-col justify-between p-3">
       <div>
         <div className="text-[8px] tracking-[0.2em] uppercase font-semibold" style={{ color: "#a855f7" }}>Concert &amp; Music</div>
-        <div className="text-sm font-bold mt-0.5 leading-tight text-white" style={{ textShadow: "0 0 12px rgba(168,85,247,0.8)" }}>Electric Stage</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Saturday, Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-bold mt-0.5 leading-tight text-white truncate" style={{ textShadow: "0 0 12px rgba(168,85,247,0.8)" }}>{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{date}</div>
       </div>
       <div>
         <div className="text-[8px] uppercase tracking-widest mb-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>Venue</div>
-        <div className="text-[10px] font-medium text-white">City Arena, Main Stage</div>
+        <div className="text-[10px] font-medium text-white truncate">{location}</div>
       </div>
     </div>
     {/* Stub */}
@@ -65,7 +75,11 @@ const ElectricStagePreview = () => (
 );
 
 /** 2 · Golden Mic — diagonal split, gold triangle, luxury */
-const GoldenMicPreview = () => (
+const GoldenMicPreview = ({
+  title = "Golden Mic",
+  date = "Dec 20 · 8 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "#0a0800", fontFamily: "system-ui, sans-serif" }}>
     {/* Gold diagonal triangle */}
     <div className="absolute inset-0" style={{ clipPath: "polygon(55% 0%, 100% 0%, 100% 100%, 35% 100%)", background: "linear-gradient(160deg, #d4af37, #ffd700, #b8860b)" }} />
@@ -73,10 +87,10 @@ const GoldenMicPreview = () => (
     <div className="absolute inset-0 flex flex-col justify-between p-3" style={{ right: "45%" }}>
       <div>
         <div className="text-[8px] tracking-widest uppercase" style={{ color: "rgba(212,175,55,0.7)" }}>Concert &amp; Music</div>
-        <div className="text-sm font-bold text-white leading-tight mt-0.5" style={{ fontFamily: "Georgia, serif" }}>Golden Mic</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Dec 20 · 8 PM</div>
+        <div className="text-sm font-bold text-white leading-tight mt-0.5 truncate" style={{ fontFamily: "Georgia, serif" }}>{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{date}</div>
       </div>
-      <div className="text-[9px] text-white/60">City Arena</div>
+      <div className="text-[9px] text-white/60 truncate">{location}</div>
     </div>
     {/* Right stub area */}
     <div className="absolute top-0 bottom-0 right-0 flex flex-col items-center justify-center gap-1 px-2" style={{ width: "25%", background: "rgba(0,0,0,0.3)" }}>
@@ -91,16 +105,20 @@ const GoldenMicPreview = () => (
 );
 
 /** 3 · Indie Wave — retro scalloped border, stamp aesthetic */
-const IndieWavePreview = () => (
+const IndieWavePreview = ({
+  title = "Indie Wave",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #f093fb 0%, #f5576c 55%, #fda085 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Retro stamp inner border */}
     <div className="absolute inset-[4px] rounded-md border-2 border-dashed border-white/40" />
     {/* Center layout */}
     <div className="absolute inset-0 flex items-center px-5 gap-3">
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <div className="text-[8px] tracking-[0.25em] uppercase font-bold text-white/70">Concert &amp; Music</div>
-        <div className="text-sm font-black text-white leading-tight mt-0.5" style={{ letterSpacing: "-0.02em" }}>Indie Wave</div>
-        <div className="mt-1 text-[9px] text-white/60">Dec 20 · 8:00 PM · City Arena</div>
+        <div className="text-sm font-black text-white leading-tight mt-0.5 truncate" style={{ letterSpacing: "-0.02em" }}>{title}</div>
+        <div className="mt-1 text-[9px] text-white/60 truncate">{date} · {location}</div>
       </div>
       {/* Retro circle stamp */}
       <div className="flex-shrink-0 w-14 h-14 rounded-full border-2 border-white/50 flex flex-col items-center justify-center text-center" style={{ background: "rgba(255,255,255,0.15)" }}>
@@ -117,7 +135,11 @@ const IndieWavePreview = () => (
 );
 
 /** 4 · Game Day — dark card, bold score display, accent stripe top */
-const GameDayPreview = () => (
+const GameDayPreview = ({
+  title = "Game Day",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena, Main Stage",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "#111", fontFamily: "system-ui, sans-serif" }}>
     {/* Top green stripe */}
     <div className="absolute top-0 left-0 right-0 h-1" style={{ background: "#22c55e" }} />
@@ -127,10 +149,10 @@ const GameDayPreview = () => (
     <div className="absolute inset-0 right-[30%] flex flex-col justify-between p-3 pt-3.5">
       <div>
         <div className="text-[8px] tracking-widest uppercase font-bold" style={{ color: "#22c55e" }}>Sports</div>
-        <div className="text-sm font-black text-white mt-0.5" style={{ letterSpacing: "-0.01em" }}>Game Day</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-black text-white mt-0.5 truncate" style={{ letterSpacing: "-0.01em" }}>{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{date}</div>
       </div>
-      <div className="text-[10px] text-white/50">City Arena, Main Stage</div>
+      <div className="text-[10px] text-white/50 truncate">{location}</div>
     </div>
     {/* Right: scoreboard-style stub */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-0.5 border-l" style={{ width: "30%", borderColor: "#22c55e33" }}>
@@ -144,7 +166,11 @@ const GameDayPreview = () => (
 );
 
 /** 5 · Podium — carbon fibre pattern, red racing diagonal stripe */
-const PodiumPreview = () => (
+const PodiumPreview = ({
+  title = "Podium",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", fontFamily: "system-ui, sans-serif", background: "#1a1a1a" }}>
     {/* Carbon fibre CSS pattern */}
     <div className="absolute inset-0" style={{ backgroundImage: "repeating-linear-gradient(45deg, #222 0px, #222 2px, transparent 2px, transparent 8px), repeating-linear-gradient(-45deg, #222 0px, #222 2px, transparent 2px, transparent 8px)", opacity: 0.8 }} />
@@ -154,10 +180,10 @@ const PodiumPreview = () => (
     <div className="absolute inset-0 right-[35%] flex flex-col justify-between p-3">
       <div>
         <div className="text-[8px] tracking-widest uppercase font-semibold" style={{ color: "#ef4444" }}>Sports</div>
-        <div className="text-sm font-black text-white mt-0.5">Podium</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-black text-white mt-0.5 truncate">{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{date}</div>
       </div>
-      <div className="text-[9px]" style={{ color: "rgba(255,255,255,0.4)" }}>City Arena</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{location}</div>
     </div>
     {/* Right stub */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-1 px-2" style={{ width: "25%", background: "rgba(0,0,0,0.5)", borderLeft: "1px solid #ef444433" }}>
@@ -169,7 +195,11 @@ const PodiumPreview = () => (
 );
 
 /** 6 · Solstice — full-bleed radial, concentric ring decoration */
-const SolsticePreview = () => (
+const SolsticePreview = ({
+  title = "Solstice",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "radial-gradient(ellipse at 30% 50%, #ff6b6b 0%, #feca57 40%, #48dbfb 75%, #1dd1a1 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Concentric rings */}
     <div className="absolute" style={{ right: "18%", top: "50%", transform: "translate(50%,-50%)", width: 80, height: 80, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)" }} />
@@ -179,10 +209,10 @@ const SolsticePreview = () => (
     <div className="absolute inset-0 flex flex-col justify-between p-3" style={{ right: "35%" }}>
       <div>
         <div className="text-[8px] tracking-widest uppercase font-bold" style={{ color: "rgba(26,26,26,0.7)" }}>Festival</div>
-        <div className="text-sm font-black leading-tight mt-0.5" style={{ color: "#1a1a1a" }}>Solstice</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(26,26,26,0.5)" }}>Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-black leading-tight mt-0.5 truncate" style={{ color: "#1a1a1a" }}>{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(26,26,26,0.5)" }}>{date}</div>
       </div>
-      <div className="text-[9px]" style={{ color: "rgba(26,26,26,0.5)" }}>City Arena</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(26,26,26,0.5)" }}>{location}</div>
     </div>
     {/* Right info with white pill */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-0.5" style={{ width: "22%" }}>
@@ -193,7 +223,11 @@ const SolsticePreview = () => (
 );
 
 /** 7 · Neon Carnival — dark, scan-line overlay, cyan glow grid */
-const NeonCarnivalPreview = () => (
+const NeonCarnivalPreview = ({
+  title = "Neon Carnival",
+  date = "Dec 20 · 20:00",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "#050510", fontFamily: "monospace" }}>
     {/* Grid lines */}
     <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(0,245,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.06) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
@@ -205,10 +239,10 @@ const NeonCarnivalPreview = () => (
     <div className="absolute inset-0 right-[30%] flex flex-col justify-between p-3">
       <div>
         <div className="text-[8px] tracking-[0.2em] uppercase" style={{ color: "#00f5ff88" }}>Festival</div>
-        <div className="text-sm font-bold mt-0.5" style={{ color: "#00f5ff", textShadow: "0 0 10px #00f5ff" }}>Neon Carnival</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(0,245,255,0.35)" }}>Dec 20 · 20:00</div>
+        <div className="text-sm font-bold mt-0.5 truncate" style={{ color: "#00f5ff", textShadow: "0 0 10px #00f5ff" }}>{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(0,245,255,0.35)" }}>{date}</div>
       </div>
-      <div className="text-[9px]" style={{ color: "rgba(0,245,255,0.3)" }}>City Arena</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(0,245,255,0.3)" }}>{location}</div>
     </div>
     {/* Right stub - terminal style */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-0.5 px-2" style={{ width: "30%", borderLeft: "1px solid #00f5ff22" }}>
@@ -224,7 +258,11 @@ const NeonCarnivalPreview = () => (
 );
 
 /** 8 · Slate Pro — split: navy left / white right, ultra clean */
-const SlateProPreview = () => (
+const SlateProPreview = ({
+  title = "Slate Pro",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", fontFamily: "system-ui, sans-serif" }}>
     {/* Left navy panel */}
     <div className="absolute inset-0 right-[38%]" style={{ background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)" }} />
@@ -236,10 +274,10 @@ const SlateProPreview = () => (
     <div className="absolute inset-0 right-[38%] flex flex-col justify-between p-3 pl-4">
       <div>
         <div className="text-[8px] tracking-widest uppercase" style={{ color: "rgba(59,130,246,0.8)" }}>Corporate</div>
-        <div className="text-sm font-bold text-white mt-0.5">Slate Pro</div>
-        <div className="text-[9px] mt-0.5 text-white/40">Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-bold text-white mt-0.5 truncate">{title}</div>
+        <div className="text-[9px] mt-0.5 text-white/40">{date}</div>
       </div>
-      <div className="text-[9px] text-white/40">City Arena</div>
+      <div className="text-[9px] text-white/40 truncate">{location}</div>
     </div>
     {/* Right stub */}
     <div className="absolute inset-0 left-[62%] flex flex-col items-center justify-center gap-1 px-2" style={{ borderLeft: "1px dashed #cbd5e1" }}>
@@ -253,7 +291,11 @@ const SlateProPreview = () => (
 );
 
 /** 9 · Executive — full black, art deco gold corner ornaments */
-const ExecutivePreview = () => (
+const ExecutivePreview = ({
+  title = "Executive",
+  date = "Dec 20 · 20:00",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "#0a0a0a", fontFamily: "Georgia, serif" }}>
     {/* Art deco corner ornaments */}
     {["top-1.5 left-1.5", "top-1.5 right-1.5", "bottom-1.5 left-1.5", "bottom-1.5 right-1.5"].map((pos, i) => (
@@ -267,8 +309,8 @@ const ExecutivePreview = () => (
     {/* Left text */}
     <div className="absolute inset-0 right-[30%] flex flex-col justify-center gap-1 px-5">
       <div className="text-[7px] tracking-[0.3em] uppercase" style={{ color: "#c0a06077" }}>Corporate · VIP</div>
-      <div className="text-sm font-bold text-white">Executive</div>
-      <div className="text-[9px]" style={{ color: "rgba(192,160,96,0.5)" }}>Dec 20 · 20:00 · City Arena</div>
+      <div className="text-sm font-bold text-white truncate">{title}</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(192,160,96,0.5)" }}>{date} · {location}</div>
     </div>
     {/* Right stub */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-1" style={{ width: "29%" }}>
@@ -280,7 +322,11 @@ const ExecutivePreview = () => (
 );
 
 /** 10 · Summit — diagonal band, overlapping geometric shapes */
-const SummitPreview = () => (
+const SummitPreview = ({
+  title = "Summit",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Big translucent circle */}
     <div className="absolute" style={{ right: "-5%", top: "-30%", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)" }} />
@@ -290,10 +336,10 @@ const SummitPreview = () => (
     <div className="absolute inset-0 right-[30%] flex flex-col justify-between p-3">
       <div>
         <div className="text-[8px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>Conference</div>
-        <div className="text-sm font-bold text-white mt-0.5">Summit</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-bold text-white mt-0.5 truncate">{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{date}</div>
       </div>
-      <div className="text-[9px]" style={{ color: "rgba(255,255,255,0.4)" }}>City Arena</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{location}</div>
     </div>
     {/* Right: semi-transparent stub */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-1 px-2" style={{ width: "30%", background: "rgba(0,0,0,0.2)", borderLeft: "1px solid rgba(255,255,255,0.15)" }}>
@@ -306,7 +352,11 @@ const SummitPreview = () => (
 );
 
 /** 11 · Keynote — bold blue, large typography-driven layout */
-const KeynotePreview = () => (
+const KeynotePreview = ({
+  title = "Keynote",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(160deg, #005c97 0%, #003f6b 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Large BG number for visual texture */}
     <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[72px] font-black leading-none select-none pointer-events-none" style={{ color: "rgba(255,255,255,0.04)", fontVariantNumeric: "tabular-nums" }}>01</div>
@@ -319,10 +369,10 @@ const KeynotePreview = () => (
     {/* Main content */}
     <div className="absolute inset-0 top-5 right-[30%] flex flex-col justify-between p-3">
       <div>
-        <div className="text-sm font-black text-white leading-tight">Keynote</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(96,165,250,0.8)" }}>Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-black text-white leading-tight truncate">{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(96,165,250,0.8)" }}>{date}</div>
       </div>
-      <div className="text-[9px] text-white/40">City Arena</div>
+      <div className="text-[9px] text-white/40 truncate">{location}</div>
     </div>
     {/* Stub */}
     <div className="absolute top-5 right-0 bottom-0 flex flex-col items-center justify-center gap-1" style={{ width: "30%", borderLeft: "1px solid rgba(255,255,255,0.1)" }}>
@@ -334,7 +384,11 @@ const KeynotePreview = () => (
 );
 
 /** 12 · Gallery Opening — minimal white, single left border, serif feel */
-const GalleryOpeningPreview = () => (
+const GalleryOpeningPreview = ({
+  title = "Gallery Opening",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none border border-gray-200" style={{ aspectRatio: "7/3", background: "#fafaf9", fontFamily: "Georgia, serif" }}>
     {/* Thick left black stripe */}
     <div className="absolute left-0 top-0 bottom-0 w-2" style={{ background: "#1a1a1a" }} />
@@ -347,8 +401,8 @@ const GalleryOpeningPreview = () => (
     {/* Main content */}
     <div className="absolute inset-0 left-6 right-[30%] flex flex-col justify-center gap-1">
       <div className="text-[8px] tracking-[0.25em] uppercase" style={{ color: "#999" }}>Art &amp; Culture</div>
-      <div className="text-sm font-bold" style={{ color: "#1a1a1a" }}>Gallery Opening</div>
-      <div className="text-[9px]" style={{ color: "#aaa" }}>Dec 20 · 8:00 PM · City Arena</div>
+      <div className="text-sm font-bold truncate" style={{ color: "#1a1a1a" }}>{title}</div>
+      <div className="text-[9px] truncate" style={{ color: "#aaa" }}>{date} · {location}</div>
     </div>
     {/* Right stub */}
     <div className="absolute top-4 right-0 bottom-4 flex flex-col items-center justify-center gap-1" style={{ width: "28%" }}>
@@ -361,7 +415,11 @@ const GalleryOpeningPreview = () => (
 );
 
 /** 13 · Aurora — flowing multi-colour, curved overlay panel */
-const AuroraPreview = () => (
+const AuroraPreview = ({
+  title = "Aurora",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #43cea2 0%, #185a9d 50%, #8b5cf6 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Curved translucent overlay */}
     <div className="absolute" style={{ bottom: "-20%", left: "-10%", width: "60%", height: "140%", borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
@@ -374,10 +432,10 @@ const AuroraPreview = () => (
     <div className="absolute inset-0 right-[30%] flex flex-col justify-between p-3">
       <div>
         <div className="text-[8px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>Art &amp; Culture</div>
-        <div className="text-sm font-bold text-white mt-0.5" style={{ fontStyle: "italic" }}>Aurora</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-bold text-white mt-0.5 truncate" style={{ fontStyle: "italic" }}>{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{date}</div>
       </div>
-      <div className="text-[9px]" style={{ color: "rgba(255,255,255,0.4)" }}>City Arena</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{location}</div>
     </div>
     {/* Stub */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-1 px-2" style={{ width: "30%", background: "rgba(0,0,0,0.18)", backdropFilter: "blur(4px)", borderLeft: "1px solid rgba(255,255,255,0.15)" }}>
@@ -390,7 +448,11 @@ const AuroraPreview = () => (
 );
 
 /** 14 · Gala Noir — full black, vertical gold lines (art deco pattern) */
-const GalaNoirPreview = () => (
+const GalaNoirPreview = ({
+  title = "Gala Noir",
+  date = "Dec 20 · 20:00",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "#080808", fontFamily: "system-ui, sans-serif" }}>
     {/* Vertical gold line pattern */}
     <div className="absolute inset-0" style={{ backgroundImage: "repeating-linear-gradient(90deg, transparent 0px, transparent 18px, rgba(192,160,96,0.12) 18px, rgba(192,160,96,0.12) 19px)", backgroundSize: "19px 100%" }} />
@@ -402,8 +464,8 @@ const GalaNoirPreview = () => (
     {/* Content */}
     <div className="absolute inset-0 right-[29%] flex flex-col justify-center gap-1.5 px-5">
       <div className="text-[7px] tracking-[0.3em] uppercase" style={{ color: "rgba(192,160,96,0.5)" }}>Charity &amp; Gala</div>
-      <div className="text-sm font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>Gala Noir</div>
-      <div className="text-[9px]" style={{ color: "rgba(192,160,96,0.4)" }}>Dec 20 · 20:00 · City Arena</div>
+      <div className="text-sm font-bold text-white truncate" style={{ fontFamily: "Georgia, serif" }}>{title}</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(192,160,96,0.4)" }}>{date} · {location}</div>
     </div>
     {/* Stub */}
     <div className="absolute top-3 right-0 bottom-3 flex flex-col items-center justify-center gap-1" style={{ width: "28%" }}>
@@ -416,7 +478,11 @@ const GalaNoirPreview = () => (
 );
 
 /** 15 · Blossom — soft pastel, circular floral decoration, gentle */
-const BlossomPreview = () => (
+const BlossomPreview = ({
+  title = "Blossom",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #fbc2eb 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Decorative flower circles */}
     {[
@@ -436,10 +502,10 @@ const BlossomPreview = () => (
     <div className="absolute inset-0 right-[29%] flex flex-col justify-between p-3">
       <div>
         <div className="text-[8px] tracking-widest uppercase" style={{ color: "rgba(74,25,66,0.5)" }}>Charity &amp; Gala</div>
-        <div className="text-sm font-bold mt-0.5" style={{ color: "#4a1942" }}>Blossom</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(74,25,66,0.45)" }}>Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-bold mt-0.5 truncate" style={{ color: "#4a1942" }}>{title}</div>
+        <div className="text-[9px] mt-0.5 truncate" style={{ color: "rgba(74,25,66,0.45)" }}>{date}</div>
       </div>
-      <div className="text-[9px]" style={{ color: "rgba(74,25,66,0.4)" }}>City Arena</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(74,25,66,0.4)" }}>{location}</div>
     </div>
     {/* Stub */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-1 px-1" style={{ width: "28%" }}>
@@ -452,7 +518,11 @@ const BlossomPreview = () => (
 );
 
 /** 16 · Cybercore — dark, green hex pattern, esports/gaming */
-const CybercorePreview = () => (
+const CybercorePreview = ({
+  title = "Cybercore",
+  date = "2025.12.20 / 20:00",
+  location = "City Arena",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "#030a03", fontFamily: "monospace" }}>
     {/* Hex dot pattern */}
     <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle, rgba(0,255,136,0.12) 1px, transparent 1px)", backgroundSize: "12px 12px" }} />
@@ -466,10 +536,10 @@ const CybercorePreview = () => (
     <div className="absolute inset-0 right-[30%] flex flex-col justify-between p-3 pt-4">
       <div>
         <div className="text-[8px] tracking-[0.2em] uppercase" style={{ color: "rgba(0,255,136,0.6)" }}>Tech &amp; Gaming</div>
-        <div className="text-sm font-bold mt-0.5" style={{ color: "#00ff88", textShadow: "0 0 8px rgba(0,255,136,0.5)" }}>Cybercore</div>
-        <div className="text-[9px] mt-0.5" style={{ color: "rgba(0,255,136,0.3)" }}>2025.12.20 / 20:00</div>
+        <div className="text-sm font-bold mt-0.5 truncate" style={{ color: "#00ff88", textShadow: "0 0 8px rgba(0,255,136,0.5)" }}>{title}</div>
+        <div className="text-[9px] mt-0.5" style={{ color: "rgba(0,255,136,0.3)" }}>{date}</div>
       </div>
-      <div className="text-[9px]" style={{ color: "rgba(0,255,136,0.25)" }}>&gt; CITY_ARENA:MAIN</div>
+      <div className="text-[9px] truncate" style={{ color: "rgba(0,255,136,0.25)" }}>&gt; {location.toUpperCase().replace(/\s/g, "_")}</div>
     </div>
     {/* Right digital stub */}
     <div className="absolute top-0 right-0 bottom-0 flex flex-col items-center justify-center gap-0.5 px-2" style={{ width: "30%", borderLeft: "1px solid rgba(0,255,136,0.15)" }}>
@@ -485,7 +555,11 @@ const CybercorePreview = () => (
 );
 
 /** 17 · Holographic — rainbow gradient, iridescent shimmer effect */
-const HolographicPreview = () => (
+const HolographicPreview = ({
+  title = "Holographic",
+  date = "Dec 20 · 8:00 PM",
+  location = "City Arena, Main Stage",
+}: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #ff0080, #ff8c00, #ffff00, #40e0d0, #ee82ee, #9acd32)", fontFamily: "system-ui, sans-serif" }}>
     {/* Shimmer overlay */}
     <div className="absolute inset-0" style={{ background: "repeating-linear-gradient(60deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 10%, rgba(255,255,255,0) 20%)", backgroundSize: "200% 200%" }} />
@@ -493,10 +567,10 @@ const HolographicPreview = () => (
     <div className="absolute inset-2 right-[30%] rounded-lg flex flex-col justify-between p-2.5" style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.5)" }}>
       <div>
         <div className="text-[8px] tracking-widest uppercase text-white font-semibold" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Tech &amp; Gaming</div>
-        <div className="text-sm font-black text-white mt-0.5" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>Holographic</div>
-        <div className="text-[9px] mt-0.5 text-white/70">Dec 20 · 8:00 PM</div>
+        <div className="text-sm font-black text-white mt-0.5 truncate" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>{title}</div>
+        <div className="text-[9px] mt-0.5 text-white/70">{date}</div>
       </div>
-      <div className="text-[9px] text-white/60">City Arena, Main Stage</div>
+      <div className="text-[9px] text-white/60 truncate">{location}</div>
     </div>
     {/* Stub */}
     <div className="absolute inset-y-2 right-2 rounded-lg flex flex-col items-center justify-center gap-1 px-2" style={{ width: "26%", background: "rgba(255,255,255,0.3)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.5)" }}>
@@ -511,7 +585,7 @@ const HolographicPreview = () => (
 // ─────────────────────────────────────────────
 // Template registry — data + renderer together
 // ─────────────────────────────────────────────
-export const TICKET_TEMPLATES: (EventTemplate & { Preview: React.FC })[] = [
+export const TICKET_TEMPLATES: (EventTemplate & { Preview: React.FC<PreviewProps> })[] = [
   { id: "electric-stage",   name: "Electric Stage",    category: "Concert & Music",  description: "Neon-glow horizontal with purple stub and scan accents.",     isPremium: false, tags: ["music","concert","neon"],       primaryColor: "#a855f7", secondaryColor: "#0f0c29", accentColor: "#a855f7", textColor: "#ffffff", gradient: "linear-gradient(135deg, #0f0c29, #302b63)",  Preview: ElectricStagePreview },
   { id: "golden-mic",       name: "Golden Mic",        category: "Concert & Music",  description: "Diagonal gold triangle split on a black base, serif luxury.",  isPremium: true,  tags: ["music","jazz","gold"],           primaryColor: "#d4af37", secondaryColor: "#1a1200", accentColor: "#ffd700", textColor: "#ffffff", gradient: "linear-gradient(135deg, #1a1200, #d4af37)",  Preview: GoldenMicPreview },
   { id: "indie-wave",       name: "Indie Wave",        category: "Concert & Music",  description: "Wavy SVG bottom edge and retro stamp circle — festival poster vibe.", isPremium: false, tags: ["music","indie","retro"],   primaryColor: "#f5576c", secondaryColor: "#f093fb", accentColor: "#fda085", textColor: "#ffffff", gradient: "linear-gradient(135deg, #f093fb, #f5576c)",  Preview: IndieWavePreview },
@@ -611,7 +685,7 @@ const TicketTemplateGallery = ({ onSelectTemplate, selectedTemplateId }: TicketT
                   </div>
                 )}
 
-                {/* Unique CSS ticket preview */}
+                {/* Unique CSS ticket preview — no props → defaults to placeholder text */}
                 <div className="p-2.5 pb-0">
                   <Preview />
                 </div>
