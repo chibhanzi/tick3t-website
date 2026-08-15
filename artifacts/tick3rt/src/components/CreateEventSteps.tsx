@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, ArrowRight, ArrowLeft, Sparkles, RotateCcw } from "lucide-react";
+import { CheckCircle, ArrowRight, ArrowLeft, Sparkles, RotateCcw, X, HistoryIcon } from "lucide-react";
 import EventBasicInfo from "./EventBasicInfo";
 import TicketDesignStep from "./TicketDesignStep";
 import TicketGenerationMethods, { TicketGenerationConfig } from "./TicketGenerationMethods";
@@ -103,6 +103,10 @@ function clearDraft() {
   }
 }
 
+function isDraftNonEmpty(eventData: EventData, currentStep: number): boolean {
+  return currentStep > 1 || Object.values(eventData).some((v) => v !== "");
+}
+
 const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   // Lazy-initialise all state from localStorage draft if present
   const [currentStep, setCurrentStep] = useState<number>(() => {
@@ -135,10 +139,29 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     return draft?.pricingData ?? DEFAULT_PRICING_DATA;
   });
 
+  // Track whether we restored a non-empty draft on mount so we can show a banner
+  const [showRestoredBanner, setShowRestoredBanner] = useState<boolean>(() => {
+    const draft = loadDraft();
+    if (!draft) return false;
+    return (draft.currentStep ?? 1) > 1 || Object.values(draft.eventData ?? {}).some((v: unknown) => v !== "");
+  });
+
   // Persist entire draft to localStorage whenever any piece changes
   useEffect(() => {
     saveDraft({ currentStep, eventData, ticketDesign, generationConfig, ticketFeatures, pricingData });
   }, [currentStep, eventData, ticketDesign, generationConfig, ticketFeatures, pricingData]);
+
+  // Warn before tab close when there is unsaved draft data
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDraftNonEmpty(eventData, currentStep)) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [eventData, currentStep]);
 
   const handleStartOver = () => {
     clearDraft();
@@ -148,6 +171,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     setGenerationConfig(DEFAULT_GENERATION_CONFIG);
     setTicketFeatures(DEFAULT_TICKET_FEATURES);
     setPricingData(DEFAULT_PRICING_DATA);
+    setShowRestoredBanner(false);
   };
 
   const steps = [
@@ -238,6 +262,23 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-8 px-2 sm:px-0">
+      {/* Draft-restored banner */}
+      {showRestoredBanner && (
+        <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+          <HistoryIcon className="h-4 w-4 shrink-0" />
+          <p className="flex-1 text-sm">
+            <span className="font-medium">Draft restored.</span> We saved your progress from your last session — pick up right where you left off.
+          </p>
+          <button
+            onClick={() => setShowRestoredBanner(false)}
+            aria-label="Dismiss"
+            className="shrink-0 rounded p-0.5 hover:bg-blue-100 dark:hover:bg-blue-900"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Progress Steps - Mobile Responsive */}
       <Card className="border-slate-200 dark:border-slate-700">
         <CardContent className="p-3 sm:p-6">
