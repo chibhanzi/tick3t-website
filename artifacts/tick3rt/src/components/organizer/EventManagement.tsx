@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, MapPin, Users, Search, Plus, Edit, Trash2, Eye, Copy, ChevronDown, ChevronUp, ListOrdered, UserPlus, Share2 } from "lucide-react";
+import { Calendar, MapPin, Users, Search, Plus, Edit, Trash2, Eye, Copy, ChevronDown, ChevronUp, ListOrdered, UserPlus, Share2, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { tierSplit, followersGained } from "@/hooks/useOrganizerAnalytics";
 import { waitlistSeed } from "@/contexts/WaitlistContext";
 import { EventResultsShareModal } from "@/components/organizer/EventResultsShareModal";
+import { useEventGoals } from "@/hooks/useEventGoals";
 
 interface Event {
   id: string;
@@ -41,6 +42,9 @@ const EventManagement = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [shareEvent, setShareEvent] = useState<Event | null>(null);
   const [searchParams] = useSearchParams();
+  const { getGoal, setGoal, clearGoal } = useEventGoals();
+  // Tracks the draft input value per event while the user is typing
+  const [goalDraft, setGoalDraft] = useState<Record<string, string>>({});
 
   // Auto-expand event analytics when arriving via a share deep-link (?event=<id>)
   useEffect(() => {
@@ -245,6 +249,109 @@ const EventManagement = () => {
                         </span>
                       </div>
                     </div>
+
+                    {/* Revenue goal section */}
+                    {(() => {
+                      const goal = getGoal(event.id);
+                      const draft = goalDraft[event.id] ?? "";
+
+                      if (goal == null) {
+                        // No goal set yet — show prompt + input
+                        return (
+                          <div className="flex flex-col gap-2 p-3 rounded-xl border border-dashed border-emerald-500/30 bg-emerald-500/4">
+                            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              <Target className="h-3 w-3 text-emerald-500" />
+                              <span>Add a revenue goal to track your progress →</span>
+                            </div>
+                            <div className="flex gap-2">
+                              <div className="relative flex-1">
+                                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  placeholder="e.g. 50000"
+                                  value={draft}
+                                  onChange={(e) =>
+                                    setGoalDraft((prev) => ({ ...prev, [event.id]: e.target.value }))
+                                  }
+                                  className="h-7 pl-6 text-xs"
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      const val = Number(draft);
+                                      if (val > 0) {
+                                        setGoal(event.id, val);
+                                        setGoalDraft((prev) => { const n = { ...prev }; delete n[event.id]; return n; });
+                                      }
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <Button
+                                size="sm"
+                                className="h-7 text-xs px-3"
+                                disabled={!draft || Number(draft) <= 0}
+                                onClick={() => {
+                                  const val = Number(draft);
+                                  if (val > 0) {
+                                    setGoal(event.id, val);
+                                    setGoalDraft((prev) => { const n = { ...prev }; delete n[event.id]; return n; });
+                                  }
+                                }}
+                              >
+                                Set goal
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // Goal is set — show progress bar
+                      const rawPct = goal > 0 ? (event.revenue / goal) * 100 : 0;
+                      const pct = Math.min(rawPct, 100);
+                      const reached = rawPct >= 100;
+                      const fmtAmount = (n: number) =>
+                        n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n.toLocaleString()}`;
+
+                      return (
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                              <Target className="h-3 w-3 text-emerald-500" />
+                              Revenue Goal
+                            </div>
+                            <button
+                              className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                              onClick={() => {
+                                clearGoal(event.id);
+                                setGoalDraft((prev) => { const n = { ...prev }; delete n[event.id]; return n; });
+                              }}
+                              title="Remove goal"
+                            >
+                              ✕ remove
+                            </button>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${reached ? "bg-emerald-500" : "bg-emerald-500/70"}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <p className="text-[11px] text-muted-foreground">
+                              {fmtAmount(event.revenue)} of {fmtAmount(goal)} —{" "}
+                              <span className={reached ? "text-emerald-600 dark:text-emerald-400 font-semibold" : ""}>
+                                {Math.round(rawPct)}% to goal
+                              </span>
+                            </p>
+                            {reached && (
+                              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                                🎉 Goal reached!
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Sell-through callout */}
                     {sellPct >= 90 && (
