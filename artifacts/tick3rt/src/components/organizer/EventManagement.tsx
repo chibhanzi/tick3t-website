@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, MapPin, Users, Search, Plus, Edit, Trash2, Eye, Copy, ChevronDown, ChevronUp, ListOrdered, UserPlus } from "lucide-react";
+import { Calendar, MapPin, Users, Search, Plus, Edit, Trash2, Eye, Copy, ChevronDown, ChevronUp, ListOrdered, UserPlus, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { tierSplit, followersGained } from "@/hooks/useOrganizerAnalytics";
 import { waitlistSeed } from "@/contexts/WaitlistContext";
+import { EventResultsShareModal } from "@/components/organizer/EventResultsShareModal";
 
 interface Event {
   id: string;
@@ -37,6 +39,20 @@ const EventManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [events] = useState<Event[]>(mockEvents);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [shareEvent, setShareEvent] = useState<Event | null>(null);
+  const [searchParams] = useSearchParams();
+
+  // Auto-expand event analytics when arriving via a share deep-link (?event=<id>)
+  useEffect(() => {
+    const eventId = searchParams.get("event");
+    if (eventId) {
+      setExpandedId(eventId);
+      // Scroll to the card after a brief paint delay
+      setTimeout(() => {
+        document.getElementById(`event-card-${eventId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 200);
+    }
+  }, [searchParams]);
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -101,7 +117,7 @@ const EventManagement = () => {
             : 0;
 
           return (
-            <Card key={event.id} className="hover:shadow-md transition-shadow">
+            <Card key={event.id} id={`event-card-${event.id}`} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 {/* ── Main row ── */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -147,6 +163,17 @@ const EventManagement = () => {
                       {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                       Analytics
                     </Button>
+                    {event.status === "completed" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1 text-xs text-violet-600 dark:text-violet-400 h-8 px-2 hover:bg-violet-500/10"
+                        onClick={() => setShareEvent(event)}
+                      >
+                        <Share2 className="h-3.5 w-3.5" />
+                        Share results
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" className="h-8 w-8"><Eye className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8"><Edit className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="h-4 w-4" /></Button>
@@ -247,6 +274,14 @@ const EventManagement = () => {
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {shareEvent && (
+        <EventResultsShareModal
+          open={!!shareEvent}
+          onOpenChange={(open) => { if (!open) setShareEvent(null); }}
+          event={shareEvent}
+        />
       )}
     </div>
   );

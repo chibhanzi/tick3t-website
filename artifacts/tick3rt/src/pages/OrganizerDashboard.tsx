@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, ExternalLink, ListOrdered, TrendingUp, Lightbulb } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTheme } from "next-themes";
 import DashboardStats from "@/components/organizer/DashboardStats";
 import DraftEventBanner from "@/components/DraftEventBanner";
@@ -26,6 +26,9 @@ import vouchDark from "@/assets/vouch_dark.png";
 const OrganizerDashboard = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
+  const [searchParams] = useSearchParams();
+  // When arriving via a share deep-link (?tab=events&event=<id>), land on the right tab
+  const defaultTab = searchParams.get("tab") ?? "overview";
 
   const stats = {
     totalEvents: 15,
@@ -65,7 +68,7 @@ const OrganizerDashboard = () => {
           <DashboardStats stats={stats} />
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue={defaultTab} className="space-y-6">
           <div className="overflow-x-auto -mx-4 px-4">
             <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-7 text-xs">
               <TabsTrigger value="overview">Overview</TabsTrigger>
