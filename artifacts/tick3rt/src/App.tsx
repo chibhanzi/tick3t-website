@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { FollowProvider } from "@/contexts/FollowContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
@@ -36,6 +37,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <FollowProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/events" element={<Events />} />
@@ -75,6 +77,7 @@ const App = () => (
               
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </FollowProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

@@ -1,22 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
+import FollowButton from "@/components/FollowButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X, ChevronDown, Tag } from "lucide-react";
+import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X, ChevronDown, Tag, Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useFollow } from "@/contexts/FollowContext";
+import { MOCK_ORGANIZERS } from "@/data/mockOrganizers";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [priceFilter, setPriceFilter] = useState("All");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { user } = useAuth();
+  const { following, clearUnread } = useFollow();
+
+  // Clear unread notification when user lands on events page with follows
+  useEffect(() => {
+    if (following.length > 0) clearUnread();
+  }, []);
 
   const events = [
     {
       id: "1",
+      organizerId: "org-bass",
       title: "Bass Drop Festival 2024",
       date: "March 15, 2024 • 9:00 PM",
       location: "Miami Beach Arena",
@@ -29,6 +42,7 @@ const Events = () => {
     },
     {
       id: "2",
+      organizerId: "org-digitalart",
       title: "Digital Art Rave",
       date: "March 22, 2024 • 10:00 PM",
       location: "Brooklyn Warehouse, NYC",
@@ -41,6 +55,7 @@ const Events = () => {
     },
     {
       id: "3",
+      organizerId: "org-techevents",
       title: "Tech Innovation Summit",
       date: "March 28, 2024 • 9:00 AM",
       location: "Silicon Valley Convention Center",
@@ -53,6 +68,7 @@ const Events = () => {
     },
     {
       id: "4",
+      organizerId: "org-gaming",
       title: "Gaming Championship",
       date: "April 5, 2024 • 2:00 PM",
       location: "Los Angeles Arena",
@@ -65,6 +81,7 @@ const Events = () => {
     },
     {
       id: "5",
+      organizerId: "org-beach",
       title: "Beach Party Sunset",
       date: "April 12, 2024 • 6:00 PM",
       location: "Malibu Beach Club",
@@ -77,6 +94,7 @@ const Events = () => {
     },
     {
       id: "6",
+      organizerId: "org-fashion",
       title: "Fashion Week Gala",
       date: "April 20, 2024 • 8:00 PM",
       location: "Manhattan Design Center",
@@ -88,6 +106,11 @@ const Events = () => {
       total: 100
     }
   ];
+
+  // Events from organisers the current user follows
+  const forYouEvents = user
+    ? events.filter((e) => following.includes(e.organizerId))
+    : [];
 
   const categories = ["All", "Music Festival", "Art & Culture", "Tech & Networking", "Gaming", "Beach Party", "Fashion"];
   const priceRanges = ["All", "Under $100", "$100 - $200", "Over $200"];
@@ -287,6 +310,64 @@ const Events = () => {
           )}
         </div>
 
+
+        {/* "For You" section — shown when user follows at least one organiser */}
+        {forYouEvents.length > 0 && (
+          <div className="mb-8 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <h2 className="font-semibold text-base">Events for you</h2>
+                <Badge variant="secondary" className="text-xs">
+                  {following.length} organiser{following.length !== 1 ? "s" : ""} followed
+                </Badge>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {forYouEvents.map((event) => {
+                const org = MOCK_ORGANIZERS[event.organizerId];
+                return (
+                  <Link key={event.id} to={`/event/${event.id}`} className="block group">
+                    <div className="relative overflow-hidden rounded-xl border bg-card shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                      <div className="relative h-32 overflow-hidden">
+                        <img
+                          src={event.image}
+                          alt={event.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-2 left-3 right-3 flex items-end justify-between">
+                          <p className="text-xs text-white/80 truncate">{event.date}</p>
+                          {event.available === 0 && (
+                            <Badge className="bg-red-500/90 text-white text-[10px] shrink-0">Sold out</Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-3 space-y-1">
+                        <p className="font-semibold text-sm leading-snug line-clamp-2">{event.title}</p>
+                        <p className="text-xs text-muted-foreground truncate">📍 {event.location}</p>
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center">
+                              <span className="text-[8px] font-bold text-primary">
+                                {org?.name.charAt(0) ?? "?"}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-muted-foreground truncate max-w-[100px]">
+                              {org?.name ?? "Unknown"}
+                            </span>
+                          </div>
+                          <FollowButton organizerId={event.organizerId} variant="pill" className="scale-90 origin-right" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="border-t border-border/50" />
+          </div>
+        )}
 
         {/* Events Grid - 2 cards per row on mobile, 3 on desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">

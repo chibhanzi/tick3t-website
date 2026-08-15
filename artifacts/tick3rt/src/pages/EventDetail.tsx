@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SocialShareButton from "@/components/SocialShareButton";
 import AttendeeShareModal from "@/components/AttendeeShareModal";
+import FollowButton from "@/components/FollowButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,6 +40,7 @@ const EventDetail = () => {
     available: 150,
     total: 500,
     organizer: "Bass Events Miami",
+    organizerId: "org-bass",
     isVerifiedOrganizer: true,
     tags: ["Electronic", "Dance", "Festival", "Miami"],
     amenities: ["Food Trucks", "Premium Bar", "Valet Parking", "Free WiFi", "24/7 Security"],
@@ -101,14 +103,17 @@ const EventDetail = () => {
               )}
             </div>
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">{event.title}</h1>
-            <div className="flex items-center gap-2 text-white/80">
-              <span>by {event.organizer}</span>
-              {event.isVerifiedOrganizer && (
-                <Badge className="bg-green-500/90 text-white border-0 text-[10px] gap-0.5">
-                  <CheckCircle className="h-3 w-3" />
-                  Verified
-                </Badge>
-              )}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 text-white/80">
+                <span>by {event.organizer}</span>
+                {event.isVerifiedOrganizer && (
+                  <Badge className="bg-green-500/90 text-white border-0 text-[10px] gap-0.5">
+                    <CheckCircle className="h-3 w-3" />
+                    Verified
+                  </Badge>
+                )}
+              </div>
+              <FollowButton organizerId={event.organizerId} variant="pill" />
             </div>
           </div>
         </div>
