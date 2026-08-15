@@ -9,24 +9,23 @@ import FollowButton from "@/components/FollowButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle, ShoppingBag, Share2, PartyPopper } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle, ShoppingBag, Share2, PartyPopper, ListOrdered } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useWaitlist } from "@/contexts/WaitlistContext";
 
-const EventDetail = () => {
-  const { id } = useParams();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  // Mock: pretend resale tickets exist for this event
-  const resaleAvailable = 7;
-  const resaleFromPrice = 110;
-  const [quantity, setQuantity] = useState(1);
-  const [selectedTier, setSelectedTier] = useState("general");
-  const [liked, setLiked] = useState(false);
-  const [isAttending, setIsAttending] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-
-  const event = {
+/* ------------------------------------------------------------------ */
+/*  Mock events — keyed by id so we can demo sold-out (id=2) vs not   */
+/* ------------------------------------------------------------------ */
+const MOCK_EVENTS: Record<string, {
+  id: string; title: string; date: string; time: string; location: string;
+  fullAddress: string; description: string; image: string; attendees: number;
+  category: string; available: number; total: number; organizer: string;
+  organizerId: string; isVerifiedOrganizer: boolean; tags: string[]; amenities: string[];
+  resaleAvailable?: number; resaleFromPrice?: number;
+}> = {
+  "1": {
     id: "1",
     title: "Bass Drop Festival 2024",
     date: "March 15, 2024",
@@ -44,6 +43,67 @@ const EventDetail = () => {
     isVerifiedOrganizer: true,
     tags: ["Electronic", "Dance", "Festival", "Miami"],
     amenities: ["Food Trucks", "Premium Bar", "Valet Parking", "Free WiFi", "24/7 Security"],
+    resaleAvailable: 7,
+    resaleFromPrice: 110,
+  },
+  "2": {
+    id: "2",
+    title: "Digital Art Rave",
+    date: "March 22, 2024",
+    time: "10:00 PM",
+    location: "Brooklyn Warehouse, NYC",
+    fullAddress: "56 Water St, Brooklyn, NY 11201",
+    description: "An immersive night where digital art meets electronic music. Stunning projection mapping, generative visuals, and underground DJs create a one-of-a-kind sensory experience.\n\nFully sold out — but don't miss your chance. Join the waitlist and be first in line when a ticket drops.",
+    image: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=1200&h=600&fit=crop",
+    attendees: 800,
+    category: "Art & Culture",
+    available: 0,
+    total: 200,
+    organizer: "Digital Art Collective",
+    organizerId: "org-digitalart",
+    isVerifiedOrganizer: false,
+    tags: ["Art", "Electronic", "Immersive", "NYC"],
+    amenities: ["Projection Mapping", "Open Bar", "Gallery Installations", "Live Art"],
+    resaleAvailable: 0,
+    resaleFromPrice: 0,
+  },
+};
+
+const DEFAULT_EVENT = MOCK_EVENTS["1"];
+
+const EventDetail = () => {
+  const { id } = useParams();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isOnWaitlist, join, leave, position, displayCount } = useWaitlist();
+
+  const event = MOCK_EVENTS[id ?? ""] ?? DEFAULT_EVENT;
+  const resaleAvailable = event.resaleAvailable ?? 0;
+  const resaleFromPrice = event.resaleFromPrice ?? 0;
+
+  const [quantity, setQuantity] = useState(1);
+  const [selectedTier, setSelectedTier] = useState("general");
+  const [liked, setLiked] = useState(false);
+  const [isAttending, setIsAttending] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  const handleJoinWaitlist = () => {
+    if (!user) {
+      toast({ title: "Sign in to join the waitlist", description: "Create a free account to save your spot." });
+      navigate("/auth");
+      return;
+    }
+    const pos = join(event.id, {
+      eventTitle: event.title,
+      eventDate: event.date,
+      eventLocation: event.location,
+      eventImage: event.image,
+    });
+    toast({
+      title: `You're #${pos} on the waitlist! 🎟️`,
+      description: "We'll let you know the moment a ticket opens up.",
+    });
   };
 
   const tiers = [
@@ -242,9 +302,10 @@ const EventDetail = () => {
                     <span className="text-2xl font-bold">${totalPrice.toFixed(2)}</span>
                   </div>
 
-                  {/* Buy button — redirects to resale market when sold out */}
+                  {/* Buy / Waitlist CTA */}
                   {event.available === 0 ? (
                     resaleAvailable > 0 ? (
+                      /* ── Resale available (takes priority) ── */
                       <Button
                         className="w-full h-12 text-base font-semibold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90"
                         onClick={() => navigate(`/marketplace?event=${event.id}`)}
@@ -252,12 +313,36 @@ const EventDetail = () => {
                         <ShoppingBag className="h-4 w-4 mr-2" />
                         Buy from Resale ({resaleAvailable} available)
                       </Button>
+                    ) : isOnWaitlist(event.id) ? (
+                      /* ── Already on waitlist — confirmation state ── */
+                      <div className="rounded-xl border border-primary/25 bg-primary/5 p-4 space-y-2 text-center">
+                        <CheckCircle className="h-6 w-6 text-primary mx-auto" />
+                        <p className="font-semibold text-sm">
+                          You're #{position(event.id)} on the waitlist
+                        </p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Joining {displayCount(event.id).toLocaleString()} people waiting —
+                          we'll let you know the moment a ticket opens up.
+                        </p>
+                        <button
+                          onClick={() => leave(event.id)}
+                          className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
+                        >
+                          Leave waitlist
+                        </button>
+                      </div>
                     ) : (
-                      <Button className="w-full h-12 text-base font-semibold" disabled>
-                        <Ticket className="h-4 w-4 mr-2" /> Sold Out
+                      /* ── No resale, not on waitlist ── */
+                      <Button
+                        className="w-full h-12 text-base font-semibold gap-2 bg-amber-500 hover:bg-amber-600 text-white border-0"
+                        onClick={handleJoinWaitlist}
+                      >
+                        <ListOrdered className="h-4 w-4" />
+                        Join {displayCount(event.id).toLocaleString()} others on the waitlist
                       </Button>
                     )
                   ) : (
+                    /* ── Tickets available ── */
                     <Button className="w-full h-12 text-base font-semibold" onClick={handleBuy}>
                       <Ticket className="h-4 w-4 mr-2" /> Get Tickets
                     </Button>

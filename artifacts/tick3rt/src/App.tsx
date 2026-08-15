@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { FollowProvider } from "@/contexts/FollowContext";
+import { WaitlistProvider } from "@/contexts/WaitlistContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
@@ -38,6 +39,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <FollowProvider>
+            <WaitlistProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/events" element={<Events />} />
@@ -77,6 +79,7 @@ const App = () => (
               
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </WaitlistProvider>
             </FollowProvider>
           </AuthProvider>
         </BrowserRouter>

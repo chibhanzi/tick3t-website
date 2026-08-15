@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Users, Ticket, TrendingUp, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
+import { waitlistSeed } from "@/contexts/WaitlistContext";
 
 interface EventCardProps {
   id: string;
@@ -79,9 +80,12 @@ const EventCard = ({
           </div>
         )}
         {soldOut && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-1.5">
             <Badge variant="destructive" className="text-sm px-3 py-1">
               Sold Out
+            </Badge>
+            <Badge className="bg-amber-500/90 text-white border-0 text-[10px] gap-1">
+              🕐 {waitlistSeed(id)} waiting
             </Badge>
           </div>
         )}
@@ -122,12 +126,11 @@ const EventCard = ({
         </div>
         
         <Link to={`/event/${id}`} className="flex-shrink-0">
-          <Button 
-            className="w-full text-xs lg:text-sm h-8 lg:h-10"
-            variant={soldOut ? "secondary" : "default"}
-            disabled={soldOut}
+          <Button
+            className={`w-full text-xs lg:text-sm h-8 lg:h-10 ${soldOut ? "bg-amber-500 hover:bg-amber-600 text-white border-0" : ""}`}
+            variant={soldOut ? "default" : "default"}
           >
-            {soldOut ? 'Sold Out' : 'Get Ticket'}
+            {soldOut ? "Join Waitlist" : "Get Ticket"}
           </Button>
         </Link>
       </CardContent>

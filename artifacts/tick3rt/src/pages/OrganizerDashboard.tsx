@@ -2,9 +2,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, ExternalLink } from "lucide-react";
+import { Plus, ExternalLink, ListOrdered, TrendingUp, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "next-themes";
 import DashboardStats from "@/components/organizer/DashboardStats";
@@ -80,6 +81,52 @@ const OrganizerDashboard = () => {
               <RecentEvents />
               <QuickAnalytics />
             </div>
+
+            {/* Waitlist Demand — social proof + nudge card */}
+            {(() => {
+              const waitlistEvents = [
+                { id: "w1", title: "Digital Art Rave", date: "Mar 22", count: 287, trend: "+34 this week" },
+                { id: "w2", title: "Bass Drop After-Party", date: "Apr 5", count: 64, trend: "+8 today" },
+              ];
+              return (
+                <Card className="border-amber-200/60 dark:border-amber-900/60 bg-amber-50/40 dark:bg-amber-950/20">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <ListOrdered className="h-4 w-4 text-amber-500" />
+                      Waitlist Demand
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {waitlistEvents.map((ev) => (
+                      <div key={ev.id} className="flex items-center justify-between gap-3 p-3 rounded-lg bg-background/70 border border-border/50">
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{ev.title}</p>
+                          <p className="text-xs text-muted-foreground">{ev.date}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-sm text-amber-600 dark:text-amber-400">
+                            {ev.count.toLocaleString()} waiting
+                          </p>
+                          <p className="text-[10px] text-muted-foreground flex items-center gap-0.5 justify-end">
+                            <TrendingUp className="h-2.5 w-2.5 text-emerald-500" />{ev.trend}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex items-start gap-2 pt-1 text-xs text-muted-foreground">
+                      <Lightbulb className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
+                      <p>
+                        High demand detected — consider{" "}
+                        <button className="underline underline-offset-2 text-foreground hover:text-primary transition-colors font-medium">
+                          adding capacity
+                        </button>{" "}
+                        or scheduling a follow-up event.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {/* Vouch Scanner Integration Card */}
             <Card className="border-border/50">

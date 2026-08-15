@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollow } from "@/contexts/FollowContext";
+import { useWaitlist } from "@/contexts/WaitlistContext";
 import { useToast } from "@/hooks/use-toast";
 import { MOCK_ORGANIZERS } from "@/data/mockOrganizers";
 import FollowButton from "@/components/FollowButton";
@@ -20,7 +21,7 @@ import {
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
   TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault,
   LayoutGrid, Rows3, Music, BadgeCheck, GraduationCap, Gift, Award, AtSign, Sparkles,
-  Bell, Users,
+  Bell, Users, ListOrdered,
 } from "lucide-react";
 
 type VaultCategory = "concert" | "membership" | "course" | "giftcard" | "badge" | "username";
@@ -41,6 +42,7 @@ import { VaultToolbar } from "@/components/vault/VaultToolbar";
 const UserDashboard = () => {
   const { user } = useAuth();
   const { following } = useFollow();
+  const { entries: waitlistEntries, leave: leaveWaitlist, position: wPosition, displayCount: wDisplayCount } = useWaitlist();
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
@@ -267,23 +269,34 @@ const UserDashboard = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="tickets" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 h-10">
-            <TabsTrigger value="tickets" className="text-xs sm:text-sm gap-1.5">
-              <Vault className="h-3.5 w-3.5" /> Vault
-            </TabsTrigger>
-            <TabsTrigger value="resale" className="text-xs sm:text-sm">Resale</TabsTrigger>
-            <TabsTrigger value="activity" className="text-xs sm:text-sm">Activity</TabsTrigger>
-            <TabsTrigger value="following" className="relative text-xs sm:text-sm gap-1">
-              <Bell className="h-3 w-3" />
-              <span>Following</span>
-              {following.length > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
-                  {following.length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-6 h-10">
+              <TabsTrigger value="tickets" className="text-[11px] sm:text-xs gap-1">
+                <Vault className="h-3 w-3 hidden sm:block" /> Vault
+              </TabsTrigger>
+              <TabsTrigger value="resale" className="text-[11px] sm:text-xs">Resale</TabsTrigger>
+              <TabsTrigger value="activity" className="text-[11px] sm:text-xs">Activity</TabsTrigger>
+              <TabsTrigger value="waitlist" className="relative text-[11px] sm:text-xs gap-1">
+                <ListOrdered className="h-3 w-3 hidden sm:block" />
+                <span>Waitlist</span>
+                {Object.keys(waitlistEntries).length > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-bold text-white">
+                    {Object.keys(waitlistEntries).length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="following" className="relative text-[11px] sm:text-xs gap-1">
+                <Bell className="h-3 w-3 hidden sm:block" />
+                <span>Following</span>
+                {following.length > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+                    {following.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="text-[11px] sm:text-xs">Settings</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Vault - Visual ticket cards with search/filter/sort */}
           <TabsContent value="tickets" className="space-y-6">
@@ -599,6 +612,87 @@ const UserDashboard = () => {
           </TabsContent>
 
           {/* Settings - with Paynow payment details */}
+          {/* Waitlist tab */}
+          <TabsContent value="waitlist" className="space-y-4">
+            {Object.keys(waitlistEntries).length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                  <ListOrdered className="h-7 w-7 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="font-semibold text-lg">No waitlists yet</p>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+                    When an event sells out, you can join the waitlist for a chance at tickets.
+                  </p>
+                </div>
+                <Link to="/events">
+                  <Button variant="outline" className="gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Browse events
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <ListOrdered className="h-4 w-4 text-amber-500" />
+                  <h3 className="font-semibold">
+                    Waiting for {Object.keys(waitlistEntries).length} event{Object.keys(waitlistEntries).length !== 1 ? "s" : ""}
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {Object.entries(waitlistEntries).map(([eventId, entry]) => (
+                    <Card key={eventId} className="border-border/60 overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="flex items-stretch gap-0">
+                          {/* Thumbnail */}
+                          {entry.eventImage && (
+                            <div className="w-20 shrink-0 overflow-hidden">
+                              <img
+                                src={entry.eventImage}
+                                alt={entry.eventTitle}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          )}
+                          {/* Info */}
+                          <div className="flex-1 p-3 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-sm leading-snug truncate">{entry.eventTitle}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">{entry.eventDate} · {entry.eventLocation}</p>
+                              </div>
+                              <Badge className="shrink-0 bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-0 text-[10px]">
+                                #{wPosition(eventId)}
+                              </Badge>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between">
+                              <p className="text-xs text-muted-foreground">
+                                {wDisplayCount(eventId).toLocaleString()} people waiting
+                              </p>
+                              <button
+                                onClick={() => {
+                                  leaveWaitlist(eventId);
+                                  toast({ title: "Left waitlist", description: `Removed from ${entry.eventTitle} waitlist.` });
+                                }}
+                                className="text-xs text-destructive underline underline-offset-2 hover:opacity-80 transition-opacity"
+                              >
+                                Leave
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground text-center pt-1">
+                  You'll be notified as soon as a ticket becomes available.
+                </p>
+              </div>
+            )}
+          </TabsContent>
+
           {/* Following tab */}
           <TabsContent value="following" className="space-y-4">
             {following.length === 0 ? (
