@@ -10,13 +10,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFollow } from "@/contexts/FollowContext";
 import { useToast } from "@/hooks/use-toast";
+import { MOCK_ORGANIZERS } from "@/data/mockOrganizers";
+import FollowButton from "@/components/FollowButton";
 import QRCodeLib from "qrcode";
 import {
   Calendar, MapPin, Trophy, Clock, Camera, Wallet,
   DollarSign, Tag, ArrowUpRight, Shield, ExternalLink,
   TrendingUp, Banknote, Download, Search, SlidersHorizontal, ArrowUpDown, Vault,
-  LayoutGrid, Rows3, Music, BadgeCheck, GraduationCap, Gift, Award, AtSign, Sparkles
+  LayoutGrid, Rows3, Music, BadgeCheck, GraduationCap, Gift, Award, AtSign, Sparkles,
+  Bell, Users,
 } from "lucide-react";
 
 type VaultCategory = "concert" | "membership" | "course" | "giftcard" | "badge" | "username";
@@ -36,6 +40,7 @@ import { VaultToolbar } from "@/components/vault/VaultToolbar";
 
 const UserDashboard = () => {
   const { user } = useAuth();
+  const { following } = useFollow();
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState(user?.profilePicture || "");
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
@@ -262,12 +267,21 @@ const UserDashboard = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="tickets" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 h-10">
+          <TabsList className="grid w-full grid-cols-5 h-10">
             <TabsTrigger value="tickets" className="text-xs sm:text-sm gap-1.5">
               <Vault className="h-3.5 w-3.5" /> Vault
             </TabsTrigger>
             <TabsTrigger value="resale" className="text-xs sm:text-sm">Resale</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs sm:text-sm">Activity</TabsTrigger>
+            <TabsTrigger value="following" className="relative text-xs sm:text-sm gap-1">
+              <Bell className="h-3 w-3" />
+              <span>Following</span>
+              {following.length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+                  {following.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
           </TabsList>
 
@@ -585,6 +599,76 @@ const UserDashboard = () => {
           </TabsContent>
 
           {/* Settings - with Paynow payment details */}
+          {/* Following tab */}
+          <TabsContent value="following" className="space-y-4">
+            {following.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                  <Bell className="h-7 w-7 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="font-semibold text-lg">No organisers followed yet</p>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+                    Follow organisers from any event page to get notified when they post new events.
+                  </p>
+                </div>
+                <Link to="/events">
+                  <Button variant="outline" className="gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Browse events
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold">
+                      {following.length} organiser{following.length !== 1 ? "s" : ""} you follow
+                    </h3>
+                  </div>
+                  <Link to="/events" className="text-xs text-primary underline underline-offset-2 hover:opacity-80">
+                    Browse events →
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {following.map((orgId) => {
+                    const org = MOCK_ORGANIZERS[orgId];
+                    if (!org) return null;
+                    return (
+                      <Card key={orgId} className="border-border/60">
+                        <CardContent className="p-4 flex items-center gap-4">
+                          {/* Avatar */}
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-violet-500/20 ring-1 ring-border">
+                            <span className="text-lg font-bold text-primary">
+                              {org.name.charAt(0)}
+                            </span>
+                          </div>
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <p className="font-semibold text-sm leading-tight truncate">{org.name}</p>
+                              {org.verified && (
+                                <BadgeCheck className="h-3.5 w-3.5 text-primary shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">{org.category}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(org.followerSeed).toLocaleString()} followers
+                            </p>
+                          </div>
+                          {/* Unfollow */}
+                          <FollowButton organizerId={orgId} variant="button" />
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader><CardTitle className="text-base">Account Settings</CardTitle></CardHeader>

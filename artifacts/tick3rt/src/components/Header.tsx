@@ -6,14 +6,16 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket, AtSign, ChevronDown, Home } from "lucide-react";
+import { Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut, Ticket, AtSign, ChevronDown, Home, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFollow } from "@/contexts/FollowContext";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isOrganizer, logout } = useAuth();
+  const { hasUnread, clearUnread } = useFollow();
   const { theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,6 +112,20 @@ const Header = () => {
           <ThemeToggle />
           {user ? (
             <div className="flex items-center space-x-2">
+              {/* Notification bell — only for non-organiser attendees */}
+              {!isOrganizer && (
+                <Link
+                  to="/events"
+                  onClick={clearUnread}
+                  className="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted transition-colors"
+                  title="Events for you"
+                >
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                  {hasUnread && (
+                    <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
+                  )}
+                </Link>
+              )}
               <Link to={dashboardLink}>
                 <Button variant="ghost" size="sm">
                   {isOrganizer ? <LayoutDashboard className="mr-1 h-4 w-4" /> : <User className="mr-1 h-4 w-4" />}

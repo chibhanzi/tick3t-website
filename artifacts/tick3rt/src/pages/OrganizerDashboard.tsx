@@ -29,7 +29,8 @@ const OrganizerDashboard = () => {
     activeEvents: 3,
     totalTicketsSold: 2847,
     totalRevenue: 142350,
-    monthlyGrowth: 12.5
+    monthlyGrowth: 12.5,
+    totalFollowers: 1247,
   };
 
   const vouchLogo = theme === "dark" ? vouchDark : vouchLight;
