@@ -1,8 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Circle, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { CheckCircle, ArrowRight, ArrowLeft, Sparkles, RotateCcw } from "lucide-react";
 import EventBasicInfo from "./EventBasicInfo";
 import TicketDesignStep from "./TicketDesignStep";
 import TicketGenerationMethods, { TicketGenerationConfig } from "./TicketGenerationMethods";
@@ -24,56 +24,131 @@ interface CreateEventStepsProps {
   onComplete: (eventData: EventData) => void;
 }
 
+const DRAFT_KEY = "tick3rt_create_event_draft";
+
+const DEFAULT_EVENT_DATA: EventData = {
+  title: "",
+  date: "",
+  location: "",
+  description: "",
+  price: "",
+  totalTickets: "",
+  category: ""
+};
+
+const DEFAULT_GENERATION_CONFIG: TicketGenerationConfig = {
+  method: 'batch',
+  vouchIntegration: {
+    enabled: true,
+    validatorWallets: [],
+    multiSigRequired: false,
+    biometricAuth: false,
+    qrCodeValidation: true,
+    offlineValidation: false
+  },
+  blockchainSecurity: {
+    smartContractValidation: true,
+    merkleTreeProof: false,
+    timestampValidation: true,
+    walletSignatureRequired: true
+  }
+};
+
+const DEFAULT_TICKET_FEATURES: TicketFeaturesConfig = {
+  hasQrCode: true,
+  hasTransferProtection: true,
+  hasTimelock: false,
+  timelockHours: 24,
+  hasLocationVerification: false,
+  hasCapacityLimit: false,
+  capacityLimit: 1,
+  hasRoyalties: false,
+  royaltyPercentage: 2.5,
+  hasBonusRewards: false,
+  hasEarlyAccess: false,
+  earlyAccessHours: 2
+};
+
+const DEFAULT_PRICING_DATA = {
+  currency: 'USD',
+  price: '',
+  earlyBirdPrice: '',
+  earlyBirdDeadline: '',
+  acceptedPayments: ['ETH', 'USDC', 'Credit Card']
+};
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft(draft: object) {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+function clearDraft() {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch {
+    // Ignore
+  }
+}
+
 const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [eventData, setEventData] = useState<EventData>({
-    title: "",
-    date: "",
-    location: "",
-    description: "",
-    price: "",
-    totalTickets: "",
-    category: ""
+  // Lazy-initialise all state from localStorage draft if present
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    const draft = loadDraft();
+    return draft?.currentStep ?? 1;
   });
-  const [ticketDesign, setTicketDesign] = useState<any>({});
-  const [generationConfig, setGenerationConfig] = useState<TicketGenerationConfig>({
-    method: 'batch',
-    vouchIntegration: {
-      enabled: true,
-      validatorWallets: [],
-      multiSigRequired: false,
-      biometricAuth: false,
-      qrCodeValidation: true,
-      offlineValidation: false
-    },
-    blockchainSecurity: {
-      smartContractValidation: true,
-      merkleTreeProof: false,
-      timestampValidation: true,
-      walletSignatureRequired: true
-    }
+
+  const [eventData, setEventData] = useState<EventData>(() => {
+    const draft = loadDraft();
+    return draft?.eventData ?? DEFAULT_EVENT_DATA;
   });
-  const [ticketFeatures, setTicketFeatures] = useState<TicketFeaturesConfig>({
-    hasQrCode: true,
-    hasTransferProtection: true,
-    hasTimelock: false,
-    timelockHours: 24,
-    hasLocationVerification: false,
-    hasCapacityLimit: false,
-    capacityLimit: 1,
-    hasRoyalties: false,
-    royaltyPercentage: 2.5,
-    hasBonusRewards: false,
-    hasEarlyAccess: false,
-    earlyAccessHours: 2
+
+  const [ticketDesign, setTicketDesign] = useState<any>(() => {
+    const draft = loadDraft();
+    return draft?.ticketDesign ?? {};
   });
-  const [pricingData, setPricingData] = useState({
-    currency: 'USD',
-    price: '',
-    earlyBirdPrice: '',
-    earlyBirdDeadline: '',
-    acceptedPayments: ['ETH', 'USDC', 'Credit Card']
+
+  const [generationConfig, setGenerationConfig] = useState<TicketGenerationConfig>(() => {
+    const draft = loadDraft();
+    return draft?.generationConfig ?? DEFAULT_GENERATION_CONFIG;
   });
+
+  const [ticketFeatures, setTicketFeatures] = useState<TicketFeaturesConfig>(() => {
+    const draft = loadDraft();
+    return draft?.ticketFeatures ?? DEFAULT_TICKET_FEATURES;
+  });
+
+  const [pricingData, setPricingData] = useState(() => {
+    const draft = loadDraft();
+    return draft?.pricingData ?? DEFAULT_PRICING_DATA;
+  });
+
+  // Persist entire draft to localStorage whenever any piece changes
+  useEffect(() => {
+    saveDraft({ currentStep, eventData, ticketDesign, generationConfig, ticketFeatures, pricingData });
+  }, [currentStep, eventData, ticketDesign, generationConfig, ticketFeatures, pricingData]);
+
+  const handleStartOver = () => {
+    clearDraft();
+    setCurrentStep(1);
+    setEventData(DEFAULT_EVENT_DATA);
+    setTicketDesign({});
+    setGenerationConfig(DEFAULT_GENERATION_CONFIG);
+    setTicketFeatures(DEFAULT_TICKET_FEATURES);
+    setPricingData(DEFAULT_PRICING_DATA);
+  };
 
   const steps = [
     { id: 1, title: "Event Details", description: "Basic event information" },
@@ -103,6 +178,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       ticketDesign,
       generationConfig
     };
+    clearDraft();
     onComplete(finalEventData);
   };
 
@@ -225,18 +301,31 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between px-2 sm:px-0">
-        <Button 
-          variant="outline" 
-          onClick={prevStep}
-          disabled={currentStep === 1}
-          className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-          size="sm"
-        >
-          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="hidden sm:inline">Previous</span>
-          <span className="sm:hidden">Prev</span>
-        </Button>
+      <div className="flex justify-between items-center px-2 sm:px-0">
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+            size="sm"
+          >
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Prev</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            onClick={handleStartOver}
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground hover:text-destructive"
+            size="sm"
+            aria-label="Start over"
+          >
+            <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Start over</span>
+          </Button>
+        </div>
         
         {currentStep < steps.length ? (
           <Button 

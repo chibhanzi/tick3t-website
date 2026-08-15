@@ -191,6 +191,52 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(page.getByText("Event Created Successfully!")).toBeVisible({ timeout: 10_000 });
   });
 
+  // ─── Draft persistence: data survives a page refresh ─────────────────────
+  test("draft — event data and step are restored after a page refresh", async ({ page }) => {
+    // Fill in event details on step 1
+    await page.locator("#title").fill("Refresh Survival Test");
+    await page.getByPlaceholder(/Convention Center|location/i).fill("Persistence Hall");
+
+    // Advance to step 2 so the saved step is > 1
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+
+    // Refresh the page
+    await page.reload();
+
+    // The wizard should restore to step 2 (LIVE PREVIEW visible)
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+
+    // Go back to step 1 to verify the event title is preserved
+    await page.getByRole("button", { name: /prev/i }).last().click();
+    await expect(page.locator("#title")).toHaveValue("Refresh Survival Test", { timeout: 5_000 });
+    await expect(page.getByPlaceholder(/Convention Center|location/i)).toHaveValue("Persistence Hall");
+
+    // Clean up: click "Start over" so draft doesn't bleed into other tests
+    await page.getByRole("button", { name: /start over/i }).click();
+    await expect(page.locator("#title")).toHaveValue("", { timeout: 5_000 });
+  });
+
+  // ─── Draft: "Start over" clears the draft ─────────────────────────────────
+  test("draft — start over resets all fields and returns to step 1", async ({ page }) => {
+    // Fill step 1 and advance to step 2
+    await page.locator("#title").fill("To Be Cleared");
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+
+    // Hit "Start over"
+    await page.getByRole("button", { name: /start over/i }).click();
+
+    // Should be back on step 1 with a blank title
+    await expect(page.locator("#title")).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator("#title")).toHaveValue("");
+
+    // Refresh to confirm localStorage was cleared (draft should NOT restore)
+    await page.reload();
+    await expect(page.locator("#title")).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("#title")).toHaveValue("");
+  });
+
   // ─── Step 2: Live preview reflects event title from step 1 ───────────────
   test("step 2 — live preview shows event data from step 1", async ({ page }) => {
     // Fill event title in step 1
