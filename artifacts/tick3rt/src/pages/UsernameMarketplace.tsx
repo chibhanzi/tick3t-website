@@ -101,7 +101,7 @@ type Offer = {
    forbid handle transfers (offers are blocked with an explanation).      */
 type TransferPolicy = "onchain" | "assisted" | "restricted";
 const PLATFORM_POLICY: Record<Platform, { policy: TransferPolicy; note: string }> = {
-  tick3rt:   { policy: "onchain",    note: "On-chain settlement. Instant transfer via smart contract." },
+  tick3t:    { policy: "onchain",    note: "On-chain settlement. Instant transfer via smart contract." },
   ens:       { policy: "onchain",    note: "ERC-721 transfer on Ethereum. Escrow releases atomically." },
   instagram: { policy: "assisted",   note: "Assisted transfer. Meta does not officially support handle sales; we facilitate a coordinated swap where both parties consent." },
   x:         { policy: "assisted",   note: "Assisted transfer via account credential handover under escrow supervision." },
@@ -164,7 +164,7 @@ function seedOffers(): Offer[] {
    Meta
 ----------------------------------------------------------- */
 const PLATFORM_META: Record<Platform, { label: string; prefix: string; accent: string; dot: string; }> = {
-  tick3rt:   { label: "Tick3t",   prefix: "@",  accent: "from-fuchsia-500 to-purple-600", dot: "bg-fuchsia-500" },
+  tick3t:    { label: "Tick3t",   prefix: "@",  accent: "from-fuchsia-500 to-purple-600", dot: "bg-fuchsia-500" },
   instagram: { label: "Instagram", prefix: "@",  accent: "from-pink-500 to-orange-500",    dot: "bg-pink-500" },
   x:         { label: "X",         prefix: "@",  accent: "from-zinc-700 to-zinc-900",      dot: "bg-zinc-500" },
   tiktok:    { label: "TikTok",    prefix: "@",  accent: "from-cyan-400 to-rose-500",      dot: "bg-cyan-400" },
