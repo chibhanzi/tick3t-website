@@ -59,7 +59,7 @@ const App = () => (
               <Route 
                 path="/organizer-dashboard" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requireOrganizer>
                     <OrganizerDashboard />
                   </ProtectedRoute>
                 } 
@@ -67,7 +67,7 @@ const App = () => (
               <Route 
                 path="/create-event" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requireOrganizer>
                     <CreateEvent />
                   </ProtectedRoute>
                 } 
