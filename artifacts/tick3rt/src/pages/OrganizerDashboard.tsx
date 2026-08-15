@@ -8,6 +8,7 @@ import { Plus, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "next-themes";
 import DashboardStats from "@/components/organizer/DashboardStats";
+import DraftEventBanner from "@/components/DraftEventBanner";
 import RecentEvents from "@/components/organizer/RecentEvents";
 import QuickAnalytics from "@/components/organizer/QuickAnalytics";
 import MobileAnalyticsDashboard from "@/components/organizer/MobileAnalyticsDashboard";
@@ -56,6 +57,7 @@ const OrganizerDashboard = () => {
             </Button>
           </div>
 
+          <DraftEventBanner />
           <DashboardStats stats={stats} />
         </div>
 
