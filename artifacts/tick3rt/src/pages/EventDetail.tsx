@@ -4,10 +4,11 @@ import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SocialShareButton from "@/components/SocialShareButton";
+import AttendeeShareModal from "@/components/AttendeeShareModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle, ShoppingBag } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Heart, Minus, Plus, ChevronLeft, Shield, Ticket, MessageCircle, CheckCircle, ShoppingBag, Share2, PartyPopper } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -21,6 +22,8 @@ const EventDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedTier, setSelectedTier] = useState("general");
   const [liked, setLiked] = useState(false);
+  const [isAttending, setIsAttending] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const event = {
     id: "1",
@@ -54,8 +57,10 @@ const EventDetail = () => {
   const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`🎉 Check out ${event.title} on ${event.date} at ${event.location}! Get tickets: ${window.location.href}`)}`;
 
   const handleBuy = () => {
+    setIsAttending(true);
+    setShowShareModal(true);
     toast({
-      title: "Tickets reserved!",
+      title: "🎉 Tickets reserved!",
       description: `${quantity}x ${selectedTierData.name} — $${totalPrice.toFixed(2)}`,
     });
   };
@@ -63,6 +68,18 @@ const EventDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+
+      <AttendeeShareModal
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        eventTitle={event.title}
+        eventDate={event.date}
+        eventLocation={event.location}
+        eventImage={event.image}
+        tierName={selectedTierData.name}
+        quantity={quantity}
+        totalPrice={totalPrice}
+      />
 
       <main>
         {/* Hero image */}
@@ -152,6 +169,30 @@ const EventDetail = () => {
             <div className="lg:col-span-2">
               <Card className="sticky top-20 border-border shadow-lg">
                 <CardContent className="p-6 space-y-5">
+                  {/* Attending banner — shown after purchase */}
+                  {isAttending && (
+                    <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-primary/10 to-violet-500/10 border border-primary/20 px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <PartyPopper className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="text-sm font-semibold leading-tight">You're going! 🎉</p>
+                          <p className="text-xs text-muted-foreground">
+                            {quantity}× {selectedTierData.name}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 border-primary/30 text-primary hover:bg-primary/10 text-xs"
+                        onClick={() => setShowShareModal(true)}
+                      >
+                        <Share2 className="h-3.5 w-3.5" />
+                        Share
+                      </Button>
+                    </div>
+                  )}
+
                   {/* Tier selection */}
                   <div className="space-y-2">
                     <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Select Ticket</h3>
@@ -235,24 +276,36 @@ const EventDetail = () => {
                       <Heart className={`h-4 w-4 mr-1 ${liked ? "fill-red-500 text-red-500" : ""}`} />
                       {liked ? "Saved" : "Save"}
                     </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-green-700 dark:text-green-400"
-                      onClick={() => window.open(whatsappShareUrl, '_blank')}
-                    >
-                      <MessageCircle className="h-4 w-4 mr-1" />
-                      WhatsApp
-                    </Button>
+                    {isAttending ? (
+                      <Button
+                        className="flex-1 bg-gradient-to-r from-primary to-violet-600 text-white hover:opacity-90 border-0"
+                        onClick={() => setShowShareModal(true)}
+                      >
+                        <Share2 className="h-4 w-4 mr-1" />
+                        Tell friends
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="flex-1 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-green-700 dark:text-green-400"
+                        onClick={() => window.open(whatsappShareUrl, "_blank")}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1" />
+                        WhatsApp
+                      </Button>
+                    )}
                   </div>
 
-                  {/* Full share */}
-                  <SocialShareButton
-                    eventTitle={event.title}
-                    eventDate={event.date}
-                    eventLocation={event.location}
-                    ticketsLeft={event.available}
-                    price={selectedTierData.price}
-                  />
+                  {/* Full share — only show when not yet attending */}
+                  {!isAttending && (
+                    <SocialShareButton
+                      eventTitle={event.title}
+                      eventDate={event.date}
+                      eventLocation={event.location}
+                      ticketsLeft={event.available}
+                      price={selectedTierData.price}
+                    />
+                  )}
 
                   {/* Availability bar */}
                   <div className="space-y-2">
