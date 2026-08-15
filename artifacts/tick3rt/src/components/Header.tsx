@@ -106,6 +106,15 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+          {user && (
+            <Link
+              to={dashboardLink}
+              className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-primary ${location.pathname === dashboardLink ? "text-primary" : ""}`}
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Dashboard</span>
+            </Link>
+          )}
         </nav>
 
         <div className="hidden items-center space-x-3 md:flex">
