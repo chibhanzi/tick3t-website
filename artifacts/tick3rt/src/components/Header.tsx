@@ -10,15 +10,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut,
-  Ticket, AtSign, ChevronDown, Home, Bell, Archive,
+  Ticket, AtSign, ChevronDown, Home, Bell, Archive, Settings,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollow } from "@/contexts/FollowContext";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
+import SettingsDialog from "@/components/SettingsDialog";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { user, isOrganizer, logout } = useAuth();
   const { hasUnread, clearUnread } = useFollow();
   const { theme } = useTheme();
@@ -196,6 +198,14 @@ const Header = () => {
                     </DropdownMenuItem>
                   )}
 
+                  <DropdownMenuItem
+                    onClick={() => setSettingsOpen(true)}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem
@@ -207,6 +217,8 @@ const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
             </div>
           ) : (
             <Link to="/auth">
