@@ -52,8 +52,6 @@ const UserDashboard = () => {
   const [editName, setEditName] = useState(user?.name ?? "");
   const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
 
-  const stats = { upcoming: 2, attended: 12, totalSpent: 1250, activeListings: 1 };
-
   const displayName = user?.name ?? "Guest";
   const initials = displayName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
 
@@ -105,23 +103,6 @@ const UserDashboard = () => {
           >
             {editing ? "Save" : "Edit"}
           </button>
-        </div>
-
-        {/* ── Stats strip ────────────────────────────────────────────── */}
-        <div className="mb-8 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm overflow-hidden">
-          <div className="grid grid-cols-4 divide-x divide-border/60">
-            {[
-              { value: stats.upcoming.toString(), label: "Upcoming" },
-              { value: stats.attended.toString(), label: "Attended" },
-              { value: `$${stats.totalSpent}`, label: "Spent" },
-              { value: stats.activeListings.toString(), label: "Listings" },
-            ].map((s) => (
-              <div key={s.label} className="flex flex-col items-center justify-center gap-1.5 p-4">
-                <div className="text-xl sm:text-2xl font-black tracking-tight">{s.value}</div>
-                <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground text-center">{s.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* ── Following – story rings ─────────────────────────────────── */}
