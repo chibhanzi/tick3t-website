@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut,
-  Ticket, AtSign, ChevronDown, Home, Bell, Settings,
+  Ticket, AtSign, ChevronDown, Home, Bell, Archive,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollow } from "@/contexts/FollowContext";
@@ -121,14 +121,14 @@ const Header = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Dashboard — visible when signed in */}
+          {/* Profile — visible when signed in */}
           {user && (
             <Link
               to={dashboardLink}
               className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-primary ${location.pathname === dashboardLink ? "text-primary" : ""}`}
             >
-              <LayoutDashboard className="h-4 w-4" />
-              <span>Dashboard</span>
+              <User className="h-4 w-4" />
+              <span>Profile</span>
             </Link>
           )}
         </nav>
@@ -182,15 +182,8 @@ const Header = () => {
 
                   <DropdownMenuItem asChild>
                     <Link to={dashboardLink} className="flex items-center gap-2 cursor-pointer">
-                      <LayoutDashboard className="h-4 w-4" />
-                      <span>{dashboardLabel}</span>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
-                      <Settings className="h-4 w-4" />
-                      <span>Settings</span>
+                      <Archive className="h-4 w-4" />
+                      <span>Vault</span>
                     </Link>
                   </DropdownMenuItem>
 
@@ -318,25 +311,19 @@ const Header = () => {
                           <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
                             location.pathname === dashboardLink ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
                           }`}>
-                            <LayoutDashboard className="h-4 w-4" />
+                            <User className="h-4 w-4" />
                           </div>
-                          <span>{dashboardLabel}</span>
+                          <span>Profile</span>
                         </Link>
                         <Link
-                          to="/settings"
+                          to={dashboardLink}
                           onClick={() => setIsOpen(false)}
-                          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                            location.pathname === "/settings"
-                              ? "bg-primary/10 text-primary ring-1 ring-primary/20"
-                              : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                          }`}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 text-foreground/80 hover:bg-muted hover:text-foreground"
                         >
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
-                            location.pathname === "/settings" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
-                          }`}>
-                            <Settings className="h-4 w-4" />
+                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                            <Archive className="h-4 w-4" />
                           </div>
-                          <span>Settings</span>
+                          <span>Vault</span>
                         </Link>
                       </div>
                     </>
