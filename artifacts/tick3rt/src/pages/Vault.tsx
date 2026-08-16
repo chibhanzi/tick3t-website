@@ -394,26 +394,6 @@ const Vault = () => {
 
           {/* ── Resale tab ── */}
           <TabsContent value="resale" className="space-y-6">
-            {/* Resale earnings strip */}
-            <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm overflow-hidden">
-              <div className="grid grid-cols-4 divide-x divide-border/60">
-                {[
-                  { label: "Earned",  value: `$${resaleStats.totalEarnings}`,      icon: TrendingUp,  iconBg: "bg-emerald-500/10", color: "text-emerald-500" },
-                  { label: "Pending", value: `$${resaleStats.pendingPayout}`,       icon: Banknote,    iconBg: "bg-orange-500/10",  color: "text-orange-500"  },
-                  { label: "Sold",    value: resaleStats.ticketsSold.toString(),    icon: Tag,         iconBg: "bg-blue-500/10",    color: "text-blue-500"    },
-                  { label: "Active",  value: resaleStats.activeListing.toString(),  icon: ArrowUpRight,iconBg: "bg-violet-500/10",  color: "text-violet-500"  },
-                ].map((s) => (
-                  <div key={s.label} className="flex flex-col items-center justify-center gap-2 p-5">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-full ${s.iconBg}`}>
-                      <s.icon className={`h-4 w-4 ${s.color}`} />
-                    </div>
-                    <div className="text-xl sm:text-2xl font-bold tracking-tight">{s.value}</div>
-                    <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground text-center">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Withdraw */}
             {resaleStats.pendingPayout > 0 && (
               <Card className="border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-950/20">
