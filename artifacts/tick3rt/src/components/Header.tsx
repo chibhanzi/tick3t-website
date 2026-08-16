@@ -181,7 +181,7 @@ const Header = () => {
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem asChild>
-                    <Link to={dashboardLink} className="flex items-center gap-2 cursor-pointer">
+                    <Link to="/vault" className="flex items-center gap-2 cursor-pointer">
                       <Archive className="h-4 w-4" />
                       <span>Vault</span>
                     </Link>
@@ -316,11 +316,17 @@ const Header = () => {
                           <span>Profile</span>
                         </Link>
                         <Link
-                          to={dashboardLink}
+                          to="/vault"
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 text-foreground/80 hover:bg-muted hover:text-foreground"
+                          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                            location.pathname === "/vault"
+                              ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+                              : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                          }`}
                         >
-                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                            location.pathname === "/vault" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                          }`}>
                             <Archive className="h-4 w-4" />
                           </div>
                           <span>Vault</span>

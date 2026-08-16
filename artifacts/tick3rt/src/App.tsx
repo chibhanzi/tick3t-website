@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import EventDetail from "./pages/EventDetail";
 import UserDashboard from "./pages/UserDashboard";
+import Vault from "./pages/Vault";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import UpgradeToOrganizer from "./pages/UpgradeToOrganizer";
 import NotFound from "./pages/NotFound";
@@ -56,6 +57,15 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <UserDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+
+              <Route 
+                path="/vault" 
+                element={
+                  <ProtectedRoute>
+                    <Vault />
                   </ProtectedRoute>
                 } 
               />
