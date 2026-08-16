@@ -37,6 +37,7 @@ interface AuthContextProps {
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
+  upgradeToOrganizer: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -129,6 +130,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return !error;
   };
 
+  const upgradeToOrganizer = () => {
+    if (!user) return;
+    const upgraded: ProfileShape = { ...user, isOrganizer: true, role: "organizer" };
+    persist(upgraded);
+  };
+
   const value = useMemo<AuthContextProps>(() => ({
     user,
     session: user ? { user } : null,
@@ -144,6 +151,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     login,
     register,
     logout: signOut,
+    upgradeToOrganizer,
   }), [user, isLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -10,8 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut,
-  Ticket, AtSign, ChevronDown, Home, Bell, Archive, Settings,
+  Ticket, AtSign, ChevronDown, Home, Bell, Archive, Settings, X,
 } from "lucide-react";
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollow } from "@/contexts/FollowContext";
 import { useTheme } from "next-themes";
@@ -143,17 +146,65 @@ const Header = () => {
             <div className="flex items-center space-x-2">
               {/* Notification bell — attendees only */}
               {!isOrganizer && (
-                <Link
-                  to="/events"
-                  onClick={clearUnread}
-                  className="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted transition-colors"
-                  title="Events for you"
-                >
-                  <Bell className="h-4 w-4 text-muted-foreground" />
-                  {hasUnread && (
-                    <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
-                  )}
-                </Link>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      onClick={clearUnread}
+                      className="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted transition-colors"
+                      title="Notifications"
+                    >
+                      <Bell className="h-4 w-4 text-muted-foreground" />
+                      {hasUnread && (
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
+                      )}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-80 p-0">
+                    <div className="flex items-center justify-between px-4 py-3 border-b">
+                      <p className="text-sm font-semibold">Notifications</p>
+                    </div>
+                    <div className="divide-y divide-border/60 max-h-72 overflow-y-auto">
+                      <div className="px-4 py-3 flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Bell className="h-3.5 w-3.5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">New event from SoundWave Ent.</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Bass Drop Festival 2025 — tickets on sale now</p>
+                          <p className="text-[11px] text-muted-foreground mt-1">2 hours ago</p>
+                        </div>
+                      </div>
+                      <div className="px-4 py-3 flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Ticket className="h-3.5 w-3.5 text-amber-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Waitlist spot available</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">A ticket for Afrobeats Night just dropped</p>
+                          <p className="text-[11px] text-muted-foreground mt-1">Yesterday</p>
+                        </div>
+                      </div>
+                      <div className="px-4 py-3 flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Calendar className="h-3.5 w-3.5 text-emerald-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Reminder: Jazz in the Park</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Your event starts tomorrow at 6:00 PM</p>
+                          <p className="text-[11px] text-muted-foreground mt-1">1 day ago</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="px-4 py-2.5 border-t">
+                      <Link
+                        to="/events"
+                        className="text-xs text-primary hover:underline underline-offset-2 font-medium"
+                      >
+                        Browse all events →
+                      </Link>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
 
               {/* Profile dropdown */}
