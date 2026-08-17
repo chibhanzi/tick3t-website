@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, ExternalLink, ListOrdered, TrendingUp, Lightbulb } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { ExternalLink, ListOrdered, TrendingUp, Lightbulb } from "lucide-react";
+import OrganizerProfileCard from "@/components/organizer/OrganizerProfileCard";
+import { useSearchParams } from "react-router-dom";
 import { useTheme } from "next-themes";
 import DashboardStats from "@/components/organizer/DashboardStats";
 import DraftEventBanner from "@/components/DraftEventBanner";
@@ -45,24 +46,17 @@ const OrganizerDashboard = () => {
       <Header />
       
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        <div className="mb-6 md:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Organizer Dashboard
-              </h1>
-              <p className="text-muted-foreground text-sm md:text-base">
-                Welcome back, {user?.name || "Organizer"}! Here's your event overview.
-              </p>
-            </div>
-            <Button asChild className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600">
-              <Link to="/create-event">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Event
-              </Link>
-            </Button>
-          </div>
+        <OrganizerProfileCard
+          name={user?.name || "Organiser"}
+          email={user?.email || ""}
+          stats={{
+            totalFollowers: stats.totalFollowers,
+            totalEvents: stats.totalEvents,
+            totalTicketsSold: stats.totalTicketsSold,
+          }}
+        />
 
+        <div className="mb-6 md:mb-8">
           <DraftEventBanner />
           <DashboardStats stats={stats} />
         </div>
