@@ -17,7 +17,6 @@ import AudienceSnapshot from "@/components/organizer/AudienceSnapshot";
 import MobileAnalyticsDashboard from "@/components/organizer/MobileAnalyticsDashboard";
 import EventManagement from "@/components/organizer/EventManagement";
 import AttendeeManagement from "@/components/organizer/AttendeeManagement";
-import TicketDesignManager from "@/components/organizer/TicketDesignManager";
 import RevenuePayouts from "@/components/organizer/RevenuePayouts";
 import OrganizerSettings from "@/components/organizer/OrganizerSettings";
 import vouchLight from "@/assets/vouch_light.png";
@@ -74,7 +73,6 @@ const OrganizerDashboard = () => {
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="events">Events</TabsTrigger>
               <TabsTrigger value="attendees">Attendees</TabsTrigger>
-              <TabsTrigger value="tickets">Ticket Design</TabsTrigger>
               <TabsTrigger value="revenue">Revenue</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -169,9 +167,6 @@ const OrganizerDashboard = () => {
             <AttendeeManagement />
           </TabsContent>
 
-          <TabsContent value="tickets">
-            <TicketDesignManager />
-          </TabsContent>
 
           <TabsContent value="revenue">
             <RevenuePayouts />
