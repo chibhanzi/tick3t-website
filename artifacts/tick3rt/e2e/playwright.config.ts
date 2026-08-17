@@ -28,9 +28,20 @@ export default defineConfig({
   retries: 1,
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
 
+  webServer: {
+    command: "pnpm --filter @workspace/tick3rt run dev",
+    port: 24122,
+    timeout: 60_000,
+    reuseExistingServer: true,
+    env: {
+      PORT: "24122",
+      BASE_PATH: "/",
+    },
+  },
+
   use: {
-    /* The tick3rt dev server is proxied to port 80 */
-    baseURL: "http://localhost:80",
+    /* The tick3rt dev server runs on port 24122; the Replit proxy exposes it on 80 */
+    baseURL: "http://localhost:24122",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     /* Inject organizer session before every test */

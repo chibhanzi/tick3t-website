@@ -1,11 +1,14 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BadgeCheck, Plus, Instagram, Twitter, Users, Calendar, Ticket } from "lucide-react";
+import { loadOrganizerProfile, ORG_PROFILE_UPDATED_EVENT, type OrganizerProfile } from "./OrganizerSettings";
 
 interface OrganizerProfileCardProps {
   name: string;
   email: string;
+  userId: string;
   stats: {
     totalFollowers: number;
     totalEvents: number;
@@ -36,13 +39,42 @@ const accentFromName = (name: string) => {
   return `hsl(${hue},70%,55%)`;
 };
 
-export const OrganizerProfileCard = ({ name, email, stats }: OrganizerProfileCardProps) => {
+export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerProfileCardProps) => {
   const accent = accentFromName(name);
   const abbr = initials(name || "Organiser");
 
-  // Mock fields — will be editable via Settings in a future task
-  const bio = "Creating unforgettable experiences across Africa & beyond 🎶";
+  const [profile, setProfile] = useState<OrganizerProfile>({ bio: "", instagram: "", twitter: "" });
+
+  useEffect(() => {
+    if (!userId) return;
+    const saved = loadOrganizerProfile(userId);
+    setProfile(saved);
+
+    // Same-window updates (Settings tab saves in the same session)
+    const onSameWindow = (e: Event) => {
+      const detail = (e as CustomEvent<{ userId: string; profile: OrganizerProfile }>).detail;
+      if (detail?.userId === userId) setProfile(detail.profile);
+    };
+    window.addEventListener(ORG_PROFILE_UPDATED_EVENT, onSameWindow);
+
+    // Cross-tab updates (other tabs/windows)
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === `tick3t.org-profile.${userId}`) {
+        setProfile(loadOrganizerProfile(userId));
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener(ORG_PROFILE_UPDATED_EVENT, onSameWindow);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [userId]);
+
   const handle = email?.split("@")[0]?.replace(/[^a-zA-Z0-9_]/g, "") || "organiser";
+  const displayBio =
+    profile.bio.trim() ||
+    "Creating unforgettable experiences across Africa & beyond 🎶";
 
   return (
     <div className="rounded-2xl overflow-hidden border border-border/60 bg-card shadow-sm mb-6">
@@ -110,7 +142,7 @@ export const OrganizerProfileCard = ({ name, email, stats }: OrganizerProfileCar
             <Badge variant="outline" className="text-[10px] h-5 px-1.5">Verified Organiser</Badge>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">@{handle}</p>
-          <p className="text-sm text-muted-foreground mt-1.5 leading-snug">{bio}</p>
+          <p className="text-sm text-muted-foreground mt-1.5 leading-snug">{displayBio}</p>
         </div>
 
         {/* Stats strip */}
@@ -129,17 +161,33 @@ export const OrganizerProfileCard = ({ name, email, stats }: OrganizerProfileCar
           ))}
         </div>
 
-        {/* Social link placeholders — links become real once the organiser sets their handles in Settings */}
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1 text-[11px] text-muted-foreground">
-            <Instagram className="h-3 w-3" />
-            Add Instagram
-          </span>
-          <span className="flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1 text-[11px] text-muted-foreground">
-            <Twitter className="h-3 w-3" />
-            Add Twitter / X
-          </span>
-        </div>
+        {/* Social links — only shown when the organiser has set a handle */}
+        {(profile.instagram.trim() || profile.twitter.trim()) && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {profile.instagram.trim() && (
+              <a
+                href={`https://instagram.com/${profile.instagram.trim()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1 text-[11px] text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+              >
+                <Instagram className="h-3 w-3" />
+                @{profile.instagram.trim()}
+              </a>
+            )}
+            {profile.twitter.trim() && (
+              <a
+                href={`https://x.com/${profile.twitter.trim()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1 text-[11px] text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+              >
+                <Twitter className="h-3 w-3" />
+                @{profile.twitter.trim()}
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

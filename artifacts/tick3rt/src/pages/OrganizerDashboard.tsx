@@ -49,6 +49,7 @@ const OrganizerDashboard = () => {
         <OrganizerProfileCard
           name={user?.name || "Organiser"}
           email={user?.email || ""}
+          userId={user?.id || ""}
           stats={{
             totalFollowers: stats.totalFollowers,
             totalEvents: stats.totalEvents,
