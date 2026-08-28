@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { TICKET_TEMPLATES } from "./TicketTemplateGallery";
 import { getCustomPreview } from "./CustomTicketPreview";
@@ -14,12 +14,14 @@ export interface TicketLivePreviewProps {
   onSelectObject?: (objectId: string) => void;
   onMoveLayer?: (layerId: string, position: { x: number; y: number }) => void;
   onMoveTicket?: (position: { x: number; y: number; width: number }) => void;
+  onMoveContent?: (contentId: ContentId, position: { x: number; y: number }) => void;
 }
 
 export const DEFAULT_TICKET_POSITION = { x: 7, y: 7, width: 86 };
+type ContentId = "title" | "date" | "location";
 
 type DragState = {
-  type: "ticket" | "layer";
+  type: "ticket" | "layer" | "content";
   id: string;
   pointerId: number;
   startClientX: number;
@@ -27,6 +29,11 @@ type DragState = {
   startX: number;
   startY: number;
   startWidth?: number;
+  minX?: number;
+  maxX?: number;
+  minY?: number;
+  maxY?: number;
+  target?: HTMLElement;
 };
 
 function formatDate(raw: string): string {
@@ -97,6 +104,7 @@ const TicketLivePreview = ({
   onSelectObject,
   onMoveLayer,
   onMoveTicket,
+  onMoveContent,
 }: TicketLivePreviewProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const ticketRef = useRef<HTMLDivElement>(null);
@@ -117,6 +125,11 @@ const TicketLivePreview = ({
     ...DEFAULT_TICKET_POSITION,
     ...(design?.ticketPosition ?? {}),
   };
+  const contentPositions: Record<ContentId, { x: number; y: number }> = {
+    title: { x: 0, y: 0, ...(design?.contentPositions?.title ?? {}) },
+    date: { x: 0, y: 0, ...(design?.contentPositions?.date ?? {}) },
+    location: { x: 0, y: 0, ...(design?.contentPositions?.location ?? {}) },
+  };
 
   const previewProps = {
     design,
@@ -132,6 +145,80 @@ const TicketLivePreview = ({
 
   const clamp = (value: number, min: number, max: number) =>
     Math.max(min, Math.min(max, value));
+
+  const contentValues: Record<ContentId, string> = {
+    title: previewProps.title,
+    date: previewProps.date,
+    location: previewProps.location,
+  };
+
+  const findContentTarget = (
+    target: EventTarget | null,
+    clientX: number,
+    clientY: number,
+  ): { id: ContentId; element: HTMLElement } | null => {
+    if (!(target instanceof HTMLElement) || !ticketRef.current?.contains(target)) return null;
+    let element: HTMLElement | null = target;
+    while (element && element !== ticketRef.current) {
+      const text = element.textContent?.trim() ?? "";
+      for (const id of Object.keys(contentValues) as ContentId[]) {
+        const value = contentValues[id];
+        if (!value) continue;
+        const isExactMatch = text === value;
+        const isCombinedLocation =
+          id === "location" &&
+          text.includes(value) &&
+          text.includes(previewProps.date) &&
+          text.length <= value.length + previewProps.date.length + 10;
+        if (isExactMatch || isCombinedLocation) {
+          const textRange = document.createRange();
+          textRange.selectNodeContents(element);
+          const textRect = textRange.getBoundingClientRect();
+          const hitPadding = 6;
+          const hitText =
+            clientX >= textRect.left - hitPadding &&
+            clientX <= textRect.right + hitPadding &&
+            clientY >= textRect.top - hitPadding &&
+            clientY <= textRect.bottom + hitPadding;
+          if (hitText) return { id, element };
+        }
+      }
+      element = element.parentElement;
+    }
+    return null;
+  };
+
+  const applyContentStyles = () => {
+    const root = ticketRef.current;
+    if (!root) return;
+    const seen = new Set<HTMLElement>();
+    const elements = Array.from(root.querySelectorAll<HTMLElement>("*"));
+    (Object.keys(contentValues) as ContentId[]).forEach((id) => {
+      const value = contentValues[id];
+      if (!value) return;
+      const matches = elements
+        .filter((element) => {
+          const text = element.textContent?.trim() ?? "";
+          return text === value || (id === "location" && text.includes(value) && text.length <= value.length + 40);
+        })
+        .sort((a, b) => (a.textContent?.length ?? 0) - (b.textContent?.length ?? 0));
+      const element = matches[0];
+      if (!element || seen.has(element)) return;
+      seen.add(element);
+      element.dataset.testid = `ticket-preview-content-${id}`;
+      element.style.position = "relative";
+      element.style.left = `${contentPositions[id].x}%`;
+      element.style.top = `${contentPositions[id].y}%`;
+      element.style.cursor = "grab";
+      element.style.touchAction = "none";
+      element.style.outline = selectedObjectId === `content:${id}` ? "2px solid rgba(255,255,255,0.95)" : "";
+      element.style.outlineOffset = selectedObjectId === `content:${id}` ? "2px" : "";
+    });
+  };
+
+  useEffect(() => {
+    applyContentStyles();
+  }, [design, selectedObjectId, eventTitle, eventDate, eventLocation]);
 
   const beginDrag = (
     type: DragState["type"],
@@ -158,6 +245,49 @@ const TicketLivePreview = ({
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
+  const beginContentDrag = (
+    contentId: ContentId,
+    target: HTMLElement,
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    const ticketRect = ticketRef.current?.getBoundingClientRect();
+    const contentRect = target.getBoundingClientRect();
+    if (!ticketRect || ticketRect.width === 0 || ticketRect.height === 0) return;
+    const position = contentPositions[contentId];
+    const minX = position.x + ((ticketRect.left - contentRect.left) / ticketRect.width) * 100;
+    const maxX = position.x + ((ticketRect.right - contentRect.right) / ticketRect.width) * 100;
+    const minY = position.y + ((ticketRect.top - contentRect.top) / ticketRect.height) * 100;
+    const maxY = position.y + ((ticketRect.bottom - contentRect.bottom) / ticketRect.height) * 100;
+
+    event.preventDefault();
+    event.stopPropagation();
+    dragRef.current = {
+      type: "content",
+      id: `content:${contentId}`,
+      pointerId: event.pointerId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startX: position.x,
+      startY: position.y,
+      minX: Math.min(minX, maxX),
+      maxX: Math.max(minX, maxX),
+      minY: Math.min(minY, maxY),
+      maxY: Math.max(minY, maxY),
+      target,
+    };
+    onSelectObject?.(`content:${contentId}`);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleTicketPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const contentTarget = findContentTarget(event.target, event.clientX, event.clientY);
+    if (contentTarget) {
+      beginContentDrag(contentTarget.id, contentTarget.element, event);
+      return;
+    }
+    beginDrag("ticket", "ticket", event);
+  };
+
   const moveDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || event.pointerId !== drag.pointerId) return;
@@ -176,6 +306,12 @@ const TicketLivePreview = ({
         x: clamp(drag.startX + deltaX, 0, 100 - width),
         y: clamp(drag.startY + deltaY, 0, 100 - width),
         width,
+      });
+    } else if (drag.type === "content") {
+      const contentId = drag.id.replace("content:", "") as ContentId;
+      onMoveContent?.(contentId, {
+        x: clamp(drag.startX + deltaX, drag.minX ?? -100, drag.maxX ?? 100),
+        y: clamp(drag.startY + deltaY, drag.minY ?? -100, drag.maxY ?? 100),
       });
     } else {
       const layer = design?.layers?.find((item: any) => item.id === drag.id);
@@ -220,7 +356,7 @@ const TicketLivePreview = ({
           touchAction: "none",
           cursor: "grab",
         }}
-        onPointerDown={(event) => beginDrag("ticket", "ticket", event)}
+        onPointerDown={handleTicketPointerDown}
         onPointerMove={moveDrag}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
@@ -376,7 +512,7 @@ const TicketLivePreview = ({
             })}
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[10px] font-medium text-muted-foreground">
-        Drag the ticket or a layer to position it
+        Drag the ticket, its event details, or a layer to position it
       </div>
     </div>
   );

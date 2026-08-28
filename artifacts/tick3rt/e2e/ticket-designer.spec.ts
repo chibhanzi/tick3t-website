@@ -299,4 +299,45 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await restoredLayer.click();
     await expect(page.getByText("X %").locator("..").getByRole("spinbutton")).toHaveValue(movedLayerX);
   });
+
+  test("step 2 — template event details can be dragged and restored", async ({ page }) => {
+    await page.locator("#title").fill("Draggable Event Title");
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+
+    await page.getByRole("button", { name: /use this template/i }).first().click();
+    const ticket = page.getByTestId("ticket-preview-object");
+    const ticketBox = await ticket.boundingBox();
+    expect(ticketBox).not.toBeNull();
+    const initialTicketLeft = await ticket.evaluate((element) => element.style.left);
+    await page.mouse.move(ticketBox!.x + ticketBox!.width * 0.62, ticketBox!.y + ticketBox!.height * 0.8);
+    await page.mouse.down();
+    await page.mouse.move(ticketBox!.x + ticketBox!.width * 0.62 - 15, ticketBox!.y + ticketBox!.height * 0.8 - 5);
+    await page.mouse.up();
+    await expect.poll(() => ticket.evaluate((element) => element.style.left)).not.toBe(initialTicketLeft);
+
+    const title = page.getByTestId("ticket-preview-content-title");
+    await expect(title).toBeVisible();
+    const titleBox = await title.boundingBox();
+    expect(titleBox).not.toBeNull();
+    const initialLeft = await title.evaluate((element) => element.style.left);
+
+    await page.mouse.move(titleBox!.x + titleBox!.width / 2, titleBox!.y + titleBox!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(titleBox!.x + titleBox!.width / 2 + 30, titleBox!.y + titleBox!.height / 2 + 10);
+    await page.mouse.up();
+
+    const movedLeft = await title.evaluate((element) => element.style.left);
+    expect(movedLeft).not.toBe(initialLeft);
+    await expect.poll(() =>
+      page.evaluate(() => Math.abs(JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+        .ticketDesign?.contentPositions?.title?.x ?? 0))
+    ).toBeGreaterThan(0);
+
+    await page.reload();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+    await expect.poll(() =>
+      page.getByTestId("ticket-preview-content-title").evaluate((element) => element.style.left)
+    ).toBe(movedLeft);
+  });
 });

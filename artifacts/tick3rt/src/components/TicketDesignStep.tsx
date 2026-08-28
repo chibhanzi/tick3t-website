@@ -168,6 +168,13 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
   };
   const updateTicketPosition = (position: { x: number; y: number; width: number }) =>
     patch({ ticketPosition: position });
+  const updateContentPosition = (contentId: "title" | "date" | "location", position: { x: number; y: number }) =>
+    patch({
+      contentPositions: {
+        ...(design?.contentPositions ?? {}),
+        [contentId]: position,
+      },
+    });
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
@@ -592,6 +599,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               onSelectObject={selectPreviewObject}
               onMoveLayer={(layerId, position) => updateLayer(layerId, { position })}
               onMoveTicket={updateTicketPosition}
+              onMoveContent={updateContentPosition}
             />
 
             {/* Layer preview overlay for active layers */}
