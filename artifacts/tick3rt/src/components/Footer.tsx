@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, Zap, Globe } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import tick3tLogo from "@assets/tick3t-light_1786308665024.png";
 
 const navGroups = [
   {
@@ -43,9 +44,7 @@ const Footer = () => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const logoDark = "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png";
-  const logoLight = "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
-  const logoSrc = mounted && resolvedTheme === "dark" ? logoDark : logoLight;
+  const logoClass = mounted && resolvedTheme !== "dark" ? "invert" : "";
   return (
     <footer className="relative overflow-hidden border-t border-border/40 bg-background">
       {/* subtle gradient accent */}
@@ -58,9 +57,9 @@ const Footer = () => {
           <div className="md:col-span-5">
             <Link to="/" className="inline-flex items-center">
               <img
-                src={logoSrc}
+                src={tick3tLogo}
                 alt="Tick3t"
-                className="h-9 w-auto transition-opacity duration-300"
+                className={`h-9 w-auto transition-opacity duration-300 ${logoClass}`}
               />
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">

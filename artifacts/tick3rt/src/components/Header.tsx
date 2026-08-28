@@ -20,6 +20,7 @@ import { useFollow } from "@/contexts/FollowContext";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/ThemeToggle";
 import SettingsDialog from "@/components/SettingsDialog";
+import tick3tLogo from "@assets/tick3t-light_1786308665024.png";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,9 +56,7 @@ const Header = () => {
     { href: "/marketplace/usernames", label: "Usernames", description: "Own your @handle", icon: AtSign },
   ];
 
-  const logoDark = "/lovable-uploads/426ad065-11b6-44a4-accc-c8b230d0cd1f.png";
-  const logoLight = "/lovable-uploads/658387a1-c740-4733-b2a5-3c1bebd8ed00.png";
-  const logoSrc = theme === "dark" ? logoDark : logoLight;
+  const logoClass = theme === "dark" ? "" : "invert";
 
   // Initials for avatar
   const initials = user?.name
@@ -72,8 +71,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
             <span className="relative inline-block h-8 w-[110px]">
-              <img src={logoLight} alt="Tick3t" className={`absolute inset-0 h-8 w-auto transition-opacity duration-500 ${theme === "dark" ? "opacity-0" : "opacity-100"}`} />
-              <img src={logoDark} alt="" aria-hidden className={`absolute inset-0 h-8 w-auto transition-opacity duration-500 ${theme === "dark" ? "opacity-100" : "opacity-0"}`} />
+              <img src={tick3tLogo} alt="Tick3t" className={`h-8 w-auto ${logoClass}`} />
             </span>
           </Link>
           {isOrganizer && (
@@ -295,7 +293,7 @@ const Header = () => {
                 {/* Drawer Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
                   <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2">
-                    <img src={logoSrc} alt="Tick3t" className="h-7 w-auto" />
+                    <img src={tick3tLogo} alt="Tick3t" className={`h-7 w-auto ${logoClass}`} />
                   </Link>
                 </div>
 
