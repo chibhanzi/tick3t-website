@@ -368,22 +368,24 @@ const Header = () => {
                         Account
                       </div>
                       <div className="space-y-1">
-                        <Link
-                          to={dashboardLink}
-                          onClick={() => setIsOpen(false)}
-                          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                            location.pathname === dashboardLink
-                              ? "bg-primary/10 text-primary ring-1 ring-primary/20"
-                              : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                          }`}
-                        >
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
-                            location.pathname === dashboardLink ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
-                          }`}>
-                            <User className="h-4 w-4" />
-                          </div>
-                          <span>Profile</span>
-                        </Link>
+                        {!isOrganizer && (
+                          <Link
+                            to={dashboardLink}
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                              location.pathname === dashboardLink
+                                ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+                                : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                            }`}
+                          >
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                              location.pathname === dashboardLink ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                            }`}>
+                              <User className="h-4 w-4" />
+                            </div>
+                            <span>Profile</span>
+                          </Link>
+                        )}
                         <Link
                           to="/vault"
                           onClick={() => setIsOpen(false)}
