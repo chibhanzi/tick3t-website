@@ -9,7 +9,6 @@ import { ExternalLink, ListOrdered, TrendingUp, Lightbulb } from "lucide-react";
 import OrganizerProfileCard from "@/components/organizer/OrganizerProfileCard";
 import { useSearchParams } from "react-router-dom";
 import { useTheme } from "next-themes";
-import DashboardStats from "@/components/organizer/DashboardStats";
 import DraftEventBanner from "@/components/DraftEventBanner";
 import RecentEvents from "@/components/organizer/RecentEvents";
 import QuickAnalytics from "@/components/organizer/QuickAnalytics";
@@ -59,7 +58,6 @@ const OrganizerDashboard = () => {
 
         <div className="mb-6 md:mb-8">
           <DraftEventBanner />
-          <DashboardStats stats={stats} />
         </div>
 
         <Tabs defaultValue={defaultTab} className="space-y-6">
