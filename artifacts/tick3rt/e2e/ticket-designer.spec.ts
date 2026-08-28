@@ -254,4 +254,49 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     // The live preview panel should now render the event title
     await expect(page.getByText("Preview Title Check")).toBeVisible({ timeout: 5_000 });
   });
+
+  test("step 2 — preview objects can be dragged and restored from the draft", async ({ page }) => {
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+
+    const layerBtn = page.getByRole("button").filter({ hasText: /Layer Editor/i });
+    await layerBtn.click();
+    await page.getByRole("button", { name: /^\+\s*Text$/i }).click();
+
+    const layer = page.locator('[data-testid^="ticket-preview-layer-"]').last();
+    await expect(layer).toBeVisible();
+    const layerBox = await layer.boundingBox();
+    expect(layerBox).not.toBeNull();
+    await page.mouse.move(layerBox!.x + layerBox!.width / 2, layerBox!.y + layerBox!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(layerBox!.x + layerBox!.width / 2 + 45, layerBox!.y + layerBox!.height / 2 + 15);
+    await page.mouse.up();
+
+    const xInput = page.getByText("X %").locator("..").getByRole("spinbutton");
+    await expect(xInput).not.toHaveValue("10");
+    const movedLayerX = await xInput.inputValue();
+
+    const ticket = page.getByTestId("ticket-preview-object");
+    const ticketBox = await ticket.boundingBox();
+    expect(ticketBox).not.toBeNull();
+    const initialTicketLeft = await ticket.evaluate((element) => element.style.left);
+    await page.mouse.move(ticketBox!.x + ticketBox!.width - 8, ticketBox!.y + ticketBox!.height - 8);
+    await page.mouse.down();
+    await page.mouse.move(ticketBox!.x + ticketBox!.width - 28, ticketBox!.y + ticketBox!.height - 18);
+    await page.mouse.up();
+    await expect.poll(() => ticket.evaluate((element) => element.style.left)).not.toBe(initialTicketLeft);
+
+    await expect.poll(async () =>
+      page.evaluate((expectedX) => JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+        .ticketDesign?.layers?.some((item: any) => String(item.position?.x) === String(Number(expectedX))), movedLayerX)
+    ).toBe(true);
+
+    await page.reload();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+    await page.getByRole("button").filter({ hasText: /Layer Editor/i }).click();
+    const restoredLayer = page.locator('[data-testid^="ticket-preview-layer-"]').last();
+    await expect(restoredLayer).toBeVisible();
+    await restoredLayer.click();
+    await expect(page.getByText("X %").locator("..").getByRole("spinbutton")).toHaveValue(movedLayerX);
+  });
 });

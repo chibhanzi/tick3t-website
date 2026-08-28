@@ -80,6 +80,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
       position: { x: 0, y: 0 }, size: { width: 100, height: 100 }, style: { opacity: 1 } },
   ]);
   const [selectedLayer, setSelectedLayer] = useState<string>(layers[0]?.id || "");
+  const [selectedObject, setSelectedObject] = useState<string>("ticket");
 
   const toggle = (id: string) =>
     setOpenSections((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -127,6 +128,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
     };
     const next = [...layers, newLayer];
     setSelectedLayer(id);
+    setSelectedObject(id);
     syncLayers(next);
   };
   const updateLayer = (layerId: string, updates: any) =>
@@ -135,6 +137,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
     if (layers.length <= 1) return;
     const next = layers.filter((l) => l.id !== layerId);
     setSelectedLayer(next[0]?.id || "");
+    setSelectedObject(next[0]?.id === "bg" ? "ticket" : next[0]?.id || "ticket");
     syncLayers(next);
   };
   const moveLayer = (layerId: string, dir: "up" | "down") => {
@@ -159,6 +162,12 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
   const activeBase = selectedTemplate?.name || selectedCustomLayout?.name;
 
   const selectedLayerData = layers.find((l) => l.id === selectedLayer);
+  const selectPreviewObject = (objectId: string) => {
+    setSelectedObject(objectId);
+    if (objectId !== "ticket") setSelectedLayer(objectId);
+  };
+  const updateTicketPosition = (position: { x: number; y: number; width: number }) =>
+    patch({ ticketPosition: position });
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
@@ -465,7 +474,10 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               {layers.map((layer) => (
                 <div
                   key={layer.id}
-                  onClick={() => setSelectedLayer(layer.id)}
+                  onClick={() => {
+                    setSelectedLayer(layer.id);
+                    setSelectedObject(layer.id === "bg" ? "ticket" : layer.id);
+                  }}
                   className={cn(
                     "flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer text-xs transition-colors",
                     selectedLayer === layer.id
@@ -576,6 +588,10 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               eventTitle={eventData?.title}
               eventDate={eventData?.date}
               eventLocation={eventData?.location}
+              selectedObjectId={selectedObject}
+              onSelectObject={selectPreviewObject}
+              onMoveLayer={(layerId, position) => updateLayer(layerId, { position })}
+              onMoveTicket={updateTicketPosition}
             />
 
             {/* Layer preview overlay for active layers */}
