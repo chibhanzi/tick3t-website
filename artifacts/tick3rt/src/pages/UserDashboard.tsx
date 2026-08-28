@@ -58,6 +58,9 @@ const UserDashboard = () => {
 
   const displayName = user?.name ?? "Guest";
   const initials = displayName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+  const followedOrganizers = following
+    .map((orgId) => MOCK_ORGANIZERS[orgId])
+    .filter((org): org is (typeof MOCK_ORGANIZERS)[string] => Boolean(org));
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,19 +113,21 @@ const UserDashboard = () => {
         </div>
 
         {/* ── Following – story rings ─────────────────────────────────── */}
-        {following.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-primary" />
-                Following
-              </h2>
-              <span className="text-xs text-muted-foreground">{following.length} organiser{following.length !== 1 ? "s" : ""}</span>
-            </div>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5 text-primary" />
+              Following
+            </h2>
+            {followedOrganizers.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {followedOrganizers.length} organiser{followedOrganizers.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+          {followedOrganizers.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
-              {following.map((orgId) => {
-                const org = MOCK_ORGANIZERS[orgId];
-                if (!org) return null;
+              {followedOrganizers.map((org) => {
                 const color = (org as any).color ?? "hsl(var(--primary))";
                 const abbr = org.name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
                 return (
@@ -147,8 +152,23 @@ const UserDashboard = () => {
                 );
               })}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-border/70 bg-muted/20 p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                <Users className="h-4 w-4 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">Build your event feed</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Follow organisers to see their latest events and updates here.
+                </p>
+              </div>
+              <Button asChild variant="outline" size="sm" className="shrink-0">
+                <Link to="/events">Browse events</Link>
+              </Button>
+            </div>
+          )}
+        </div>
 
         <Dialog open={!!selectedOrganizer} onOpenChange={(open) => !open && setSelectedOrganizerId(null)}>
           <DialogContent className="sm:max-w-lg overflow-hidden p-0">
