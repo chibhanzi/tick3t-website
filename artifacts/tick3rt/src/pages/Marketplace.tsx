@@ -30,7 +30,6 @@ import {
   CheckCircle2,
   HandCoins,
 } from "lucide-react";
-import MarketplaceActions from "@/components/marketplace/MarketplaceActions";
 
 type ViewMode = "grid" | "list" | "compact";
 type Listing = {
@@ -543,9 +542,6 @@ const Marketplace = () => {
           </div>
         )}
 
-        <div className="mt-12">
-          <MarketplaceActions />
-        </div>
       </main>
 
       {/* Buy Now confirmation dialog */}

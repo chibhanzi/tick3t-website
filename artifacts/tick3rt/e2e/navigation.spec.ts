@@ -73,7 +73,7 @@ test.describe("Role-specific navigation", () => {
     await expect(mobileDrawer.getByRole("link", { name: "Dashboard", exact: true })).toBeVisible();
     await expect(mobileDrawer.getByRole("link", { name: "Create Event", exact: true })).toBeVisible();
     await expect(mobileDrawer.getByRole("link", { name: "Profile", exact: true })).toBeVisible();
-    await expect(mobileDrawer.getByRole("link", { name: "Vault", exact: true })).toBeVisible();
+    await expect(mobileDrawer.getByRole("link", { name: "Organiser Vault", exact: true })).toBeVisible();
     await expect(mobileDrawer.getByRole("button", { name: "Sign out", exact: true })).toBeVisible();
     await expect(mobileDrawer.getByRole("link", { name: "Events", exact: true })).toHaveCount(0);
     await expect(mobileDrawer.getByText("Marketplace", { exact: true })).toHaveCount(0);

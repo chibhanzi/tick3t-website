@@ -238,7 +238,7 @@ const Header = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/vault" className="flex items-center gap-2 cursor-pointer">
                       <Archive className="h-4 w-4" />
-                      <span>Vault</span>
+                      <span>{isOrganizer ? "Organiser Vault" : "Vault"}</span>
                     </Link>
                   </DropdownMenuItem>
 
@@ -398,7 +398,7 @@ const Header = () => {
                           }`}>
                             <Archive className="h-4 w-4" />
                           </div>
-                          <span>Vault</span>
+                          <span>{isOrganizer ? "Organiser Vault" : "Vault"}</span>
                         </Link>
                       </div>
                     </>

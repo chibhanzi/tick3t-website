@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollow } from "@/contexts/FollowContext";
 import { useWaitlist } from "@/contexts/WaitlistContext";
@@ -13,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MOCK_ORGANIZERS } from "@/data/mockOrganizers";
 import FollowButton from "@/components/FollowButton";
 import {
-  Calendar, BadgeCheck, Bell, Users, ListOrdered,
+  Calendar, BadgeCheck, Users, ListOrdered, MapPin,
   ChevronRight, Ticket, Instagram, Twitter,
 } from "lucide-react";
 
@@ -46,11 +49,12 @@ const UserDashboard = () => {
   const { following } = useFollow();
   const { entries: waitlistEntries, leave: leaveWaitlist, position: wPosition, displayCount: wDisplayCount } = useWaitlist();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name ?? "");
   const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
+  const [selectedOrganizerId, setSelectedOrganizerId] = useState<string | null>(null);
+  const selectedOrganizer = selectedOrganizerId ? MOCK_ORGANIZERS[selectedOrganizerId] : null;
 
   const displayName = user?.name ?? "Guest";
   const initials = displayName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -122,7 +126,13 @@ const UserDashboard = () => {
                 const color = (org as any).color ?? "hsl(var(--primary))";
                 const abbr = org.name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
                 return (
-                  <button key={orgId} className="flex flex-col items-center gap-1.5 shrink-0 group">
+                  <button
+                    key={orgId}
+                    type="button"
+                    onClick={() => setSelectedOrganizerId(orgId)}
+                    className="flex flex-col items-center gap-1.5 shrink-0 group"
+                    aria-label={`View ${org.name}`}
+                  >
                     <div
                       className="w-14 h-14 rounded-full flex items-center justify-center transition-transform group-hover:scale-105"
                       style={{ backgroundColor: color + "22", outline: `2.5px solid ${color}55`, outlineOffset: "3px" }}
@@ -139,6 +149,53 @@ const UserDashboard = () => {
             </div>
           </div>
         )}
+
+        <Dialog open={!!selectedOrganizer} onOpenChange={(open) => !open && setSelectedOrganizerId(null)}>
+          <DialogContent className="sm:max-w-lg overflow-hidden p-0">
+            {selectedOrganizer && (
+              <>
+                <div className="h-28 bg-gradient-to-br from-primary/80 via-violet-500/70 to-fuchsia-500/70" />
+                <div className="px-6 pb-6">
+                  <div className="-mt-9 mb-4 flex items-end justify-between gap-4">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background bg-primary/10 text-xl font-black text-primary">
+                      {selectedOrganizer.name.split(" ").map((word) => word[0]).join("").slice(0, 2)}
+                    </div>
+                    <FollowButton organizerId={selectedOrganizer.id} />
+                  </div>
+                  <DialogHeader className="text-left">
+                    <DialogTitle className="flex items-center gap-1.5">
+                      {selectedOrganizer.name}
+                      {selectedOrganizer.verified && <BadgeCheck className="h-4 w-4 text-primary" />}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {selectedOrganizer.category} organiser creating memorable live experiences.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+                      <p className="text-xl font-bold">{selectedOrganizer.followerSeed.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Followers</p>
+                    </div>
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+                      <p className="text-xl font-bold">3</p>
+                      <p className="text-xs text-muted-foreground">Upcoming events</p>
+                    </div>
+                  </div>
+                  <div className="mt-5">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Next event</p>
+                    <div className="rounded-xl border border-border/60 p-4">
+                      <p className="font-semibold">{selectedOrganizer.category} Live 2026</p>
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" /> Sep 18, 2026</span>
+                        <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> Harare</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* ── Party Animals ───────────────────────────────────────────── */}
         <div className="mb-8">

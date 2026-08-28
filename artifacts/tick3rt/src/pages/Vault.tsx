@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { VaultToolbar } from "@/components/vault/VaultToolbar";
+import OrganizerVault from "@/components/vault/OrganizerVault";
 import QRCodeLib from "qrcode";
 import {
   Calendar, MapPin, Clock, Wallet,
@@ -29,7 +30,7 @@ const CATEGORY_META: Record<VaultCategory, { label: string; short: string; icon:
 };
 
 const Vault = () => {
-  const { user } = useAuth();
+  const { isOrganizer } = useAuth();
   const { toast } = useToast();
 
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
@@ -164,6 +165,18 @@ const Vault = () => {
         default:           return b.sortDate.localeCompare(a.sortDate);
       }
     });
+
+  if (isOrganizer) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <OrganizerVault />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
