@@ -132,9 +132,9 @@ const UserDashboard = () => {
                 const abbr = org.name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
                 return (
                   <button
-                    key={orgId}
+                    key={org.id}
                     type="button"
-                    onClick={() => setSelectedOrganizerId(orgId)}
+                    onClick={() => setSelectedOrganizerId(org.id)}
                     className="flex flex-col items-center gap-1.5 shrink-0 group"
                     aria-label={`View ${org.name}`}
                   >
