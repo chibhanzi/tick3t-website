@@ -3,7 +3,13 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BadgeCheck, Plus, Instagram, Twitter, Users, Calendar, Ticket } from "lucide-react";
-import { loadOrganizerProfile, ORG_PROFILE_UPDATED_EVENT, type OrganizerProfile } from "./OrganizerSettings";
+import {
+  fetchOrganizerProfile,
+  loadOrganizerProfile,
+  ORG_PROFILE_UPDATED_EVENT,
+  saveOrganizerProfile,
+  type OrganizerProfile,
+} from "./OrganizerSettings";
 
 interface OrganizerProfileCardProps {
   name: string;
@@ -49,6 +55,17 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
     if (!userId) return;
     const saved = loadOrganizerProfile(userId);
     setProfile(saved);
+    let cancelled = false;
+
+    fetchOrganizerProfile(userId)
+      .then((remoteProfile) => {
+        if (cancelled) return;
+        setProfile(remoteProfile);
+        saveOrganizerProfile(userId, remoteProfile);
+      })
+      .catch(() => {
+        // The local cache is the offline/loading fallback.
+      });
 
     // Same-window updates (Settings tab saves in the same session)
     const onSameWindow = (e: Event) => {
@@ -66,6 +83,7 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
     window.addEventListener("storage", onStorage);
 
     return () => {
+      cancelled = true;
       window.removeEventListener(ORG_PROFILE_UPDATED_EVENT, onSameWindow);
       window.removeEventListener("storage", onStorage);
     };

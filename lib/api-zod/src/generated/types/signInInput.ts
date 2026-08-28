@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface SignInInput {
+  email: string;
+  /**
+   * @minLength 8
+   * @maxLength 72
+   */
+  password: string;
 }

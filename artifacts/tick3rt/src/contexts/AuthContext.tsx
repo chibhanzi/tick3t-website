@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  createAccount,
+  createSession,
+  deleteSession,
+  type AuthUser,
+} from "@workspace/api-client-react";
 
 export type AppRole = "user" | "organizer" | "admin";
 
@@ -42,6 +48,9 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 const STORAGE_KEY = "tick3t.mock-auth.user";
+
+const errorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : "Something went wrong";
 
 export const useAuth = (): AuthContextProps => {
   const ctx = useContext(AuthContext);
@@ -99,25 +108,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signIn: AuthContextProps["signIn"] = async (email, password, role) => {
     if (!email || !password) return { error: "Email and password are required" };
-    persist(buildMockProfile(email, undefined, role));
-    return { error: null };
+    try {
+      const profile = await createSession({ email, password });
+      persist(profile);
+      return { error: null };
+    } catch (error) {
+      return { error: errorMessage(error) };
+    }
   };
 
   const signUp: AuthContextProps["signUp"] = async ({ email, password, displayName, role }) => {
     if (!email || !password) return { error: "Email and password are required", needsConfirmation: false };
-    persist(buildMockProfile(email, displayName, role));
-    return { error: null, needsConfirmation: false };
+    if (role === "admin") {
+      return { error: "Admin accounts cannot be created here", needsConfirmation: false };
+    }
+    try {
+      const profile = await createAccount({ email, password, displayName, role });
+      persist(profile);
+      return { error: null, needsConfirmation: false };
+    } catch (error) {
+      return { error: errorMessage(error), needsConfirmation: false };
+    }
   };
 
   const signInWithOAuth: AuthContextProps["signInWithOAuth"] = async (provider) => {
-    persist(buildMockProfile(`demo@${provider}.com`, `${provider} Demo`));
-    return { error: null };
+    return { error: `${provider} sign-in is not available yet` };
   };
 
   const requestPasswordReset = async () => ({ error: null });
 
   const signOut = async () => {
-    persist(null);
+    try {
+      await deleteSession();
+    } finally {
+      persist(null);
+    }
     navigate("/auth");
   };
 

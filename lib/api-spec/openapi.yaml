@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: organiser
+    description: Organiser profile operations
+  - name: auth
+    description: Account session operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,97 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /organiser/profile:
+    get:
+      operationId: getOrganiserProfile
+      tags: [organiser]
+      summary: Get the current organiser profile
+      responses:
+        "200":
+          description: Organiser profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganiserProfile"
+        "401":
+          description: Authentication required
+        "403":
+          description: Organiser access required
+        "404":
+          description: Organiser profile has not been saved yet
+    patch:
+      operationId: updateOrganiserProfile
+      tags: [organiser]
+      summary: Update the current organiser profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganiserProfileInput"
+      responses:
+        "200":
+          description: Updated organiser profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganiserProfile"
+        "400":
+          description: Invalid profile
+        "401":
+          description: Authentication required
+        "403":
+          description: Organiser access required
+  /auth/sign-up:
+    post:
+      operationId: createAccount
+      tags: [auth]
+      summary: Create an account and signed session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpInput"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "400":
+          description: Invalid account details
+        "409":
+          description: Email is already registered
+  /auth/sign-in:
+    post:
+      operationId: createSession
+      tags: [auth]
+      summary: Sign in and create a signed session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInInput"
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "400":
+          description: Invalid credentials
+  /auth/sign-out:
+    delete:
+      operationId: deleteSession
+      tags: [auth]
+      summary: Clear the current session
+      responses:
+        "204":
+          description: Signed out
 components:
   schemas:
     HealthStatus:
@@ -33,4 +128,76 @@ components:
           type: string
       required:
         - status
+    OrganiserProfileInput:
+      type: object
+      properties:
+        bio:
+          type: string
+        instagram:
+          type: string
+        twitter:
+          type: string
+      required:
+        - bio
+        - instagram
+        - twitter
+    OrganiserProfile:
+      allOf:
+        - $ref: "#/components/schemas/OrganiserProfileInput"
+    SignInInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+      required: [email, password]
+    SignUpInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+        displayName:
+          type: string
+          minLength: 2
+          maxLength: 120
+        role:
+          type: string
+          enum: [user, organizer]
+      required: [email, password, displayName, role]
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        profilePicture:
+          type: string
+        isOrganizer:
+          type: boolean
+        isAdmin:
+          type: boolean
+        role:
+          type: string
+          enum: [user, organizer]
+        isVerified:
+          type: boolean
+      required:
+        - id
+        - name
+        - email
+        - profilePicture
+        - isOrganizer
+        - isAdmin
+        - role
+        - isVerified
 

@@ -9,6 +9,10 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, Bell, Shield, Instagram, Twitter, CheckCircle2 } from "lucide-react";
+import {
+  getOrganiserProfile,
+  updateOrganiserProfile,
+} from "@workspace/api-client-react";
 import PaymentMethodsCard from "./PaymentMethodsCard";
 
 export interface OrganizerProfile {
@@ -18,46 +22,93 @@ export interface OrganizerProfile {
 }
 
 const PROFILE_KEY = (userId: string) => `tick3t.org-profile.${userId}`;
+const EMPTY_PROFILE: OrganizerProfile = { bio: "", instagram: "", twitter: "" };
+
+const normalizeOrganizerProfile = (value: unknown): OrganizerProfile => {
+  if (!value || typeof value !== "object") return EMPTY_PROFILE;
+  const profile = value as Partial<OrganizerProfile>;
+  return {
+    bio: typeof profile.bio === "string" ? profile.bio : "",
+    instagram: typeof profile.instagram === "string" ? profile.instagram : "",
+    twitter: typeof profile.twitter === "string" ? profile.twitter : "",
+  };
+};
 
 export const loadOrganizerProfile = (userId: string): OrganizerProfile => {
   try {
     const raw = localStorage.getItem(PROFILE_KEY(userId));
-    if (raw) return JSON.parse(raw) as OrganizerProfile;
+    if (raw) return normalizeOrganizerProfile(JSON.parse(raw));
   } catch { /* ignore */ }
-  return { bio: "", instagram: "", twitter: "" };
+  return EMPTY_PROFILE;
 };
 
 export const ORG_PROFILE_UPDATED_EVENT = "tick3t:org-profile-updated";
 
 export const saveOrganizerProfile = (userId: string, profile: OrganizerProfile) => {
-  localStorage.setItem(PROFILE_KEY(userId), JSON.stringify(profile));
+  const normalizedProfile = normalizeOrganizerProfile(profile);
+  localStorage.setItem(PROFILE_KEY(userId), JSON.stringify(normalizedProfile));
   // Dispatch a same-window event so mounted components update immediately.
   // (The native `storage` event is only dispatched to *other* windows/tabs.)
   window.dispatchEvent(
-    new CustomEvent(ORG_PROFILE_UPDATED_EVENT, { detail: { userId, profile } })
+    new CustomEvent(ORG_PROFILE_UPDATED_EVENT, {
+      detail: { userId, profile: normalizedProfile },
+    })
   );
 };
+
+export const fetchOrganizerProfile = async (userId: string): Promise<OrganizerProfile> =>
+  normalizeOrganizerProfile(await getOrganiserProfile());
 
 const OrganizerSettings = () => {
   const { user } = useAuth();
   const [bio, setBio] = useState("");
   const [instagram, setInstagram] = useState("");
   const [twitter, setTwitter] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "offline">("idle");
 
   useEffect(() => {
     if (!user?.id) return;
+    let cancelled = false;
     const profile = loadOrganizerProfile(user.id);
     setBio(profile.bio);
     setInstagram(profile.instagram);
     setTwitter(profile.twitter);
+
+    fetchOrganizerProfile(user.id)
+      .then((remoteProfile) => {
+        if (cancelled) return;
+        setBio(remoteProfile.bio);
+        setInstagram(remoteProfile.instagram);
+        setTwitter(remoteProfile.twitter);
+        saveOrganizerProfile(user.id, remoteProfile);
+      })
+      .catch(() => {
+        // The cached values remain available when the API is offline.
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!user?.id) return;
-    saveOrganizerProfile(user.id, { bio, instagram, twitter });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    const nextProfile = { bio, instagram, twitter };
+    // Update the local cache immediately so the card stays responsive offline.
+    saveOrganizerProfile(user.id, nextProfile);
+    setSaveState("saving");
+
+    try {
+      const persistedProfile = await updateOrganiserProfile(
+        nextProfile,
+      );
+      saveOrganizerProfile(user.id, persistedProfile);
+      setSaveState("saved");
+    } catch {
+      setSaveState("offline");
+    }
+
+    setTimeout(() => setSaveState("idle"), 2500);
   };
 
   return (
@@ -138,16 +189,23 @@ const OrganizerSettings = () => {
             </div>
           </div>
 
-          <Button onClick={handleSave} className="gap-2">
-            {saved ? (
+          <Button onClick={handleSave} disabled={saveState === "saving"} className="gap-2">
+            {saveState === "saving" ? (
+              "Saving…"
+            ) : saveState === "saved" ? (
               <>
                 <CheckCircle2 className="h-4 w-4" />
                 Saved!
               </>
             ) : (
-              "Save Changes"
+              saveState === "offline" ? "Saved locally" : "Save Changes"
             )}
           </Button>
+          {saveState === "offline" && (
+            <p className="text-xs text-muted-foreground">
+              We’ll keep your changes on this device until the API is available.
+            </p>
+          )}
         </CardContent>
       </Card>
 
