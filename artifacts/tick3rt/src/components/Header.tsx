@@ -71,7 +71,16 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
             <span className="relative inline-block h-8 w-[110px]">
-              <img src={tick3tLogo} alt="Tick3t" className={`h-8 w-auto ${logoClass}`} />
+              <img src={tick3tLogo} alt="Tick3t" className={`absolute inset-0 h-8 w-auto ${logoClass}`} />
+              {theme !== "dark" && (
+                <img
+                  src={tick3tLogo}
+                  alt=""
+                  aria-hidden
+                  className="absolute inset-0 h-8 w-auto"
+                  style={{ clipPath: "inset(0 75% 0 0)" }}
+                />
+              )}
             </span>
           </Link>
           {isOrganizer && (
@@ -293,7 +302,18 @@ const Header = () => {
                 {/* Drawer Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
                   <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2">
-                    <img src={tick3tLogo} alt="Tick3t" className={`h-7 w-auto ${logoClass}`} />
+                    <span className="relative inline-block h-7 w-[96px]">
+                      <img src={tick3tLogo} alt="Tick3t" className={`absolute inset-0 h-7 w-auto ${logoClass}`} />
+                      {theme !== "dark" && (
+                        <img
+                          src={tick3tLogo}
+                          alt=""
+                          aria-hidden
+                          className="absolute inset-0 h-7 w-auto"
+                          style={{ clipPath: "inset(0 75% 0 0)" }}
+                        />
+                      )}
+                    </span>
                   </Link>
                 </div>
 

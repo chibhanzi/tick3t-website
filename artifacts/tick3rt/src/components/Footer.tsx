@@ -55,12 +55,21 @@ const Footer = () => {
         <div className="grid gap-10 md:grid-cols-12">
           {/* Brand */}
           <div className="md:col-span-5">
-            <Link to="/" className="inline-flex items-center">
+            <Link to="/" className="relative inline-flex items-center">
               <img
                 src={tick3tLogo}
                 alt="Tick3t"
                 className={`h-9 w-auto transition-opacity duration-300 ${logoClass}`}
               />
+              {mounted && resolvedTheme !== "dark" && (
+                <img
+                  src={tick3tLogo}
+                  alt=""
+                  aria-hidden
+                  className="absolute h-9 w-auto"
+                  style={{ clipPath: "inset(0 75% 0 0)" }}
+                />
+              )}
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Effortless event tickets and digital identities — pay your way,
