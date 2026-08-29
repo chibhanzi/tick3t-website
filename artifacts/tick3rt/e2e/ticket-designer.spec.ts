@@ -359,4 +359,80 @@ test.describe("Ticket Designer — end-to-end flow", () => {
       page.getByTestId("ticket-preview-content-title").evaluate((element) => element.style.left)
     ).toBe(movedLeft);
   });
+
+  test("step 2 — template labels and translucent artwork can be edited, scaled, moved, and restored", async ({ page }) => {
+    await page.locator("#title").fill("Field Day");
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+
+    // Holographic is the final gallery template and contains both a category
+    // label and a native translucent glass panel.
+    await page.getByRole("button", { name: /use this template/i }).last().click();
+    const templateObjectsButton = page.getByRole("button").filter({ hasText: /Template Objects/i });
+    await templateObjectsButton.click();
+
+    await page.getByRole("button", { name: "Category tag" }).click();
+    await page.getByLabel("Template category text").fill("Outdoor Field Day");
+    const category = page.getByTestId("ticket-preview-template-category");
+    await expect(category).toHaveText("Outdoor Field Day");
+
+    await page.getByLabel("Object scale").fill("1.5");
+    await expect(category).toHaveCSS("transform", /matrix\(1\.5/);
+    await page.getByLabel("Template object colour hex").fill("#112233");
+    await expect(category).toHaveCSS("color", "rgb(17, 34, 51)");
+
+    await templateObjectsButton.click();
+    await category.click();
+    await expect(page.getByTestId("selected-template-object-properties")).toBeVisible();
+
+    await page.getByRole("button", { name: "Translucent layer" }).click();
+    const overlay = page.getByTestId("ticket-preview-template-overlay");
+    await expect(overlay).toBeVisible();
+    await page.getByLabel("Width scale").fill("1.2");
+    await page.getByLabel("Height scale").fill("0.8");
+    await page.getByLabel("Template object colour hex").fill("#334455");
+    await page.getByLabel("Template overlay corner radius").fill("20");
+    await expect(overlay).toHaveCSS("background-color", "rgb(51, 68, 85)");
+    await expect(overlay).toHaveCSS("border-radius", "20px");
+    await expect(overlay).toHaveCSS("transform", /matrix\(1\.2, 0, 0, 0\.8/);
+
+    const opacity = page.getByLabel("Template object opacity");
+    const opacityBox = await opacity.boundingBox();
+    expect(opacityBox).not.toBeNull();
+    await page.mouse.click(opacityBox!.x + opacityBox!.width * 0.75, opacityBox!.y + opacityBox!.height / 2);
+    await expect.poll(() => overlay.evaluate((element) => Number(getComputedStyle(element).opacity))).toBeLessThan(1);
+
+    const overlayBox = await overlay.boundingBox();
+    expect(overlayBox).not.toBeNull();
+    await page.mouse.move(overlayBox!.x + overlayBox!.width * 0.9, overlayBox!.y + overlayBox!.height * 0.5);
+    await page.mouse.down();
+    await page.mouse.move(overlayBox!.x + overlayBox!.width * 0.9 + 18, overlayBox!.y + overlayBox!.height * 0.5 + 8);
+    await page.mouse.up();
+    await expect(page.getByLabel("Object X %")).not.toHaveValue("0");
+
+    await expect.poll(() =>
+      page.evaluate(() => JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+        .ticketDesign?.templateObjectsByTemplate?.holographic?.category?.content)
+    ).toBe("Outdoor Field Day");
+
+    await page.reload();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId("ticket-preview-template-category")).toHaveText("Outdoor Field Day");
+    await expect(page.getByTestId("ticket-preview-template-overlay")).toHaveCSS("border-radius", "20px");
+
+    // Per-template edits must not leak into another design, and should return
+    // when the organiser switches back.
+    await page.getByRole("button", { name: "Change" }).click();
+    await page.getByRole("button", { name: /use this template/i }).first().click();
+    await expect(page.getByTestId("ticket-preview-template-category")).toHaveText("Concert & Music");
+    await page.getByRole("button", { name: "Change" }).click();
+    await page.getByRole("button", { name: /use this template/i }).last().click();
+    await expect(page.getByTestId("ticket-preview-template-category")).toHaveText("Outdoor Field Day");
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole("button").filter({ hasText: /Template Objects/i }).click();
+    await page.getByRole("button", { name: "Translucent layer" }).click();
+    await expect(page.getByTestId("selected-template-object-properties")).toBeVisible();
+    await expect(page.getByTestId("ticket-preview-template-overlay")).toBeVisible();
+  });
 });

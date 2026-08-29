@@ -10,7 +10,7 @@ import {
   Check, X, Upload, Wand2, Layers, Sparkles, Plus, Trash2,
 } from "lucide-react";
 import TicketTemplateGallery, { EventTemplate, TICKET_TEMPLATES } from "./TicketTemplateGallery";
-import TicketLivePreview from "./TicketLivePreview";
+import TicketLivePreview, { TemplateObjectId } from "./TicketLivePreview";
 import { CUSTOM_LAYOUTS, getCustomPreview } from "./CustomTicketPreview";
 import { cn } from "@/lib/utils";
 
@@ -163,11 +163,39 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
   const activeBase = selectedTemplate?.name || selectedCustomLayout?.name;
 
   const selectedLayerData = layers.find((l) => l.id === selectedLayer);
+  const selectedTemplateObjectId = selectedObject.startsWith("template:")
+    ? selectedObject.replace("template:", "") as TemplateObjectId
+    : null;
+  const selectedContentId = selectedObject.startsWith("content:")
+    ? selectedObject.replace("content:", "") as "title" | "date" | "location"
+    : null;
+  const hasTemplateOverlay = selectedTemplate?.editableObjects?.includes("overlay") ?? false;
+  const savedTemplateObjects = selectedTemplate
+    ? design?.templateObjectsByTemplate?.[selectedTemplate.id] ?? {}
+    : {};
+  const selectedTemplateObject = selectedTemplateObjectId
+    ? {
+        content: selectedTemplate?.category ?? "Event",
+        position: { x: 0, y: 0 },
+        scale: 1,
+        scaleX: 1,
+        scaleY: 1,
+        color: "",
+        opacity: 1,
+        borderRadius: 8,
+        ...(savedTemplateObjects[selectedTemplateObjectId] ?? {}),
+      }
+    : null;
+  const selectedContentStyle = selectedContentId
+    ? { scale: 1, color: "", opacity: 1, ...(design?.contentStyles?.[selectedContentId] ?? {}) }
+    : null;
   const selectPreviewObject = (objectId: string) => {
     setSelectedObject(objectId);
     if (layers.some((layer) => layer.id === objectId)) {
       setSelectedLayer(objectId);
       setOpenSections((previous) => new Set([...previous, "layers"]));
+    } else if (objectId.startsWith("template:") || objectId.startsWith("content:")) {
+      setOpenSections((previous) => new Set([...previous, "template-objects"]));
     }
   };
   const updateContentPosition = (contentId: "title" | "date" | "location", position: { x: number; y: number }) =>
@@ -175,6 +203,34 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
       contentPositions: {
         ...(design?.contentPositions ?? {}),
         [contentId]: position,
+      },
+    });
+  const updateTemplateObject = (objectId: TemplateObjectId, updates: Record<string, unknown>) => {
+    if (!selectedTemplate) return;
+    patch({
+      templateObjectsByTemplate: {
+        ...(design?.templateObjectsByTemplate ?? {}),
+        [selectedTemplate.id]: {
+          ...(design?.templateObjectsByTemplate?.[selectedTemplate.id] ?? {}),
+          [objectId]: {
+            ...(design?.templateObjectsByTemplate?.[selectedTemplate.id]?.[objectId] ?? {}),
+            ...updates,
+          },
+        },
+      },
+    });
+  };
+  const updateContentStyle = (
+    contentId: "title" | "date" | "location",
+    updates: Record<string, unknown>,
+  ) =>
+    patch({
+      contentStyles: {
+        ...(design?.contentStyles ?? {}),
+        [contentId]: {
+          ...(design?.contentStyles?.[contentId] ?? {}),
+          ...updates,
+        },
       },
     });
 
@@ -453,7 +509,191 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
           </div>
         </Section>
 
-        {/* ⑤ Layer Editor (restored from LayeredTicketDesigner) */}
+        {/* ⑤ Native objects from the selected template */}
+        {selectedTemplate && (
+          <Section
+            id="template-objects"
+            title="Template Objects"
+            icon={Wand2}
+            badge={selectedTemplateObjectId || selectedContentId || undefined}
+            open={openSections.has("template-objects")}
+            onToggle={toggle}
+          >
+            <div className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Select template text and translucent artwork here or directly in the preview.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: "template:category", label: "Category tag" },
+                  { id: "content:title", label: "Event title" },
+                  { id: "content:date", label: "Event date" },
+                  { id: "content:location", label: "Location" },
+                  ...(hasTemplateOverlay ? [{ id: "template:overlay", label: "Translucent layer" }] : []),
+                ].map((item) => (
+                  <Button
+                    key={item.id}
+                    type="button"
+                    size="sm"
+                    variant={selectedObject === item.id ? "default" : "outline"}
+                    className="h-7 text-xs"
+                    onClick={() => selectPreviewObject(item.id)}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </div>
+
+              {selectedTemplateObjectId && selectedTemplateObject && (
+                <div data-testid="selected-template-object-properties" className="rounded-xl border bg-muted/30 p-3 space-y-3">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {selectedTemplateObjectId === "category" ? "Category tag" : "Translucent layer"} properties
+                  </div>
+
+                  {selectedTemplateObjectId === "category" && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Text</Label>
+                      <Input
+                        aria-label="Template category text"
+                        value={selectedTemplateObject.content}
+                        onChange={(event) => updateTemplateObject("category", { content: event.target.value })}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { label: "Object X %", value: selectedTemplateObject.position.x, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { position: { ...selectedTemplateObject.position, x: value } }) },
+                      { label: "Object Y %", value: selectedTemplateObject.position.y, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { position: { ...selectedTemplateObject.position, y: value } }) },
+                      ...(selectedTemplateObjectId === "category"
+                        ? [{ label: "Object scale", value: selectedTemplateObject.scale, change: (value: number) => updateTemplateObject("category", { scale: value }) }]
+                        : [
+                            { label: "Width scale", value: selectedTemplateObject.scaleX, change: (value: number) => updateTemplateObject("overlay", { scaleX: value }) },
+                            { label: "Height scale", value: selectedTemplateObject.scaleY, change: (value: number) => updateTemplateObject("overlay", { scaleY: value }) },
+                          ]),
+                    ].map((field) => (
+                      <div key={field.label} className="space-y-1">
+                        <Label className="text-[10px]">{field.label}</Label>
+                        <Input
+                          aria-label={field.label}
+                          type="number"
+                          step={field.label.includes("scale") ? 0.1 : 1}
+                          min={field.label.includes("scale") ? 0.2 : undefined}
+                          max={field.label.includes("scale") ? 3 : undefined}
+                          value={field.value}
+                          onChange={(event) => field.change(Number(event.target.value))}
+                          className="h-7 text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Colour</Label>
+                      <div className="flex gap-1">
+                        <input
+                          aria-label="Template object colour"
+                          type="color"
+                          value={selectedTemplateObject.color || "#ffffff"}
+                          onChange={(event) => updateTemplateObject(selectedTemplateObjectId, { color: event.target.value })}
+                          className="h-7 w-7 rounded border border-input p-0.5"
+                        />
+                        <Input
+                          aria-label="Template object colour hex"
+                          value={selectedTemplateObject.color || "#ffffff"}
+                          onChange={(event) => updateTemplateObject(selectedTemplateObjectId, { color: event.target.value })}
+                          className="h-7 text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Opacity: {Math.round(selectedTemplateObject.opacity * 100)}%</Label>
+                      <Slider
+                        aria-label="Template object opacity"
+                        value={[selectedTemplateObject.opacity]}
+                        onValueChange={([opacity]) => updateTemplateObject(selectedTemplateObjectId, { opacity })}
+                        min={0}
+                        max={1}
+                        step={0.05}
+                      />
+                    </div>
+                  </div>
+
+                  {selectedTemplateObjectId === "overlay" && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Corner radius</Label>
+                      <Input
+                        aria-label="Template overlay corner radius"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={selectedTemplateObject.borderRadius}
+                        onChange={(event) => updateTemplateObject("overlay", { borderRadius: Number(event.target.value) })}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {selectedContentId && selectedContentStyle && (
+                <div data-testid="selected-content-properties" className="rounded-xl border bg-muted/30 p-3 space-y-3">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {selectedContentId} properties
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Scale</Label>
+                      <Input
+                        aria-label="Content scale"
+                        type="number"
+                        min={0.2}
+                        max={3}
+                        step={0.1}
+                        value={selectedContentStyle.scale}
+                        onChange={(event) => updateContentStyle(selectedContentId, { scale: Number(event.target.value) })}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Colour</Label>
+                      <div className="flex gap-1">
+                        <input
+                          aria-label="Content colour"
+                          type="color"
+                          value={selectedContentStyle.color || "#ffffff"}
+                          onChange={(event) => updateContentStyle(selectedContentId, { color: event.target.value })}
+                          className="h-8 w-8 rounded border border-input p-0.5"
+                        />
+                        <Input
+                          aria-label="Content colour hex"
+                          value={selectedContentStyle.color || "#ffffff"}
+                          onChange={(event) => updateContentStyle(selectedContentId, { color: event.target.value })}
+                          className="h-8 text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Opacity: {Math.round(selectedContentStyle.opacity * 100)}%</Label>
+                    <Slider
+                      aria-label="Content opacity"
+                      value={[selectedContentStyle.opacity]}
+                      onValueChange={([opacity]) => updateContentStyle(selectedContentId, { opacity })}
+                      min={0}
+                      max={1}
+                      step={0.05}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {/* ⑥ Layer Editor (restored from LayeredTicketDesigner) */}
         <Section
           id="layers" title="Layer Editor" icon={Layers}
           badge={layers.length > 1 ? `${layers.length} layers` : undefined}
@@ -673,6 +913,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               onSelectObject={selectPreviewObject}
               onMoveLayer={(layerId, position) => updateLayer(layerId, { position })}
               onMoveContent={updateContentPosition}
+              onMoveTemplateObject={(objectId, position) => updateTemplateObject(objectId, { position })}
             />
 
             {/* Layer preview overlay for active layers */}

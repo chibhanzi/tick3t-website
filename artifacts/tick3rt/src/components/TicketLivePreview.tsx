@@ -14,13 +14,15 @@ export interface TicketLivePreviewProps {
   onSelectObject?: (objectId: string) => void;
   onMoveLayer?: (layerId: string, position: { x: number; y: number }) => void;
   onMoveContent?: (contentId: ContentId, position: { x: number; y: number }) => void;
+  onMoveTemplateObject?: (objectId: TemplateObjectId, position: { x: number; y: number }) => void;
 }
 
 export const DEFAULT_TICKET_POSITION = { x: 7, y: 7, width: 86 };
 type ContentId = "title" | "date" | "location";
+export type TemplateObjectId = "category" | "overlay";
 
 type DragState = {
-  type: "layer" | "content";
+  type: "layer" | "content" | "template";
   id: string;
   pointerId: number;
   startClientX: number;
@@ -102,6 +104,7 @@ const TicketLivePreview = ({
   onSelectObject,
   onMoveLayer,
   onMoveContent,
+  onMoveTemplateObject,
 }: TicketLivePreviewProps) => {
   const ticketRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -125,6 +128,33 @@ const TicketLivePreview = ({
     title: { x: 0, y: 0, ...(design?.contentPositions?.title ?? {}) },
     date: { x: 0, y: 0, ...(design?.contentPositions?.date ?? {}) },
     location: { x: 0, y: 0, ...(design?.contentPositions?.location ?? {}) },
+  };
+  const savedTemplateObjects = template
+    ? design?.templateObjectsByTemplate?.[template.id] ?? {}
+    : {};
+  const templateObjects = {
+    category: {
+      content: template?.category ?? "Event",
+      position: { x: 0, y: 0 },
+      scale: 1,
+      color: "",
+      opacity: 1,
+      ...(savedTemplateObjects.category ?? {}),
+    },
+    overlay: {
+      position: { x: 0, y: 0 },
+      scaleX: 1,
+      scaleY: 1,
+      color: "",
+      opacity: 1,
+      borderRadius: undefined as number | undefined,
+      ...(savedTemplateObjects.overlay ?? {}),
+    },
+  };
+  const contentStyles: Record<ContentId, { scale: number; color?: string; opacity: number }> = {
+    title: { scale: 1, opacity: 1, ...(design?.contentStyles?.title ?? {}) },
+    date: { scale: 1, opacity: 1, ...(design?.contentStyles?.date ?? {}) },
+    location: { scale: 1, opacity: 1, ...(design?.contentStyles?.location ?? {}) },
   };
 
   const previewProps = {
@@ -208,11 +238,52 @@ const TicketLivePreview = ({
       element.style.width = "fit-content";
       element.style.maxWidth = "100%";
       element.style.height = "fit-content";
+      element.style.transform = `scale(${contentStyles[id].scale})`;
+      element.style.transformOrigin = "top left";
+      element.style.color = contentStyles[id].color || element.style.color;
+      element.style.opacity = String(contentStyles[id].opacity);
       element.style.cursor = "grab";
       element.style.touchAction = "none";
       element.style.outline = selectedObjectId === `content:${id}` ? "2px solid rgba(255,255,255,0.95)" : "";
       element.style.outlineOffset = selectedObjectId === `content:${id}` ? "2px" : "";
     });
+
+    if (template) {
+      const existingCategory = root.querySelector<HTMLElement>('[data-testid="ticket-preview-template-category"]');
+      const categoryElement = existingCategory ?? Array.from(root.querySelectorAll<HTMLElement>("*"))
+        .find((element) => {
+          const text = element.textContent?.trim() ?? "";
+          return text === template.category || text.startsWith(`${template.category} ·`);
+        });
+      if (categoryElement) {
+        categoryElement.dataset.testid = "ticket-preview-template-category";
+        categoryElement.textContent = templateObjects.category.content;
+        categoryElement.style.transform = `translate(${root.clientWidth * templateObjects.category.position.x / 100}px, ${root.clientHeight * templateObjects.category.position.y / 100}px) scale(${templateObjects.category.scale})`;
+        categoryElement.style.transformOrigin = "top left";
+        categoryElement.style.color = templateObjects.category.color || categoryElement.style.color;
+        categoryElement.style.opacity = String(templateObjects.category.opacity);
+        categoryElement.style.cursor = "grab";
+        categoryElement.style.touchAction = "none";
+        categoryElement.style.outline = selectedObjectId === "template:category" ? "2px solid rgba(255,255,255,0.95)" : "";
+        categoryElement.style.outlineOffset = selectedObjectId === "template:category" ? "2px" : "";
+      }
+
+      const overlayElement = root.querySelector<HTMLElement>('[data-ticket-template-object="overlay"]');
+      if (overlayElement) {
+        overlayElement.dataset.testid = "ticket-preview-template-overlay";
+        overlayElement.style.transform = `translate(${root.clientWidth * templateObjects.overlay.position.x / 100}px, ${root.clientHeight * templateObjects.overlay.position.y / 100}px) scale(${templateObjects.overlay.scaleX}, ${templateObjects.overlay.scaleY})`;
+        overlayElement.style.transformOrigin = "center";
+        if (templateObjects.overlay.color) overlayElement.style.background = templateObjects.overlay.color;
+        overlayElement.style.opacity = String(templateObjects.overlay.opacity);
+        if (templateObjects.overlay.borderRadius !== undefined) {
+          overlayElement.style.borderRadius = `${templateObjects.overlay.borderRadius}px`;
+        }
+        overlayElement.style.cursor = "grab";
+        overlayElement.style.touchAction = "none";
+        overlayElement.style.outline = selectedObjectId === "template:overlay" ? "2px solid rgba(255,255,255,0.95)" : "";
+        overlayElement.style.outlineOffset = selectedObjectId === "template:overlay" ? "2px" : "";
+      }
+    }
   };
 
   useEffect(() => {
@@ -276,10 +347,42 @@ const TicketLivePreview = ({
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
+  const beginTemplateDrag = (
+    objectId: TemplateObjectId,
+    target: HTMLElement,
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    const position = templateObjects[objectId].position;
+    event.preventDefault();
+    event.stopPropagation();
+    dragRef.current = {
+      type: "template",
+      id: objectId,
+      pointerId: event.pointerId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startX: position.x,
+      startY: position.y,
+      target,
+    };
+    onSelectObject?.(`template:${objectId}`);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
   const handleTicketPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const contentTarget = findContentTarget(event.target, event.clientX, event.clientY);
     if (contentTarget) {
       beginContentDrag(contentTarget.id, contentTarget.element, event);
+      return;
+    }
+    if (event.target instanceof HTMLElement) {
+      const category = event.target.closest<HTMLElement>('[data-testid="ticket-preview-template-category"]');
+      if (category) {
+        beginTemplateDrag("category", category, event);
+        return;
+      }
+      const overlay = event.target.closest<HTMLElement>('[data-ticket-template-object="overlay"]');
+      if (overlay) beginTemplateDrag("overlay", overlay, event);
     }
   };
 
@@ -298,6 +401,11 @@ const TicketLivePreview = ({
       onMoveContent?.(contentId, {
         x: clamp(drag.startX + deltaX, drag.minX ?? -100, drag.maxX ?? 100),
         y: clamp(drag.startY + deltaY, drag.minY ?? -100, drag.maxY ?? 100),
+      });
+    } else if (drag.type === "template") {
+      onMoveTemplateObject?.(drag.id as TemplateObjectId, {
+        x: clamp(drag.startX + deltaX, -100, 100),
+        y: clamp(drag.startY + deltaY, -100, 100),
       });
     } else {
       const layer = design?.layers?.find((item: any) => item.id === drag.id);

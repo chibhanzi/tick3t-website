@@ -20,6 +20,7 @@ export interface EventTemplate {
   accentColor: string;
   textColor: string;
   gradient: string;
+  editableObjects?: Array<"category" | "overlay">;
 }
 
 export interface PreviewProps {
@@ -329,7 +330,7 @@ const SummitPreview = ({
 }: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Big translucent circle */}
-    <div className="absolute" style={{ right: "-5%", top: "-30%", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)" }} />
+    <div data-ticket-template-object="overlay" className="absolute" style={{ right: "-5%", top: "-30%", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)" }} />
     {/* Diagonal band */}
     <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, transparent 45%, rgba(255,255,255,0.07) 45%, rgba(255,255,255,0.07) 55%, transparent 55%)" }} />
     {/* Left info */}
@@ -422,7 +423,7 @@ const AuroraPreview = ({
 }: PreviewProps) => (
   <div className="relative w-full overflow-hidden rounded-lg select-none" style={{ aspectRatio: "7/3", background: "linear-gradient(135deg, #43cea2 0%, #185a9d 50%, #8b5cf6 100%)", fontFamily: "system-ui, sans-serif" }}>
     {/* Curved translucent overlay */}
-    <div className="absolute" style={{ bottom: "-20%", left: "-10%", width: "60%", height: "140%", borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
+    <div data-ticket-template-object="overlay" className="absolute" style={{ bottom: "-20%", left: "-10%", width: "60%", height: "140%", borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
     {/* Flow curves */}
     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 120" preserveAspectRatio="none">
       <path d="M0,40 Q70,80 140,40 Q210,0 280,40" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
@@ -564,7 +565,7 @@ const HolographicPreview = ({
     {/* Shimmer overlay */}
     <div className="absolute inset-0" style={{ background: "repeating-linear-gradient(60deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 10%, rgba(255,255,255,0) 20%)", backgroundSize: "200% 200%" }} />
     {/* White glassmorphism info panel */}
-    <div className="absolute inset-2 right-[30%] rounded-lg flex flex-col justify-between p-2.5" style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.5)" }}>
+    <div data-ticket-template-object="overlay" className="absolute inset-2 right-[30%] rounded-lg flex flex-col justify-between p-2.5" style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.5)" }}>
       <div>
         <div className="text-[8px] tracking-widest uppercase text-white font-semibold" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>Tech &amp; Gaming</div>
         <div className="text-sm font-black text-white mt-0.5 truncate" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>{title}</div>
@@ -595,14 +596,14 @@ export const TICKET_TEMPLATES: (EventTemplate & { Preview: React.FC<PreviewProps
   { id: "neon-carnival",    name: "Neon Carnival",     category: "Festival",         description: "Dark grid + scan-line overlay with a cyan pixel-art stub.",     isPremium: true,  tags: ["festival","rave","cyber"],      primaryColor: "#00f5ff", secondaryColor: "#050510", accentColor: "#00f5ff", textColor: "#ffffff", gradient: "linear-gradient(135deg, #050510, #0d0d2a)",  Preview: NeonCarnivalPreview },
   { id: "slate-pro",        name: "Slate Pro",         category: "Corporate",        description: "Navy/white split panel with blue accent bar — clean and sharp.", isPremium: false, tags: ["corporate","clean","split"],    primaryColor: "#3b82f6", secondaryColor: "#1e293b", accentColor: "#3b82f6", textColor: "#ffffff", gradient: "linear-gradient(135deg, #1e293b, #334155)",  Preview: SlateProPreview },
   { id: "executive",        name: "Executive",         category: "Corporate",        description: "Full black with art-deco gold corner ornaments and fine rules.", isPremium: true,  tags: ["corporate","luxury","deco"],    primaryColor: "#c0a060", secondaryColor: "#0a0a0a", accentColor: "#c0a060", textColor: "#ffffff", gradient: "linear-gradient(135deg, #0a0a0a, #1c1c1c)",  Preview: ExecutivePreview },
-  { id: "summit",           name: "Summit",            category: "Conference",       description: "Purple gradient with translucent circle and diagonal band.",    isPremium: false, tags: ["conference","tech","modern"],   primaryColor: "#667eea", secondaryColor: "#764ba2", accentColor: "#a78bfa", textColor: "#ffffff", gradient: "linear-gradient(135deg, #667eea, #764ba2)",  Preview: SummitPreview },
+  { id: "summit",           name: "Summit",            category: "Conference",       description: "Purple gradient with translucent circle and diagonal band.",    isPremium: false, tags: ["conference","tech","modern"],   primaryColor: "#667eea", secondaryColor: "#764ba2", accentColor: "#a78bfa", textColor: "#ffffff", gradient: "linear-gradient(135deg, #667eea, #764ba2)", editableObjects: ["category", "overlay"], Preview: SummitPreview },
   { id: "keynote",          name: "Keynote",           category: "Conference",       description: "Bold blue with oversized ghost numeral and labelled gate stub.", isPremium: false, tags: ["conference","keynote","bold"],  primaryColor: "#005c97", secondaryColor: "#003f6b", accentColor: "#60a5fa", textColor: "#ffffff", gradient: "linear-gradient(160deg, #005c97, #003f6b)",  Preview: KeynotePreview },
   { id: "gallery-opening",  name: "Gallery Opening",  category: "Art & Culture",    description: "Bright white with a thick left stripe — gallery card minimalism.", isPremium: false, tags: ["art","gallery","minimal"],   primaryColor: "#1a1a1a", secondaryColor: "#fafaf9", accentColor: "#1a1a1a", textColor: "#1a1a1a", gradient: "linear-gradient(135deg, #fafaf9, #f0ede8)",  Preview: GalleryOpeningPreview },
-  { id: "aurora",           name: "Aurora",            category: "Art & Culture",    description: "Teal-to-purple gradient with flowing SVG curves and glass stub.", isPremium: true, tags: ["art","theatre","flowing"],     primaryColor: "#43cea2", secondaryColor: "#185a9d", accentColor: "#43cea2", textColor: "#ffffff", gradient: "linear-gradient(135deg, #43cea2, #185a9d, #8b5cf6)", Preview: AuroraPreview },
+  { id: "aurora",           name: "Aurora",            category: "Art & Culture",    description: "Teal-to-purple gradient with flowing SVG curves and glass stub.", isPremium: true, tags: ["art","theatre","flowing"],     primaryColor: "#43cea2", secondaryColor: "#185a9d", accentColor: "#43cea2", textColor: "#ffffff", gradient: "linear-gradient(135deg, #43cea2, #185a9d, #8b5cf6)", editableObjects: ["category", "overlay"], Preview: AuroraPreview },
   { id: "gala-noir",        name: "Gala Noir",         category: "Charity & Gala",   description: "Black with vertical gold art-deco lines and a double-frame border.", isPremium: true, tags: ["gala","charity","deco"],  primaryColor: "#c0a060", secondaryColor: "#080808", accentColor: "#c0a060", textColor: "#ffffff", gradient: "linear-gradient(135deg, #0a0a0a, #1a1a1a)",  Preview: GalaNoirPreview },
   { id: "blossom",          name: "Blossom",           category: "Charity & Gala",   description: "Soft peach gradient with floral circles and wavy SVG hem.",      isPremium: false, tags: ["gala","garden","delicate"],  primaryColor: "#ec4899", secondaryColor: "#ffecd2", accentColor: "#ec4899", textColor: "#4a1942", gradient: "linear-gradient(135deg, #ffecd2, #fcb69f, #fbc2eb)", Preview: BlossomPreview },
   { id: "cybercore",        name: "Cybercore",         category: "Tech & Gaming",    description: "Black with hex dot grid, green scan-line and corner brackets.",  isPremium: false, tags: ["gaming","esports","hex"],       primaryColor: "#00ff88", secondaryColor: "#030a03", accentColor: "#00ff88", textColor: "#ffffff", gradient: "linear-gradient(135deg, #030a03, #001a0a)",  Preview: CybercorePreview },
-  { id: "holographic",      name: "Holographic",       category: "Tech & Gaming",    description: "Rainbow iridescent with glassmorphism info card floating above.", isPremium: true, tags: ["tech","rainbow","glass"],      primaryColor: "#ff0080", secondaryColor: "#40e0d0", accentColor: "#40e0d0", textColor: "#ffffff", gradient: "linear-gradient(135deg, #ff0080, #ff8c00, #40e0d0, #ee82ee)", Preview: HolographicPreview },
+  { id: "holographic",      name: "Holographic",       category: "Tech & Gaming",    description: "Rainbow iridescent with glassmorphism info card floating above.", isPremium: true, tags: ["tech","rainbow","glass"],      primaryColor: "#ff0080", secondaryColor: "#40e0d0", accentColor: "#40e0d0", textColor: "#ffffff", gradient: "linear-gradient(135deg, #ff0080, #ff8c00, #40e0d0, #ee82ee)", editableObjects: ["category", "overlay"], Preview: HolographicPreview },
 ];
 
 // ─────────────────────────────────────────────
