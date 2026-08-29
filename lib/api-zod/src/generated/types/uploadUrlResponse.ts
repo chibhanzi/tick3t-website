@@ -5,6 +5,9 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { OrganiserProfileInput } from './organiserProfileInput';
 
-export type OrganiserProfile = OrganiserProfileInput;
+export interface UploadUrlResponse {
+  /** @minLength 1 */
+  uploadURL: string;
+  objectPath: string;
+}

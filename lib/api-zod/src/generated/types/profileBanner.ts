@@ -5,6 +5,10 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { OrganiserProfileInput } from './organiserProfileInput';
 
-export type OrganiserProfile = OrganiserProfileInput;
+export interface ProfileBanner {
+  /** @nullable */
+  bannerPath: string | null;
+  /** @minimum 0 */
+  revision: number;
+}

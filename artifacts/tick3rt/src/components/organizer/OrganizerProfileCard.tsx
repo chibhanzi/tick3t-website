@@ -13,8 +13,9 @@ import {
 import ProfileBanner from "@/components/profile/ProfileBanner";
 import {
   loadProfileBanner,
+  loadSyncedProfileBanner,
   PROFILE_BANNER_UPDATED_EVENT,
-  saveProfileBanner,
+  saveSyncedProfileBanner,
 } from "@/lib/profileBanners";
 
 interface OrganizerProfileCardProps {
@@ -103,6 +104,10 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
     }
 
     setBannerUrl(loadProfileBanner(userId));
+    let cancelled = false;
+    loadSyncedProfileBanner(userId).then((syncedBanner) => {
+      if (!cancelled) setBannerUrl(syncedBanner);
+    });
 
     const onSameWindow = (event: Event) => {
       const detail = (event as CustomEvent<{ userId: string; bannerUrl: string }>).detail;
@@ -117,15 +122,21 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
     window.addEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
     window.addEventListener("storage", onStorage);
     return () => {
+      cancelled = true;
       window.removeEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
       window.removeEventListener("storage", onStorage);
     };
   }, [userId]);
 
-  const handleBannerChange = (nextBannerUrl: string) => {
-    const saved = saveProfileBanner(userId, nextBannerUrl);
-    if (saved) setBannerUrl(nextBannerUrl);
-    return saved;
+  const handleBannerChange = async (nextBannerUrl: string, file?: File) => {
+    setBannerUrl(nextBannerUrl);
+    const syncedBanner = await saveSyncedProfileBanner(
+      userId,
+      nextBannerUrl,
+      file,
+    );
+    setBannerUrl(syncedBanner);
+    return true;
   };
 
   const handle = email?.split("@")[0]?.replace(/[^a-zA-Z0-9_]/g, "") || "organiser";

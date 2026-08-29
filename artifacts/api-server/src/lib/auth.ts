@@ -103,7 +103,7 @@ export const clearSessionCookie = (res: Response) => {
   });
 };
 
-export const requireOrganizer = (
+export const requireAuthenticated = (
   req: Request,
   res: Response,
 ): SessionIdentity | null => {
@@ -114,6 +114,16 @@ export const requireOrganizer = (
     res.status(401).json({ error: "Authentication required" });
     return null;
   }
+
+  return identity;
+};
+
+export const requireOrganizer = (
+  req: Request,
+  res: Response,
+): SessionIdentity | null => {
+  const identity = requireAuthenticated(req, res);
+  if (!identity) return null;
   if (identity.role !== "organizer") {
     res.status(403).json({ error: "Organiser access required" });
     return null;

@@ -18,8 +18,9 @@ import FollowButton from "@/components/FollowButton";
 import ProfileBanner from "@/components/profile/ProfileBanner";
 import {
   loadProfileBanner,
+  loadSyncedProfileBanner,
   PROFILE_BANNER_UPDATED_EVENT,
-  saveProfileBanner,
+  saveSyncedProfileBanner,
 } from "@/lib/profileBanners";
 import {
   Calendar, BadgeCheck, Users, ListOrdered, MapPin,
@@ -77,6 +78,10 @@ const UserDashboard = () => {
     }
 
     setBannerUrl(loadProfileBanner(userId));
+    let cancelled = false;
+    loadSyncedProfileBanner(userId).then((syncedBanner) => {
+      if (!cancelled) setBannerUrl(syncedBanner);
+    });
 
     const onSameWindow = (event: Event) => {
       const detail = (event as CustomEvent<{ userId: string; bannerUrl: string }>).detail;
@@ -91,15 +96,23 @@ const UserDashboard = () => {
     window.addEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
     window.addEventListener("storage", onStorage);
     return () => {
+      cancelled = true;
       window.removeEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
       window.removeEventListener("storage", onStorage);
     };
   }, [user?.id]);
 
-  const handleBannerChange = (nextBannerUrl: string) => {
-    const saved = saveProfileBanner(user?.id ?? "", nextBannerUrl);
-    if (saved) setBannerUrl(nextBannerUrl);
-    return saved;
+  const handleBannerChange = async (nextBannerUrl: string, file?: File) => {
+    const userId = user?.id ?? "";
+    if (!userId) return false;
+    setBannerUrl(nextBannerUrl);
+    const syncedBanner = await saveSyncedProfileBanner(
+      userId,
+      nextBannerUrl,
+      file,
+    );
+    setBannerUrl(syncedBanner);
+    return true;
   };
 
   return (

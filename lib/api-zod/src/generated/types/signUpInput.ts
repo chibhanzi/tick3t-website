@@ -5,19 +5,19 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { SignUpInputRole } from "./signUpInputRole";
+import type { SignUpInputRole } from './signUpInputRole';
 
 export interface SignUpInput {
   email: string;
   /**
-   * @minLength 8
-   * @maxLength 72
-   */
+     * @minLength 8
+     * @maxLength 72
+     */
   password: string;
   /**
-   * @minLength 2
-   * @maxLength 120
-   */
+     * @minLength 2
+     * @maxLength 120
+     */
   displayName: string;
   role: SignUpInputRole;
 }

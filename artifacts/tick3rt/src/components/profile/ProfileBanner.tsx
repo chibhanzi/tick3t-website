@@ -6,7 +6,10 @@ import { PROFILE_BANNER_MAX_BYTES } from "@/lib/profileBanners";
 interface ProfileBannerProps {
   bannerUrl: string;
   editable?: boolean;
-  onBannerChange: (bannerUrl: string) => void | boolean;
+  onBannerChange: (
+    bannerUrl: string,
+    file?: File,
+  ) => void | boolean | Promise<void | boolean>;
   fallback: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -30,6 +33,7 @@ const ProfileBanner = ({
 }: ProfileBannerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const openPicker = () => inputRef.current?.click();
 
@@ -50,29 +54,43 @@ const ProfileBanner = ({
 
     const reader = new FileReader();
     reader.onerror = () => setError("We couldn't read that image. Please try another file.");
-    reader.onload = () => {
+    reader.onload = async () => {
       if (typeof reader.result !== "string") {
         setError("We couldn't read that image. Please try another file.");
         return;
       }
 
-      const saved = onBannerChange(reader.result);
-      if (saved === false) {
-        setError("We couldn't save that banner on this device. Try a smaller image.");
-        return;
+      setIsSaving(true);
+      try {
+        const saved = await onBannerChange(reader.result, file);
+        if (saved === false) {
+          setError("We couldn't save that banner on this device. Try a smaller image.");
+          return;
+        }
+        setError("");
+      } catch {
+        setError("We couldn't save that banner. Please try again.");
+      } finally {
+        setIsSaving(false);
       }
-      setError("");
     };
     reader.readAsDataURL(file);
   };
 
-  const removeBanner = () => {
-    const saved = onBannerChange("");
-    if (saved === false) {
+  const removeBanner = async () => {
+    setIsSaving(true);
+    try {
+      const saved = await onBannerChange("");
+      if (saved === false) {
+        setError("We couldn't remove the banner. Please try again.");
+        return;
+      }
+      setError("");
+    } catch {
       setError("We couldn't remove the banner. Please try again.");
-      return;
+    } finally {
+      setIsSaving(false);
     }
-    setError("");
   };
 
   return (
@@ -112,6 +130,7 @@ const ProfileBanner = ({
               size="sm"
               variant="secondary"
               onClick={openPicker}
+              disabled={isSaving}
               className="h-8 gap-1.5 border border-white/30 bg-white/90 px-2.5 text-xs text-slate-900 shadow-sm hover:bg-white"
             >
               {bannerUrl ? <Pencil className="h-3.5 w-3.5" /> : <ImagePlus className="h-3.5 w-3.5" />}
@@ -123,6 +142,7 @@ const ProfileBanner = ({
                 size="icon"
                 variant="secondary"
                 onClick={removeBanner}
+                disabled={isSaving}
                 aria-label="Remove profile banner"
                 className="h-8 w-8 border border-white/30 bg-black/35 text-white shadow-sm hover:bg-black/50 hover:text-white"
               >

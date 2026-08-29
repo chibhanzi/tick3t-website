@@ -19,5 +19,11 @@ export const runDatabaseMigrations = async (): Promise<void> => {
       twitter text NOT NULL DEFAULT '',
       updated_at timestamptz NOT NULL DEFAULT now()
     );
+
+    ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS banner_path text;
+
+    ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS banner_revision integer NOT NULL DEFAULT 0;
   `);
 };

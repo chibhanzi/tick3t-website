@@ -14,6 +14,10 @@ tags:
     description: Organiser profile operations
   - name: auth
     description: Account session operations
+  - name: profile
+    description: Authenticated user profile operations
+  - name: storage
+    description: Persistent object upload and serving operations
 paths:
   /healthz:
     get:
@@ -69,6 +73,88 @@ paths:
           description: Authentication required
         "403":
           description: Organiser access required
+  /profile/banner:
+    get:
+      operationId: getProfileBanner
+      tags: [profile]
+      summary: Get the current user's profile banner
+      responses:
+        "200":
+          description: Current profile banner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileBanner"
+        "401":
+          description: Authentication required
+    patch:
+      operationId: updateProfileBanner
+      tags: [profile]
+      summary: Update the current user's profile banner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileBannerUpdate"
+      responses:
+        "200":
+          description: Updated profile banner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileBanner"
+        "400":
+          description: Invalid banner object
+        "401":
+          description: Authentication required
+        "409":
+          description: Banner changed in another session
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a presigned profile banner upload URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadUrlRequest"
+      responses:
+        "200":
+          description: Presigned upload URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadUrlResponse"
+        "400":
+          description: Invalid upload metadata
+        "401":
+          description: Authentication required
+  /storage/objects/{objectPath}:
+    get:
+      operationId: getStorageObject
+      tags: [storage]
+      summary: Serve a saved profile banner
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Profile banner image
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Object not found
+        "401":
+          description: Authentication required
   /auth/sign-up:
     post:
       operationId: createAccount
@@ -144,6 +230,61 @@ components:
     OrganiserProfile:
       allOf:
         - $ref: "#/components/schemas/OrganiserProfileInput"
+    ProfileBanner:
+      type: object
+      properties:
+        bannerPath:
+          type:
+            - string
+            - "null"
+        revision:
+          type: integer
+          minimum: 0
+      required:
+        - bannerPath
+        - revision
+    ProfileBannerUpdate:
+      type: object
+      properties:
+        bannerPath:
+          type:
+            - string
+            - "null"
+        expectedRevision:
+          type: integer
+          minimum: 0
+      required:
+        - bannerPath
+        - expectedRevision
+    UploadUrlRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        size:
+          type: integer
+          minimum: 1
+          maximum: 2097152
+        contentType:
+          type: string
+          pattern: "^image/"
+      required:
+        - name
+        - size
+        - contentType
+    UploadUrlResponse:
+      type: object
+      properties:
+        uploadURL:
+          type: string
+          minLength: 1
+        objectPath:
+          type: string
+      required:
+        - uploadURL
+        - objectPath
     SignInInput:
       type: object
       properties:

@@ -6,11 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from "./authUser";
-export * from "./authUserRole";
-export * from "./healthStatus";
-export * from "./organiserProfile";
-export * from "./organiserProfileInput";
-export * from "./signInInput";
-export * from "./signUpInput";
-export * from "./signUpInputRole";
+export * from './authUser';
+export * from './authUserRole';
+export * from './healthStatus';
+export * from './organiserProfile';
+export * from './organiserProfileInput';
+export * from './profileBanner';
+export * from './profileBannerUpdate';
+export * from './signInInput';
+export * from './signUpInput';
+export * from './signUpInputRole';
+export * from './uploadUrlRequest';
+export * from './uploadUrlResponse';

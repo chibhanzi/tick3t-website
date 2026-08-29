@@ -6,9 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type AuthUserRole = (typeof AuthUserRole)[keyof typeof AuthUserRole];
+export type AuthUserRole = typeof AuthUserRole[keyof typeof AuthUserRole];
+
 
 export const AuthUserRole = {
-  user: "user",
-  organizer: "organizer",
+  user: 'user',
+  organizer: 'organizer',
 } as const;

@@ -5,39 +5,113 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from "zod";
+import * as zod from 'zod';
+
 
 /**
  * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
-  status: zod.string(),
-});
+  "status": zod.string()
+})
+
 
 /**
  * @summary Get the current organiser profile
  */
 export const GetOrganiserProfileResponse = zod.object({
-  bio: zod.string(),
-  instagram: zod.string(),
-  twitter: zod.string(),
-});
+  "bio": zod.string(),
+  "instagram": zod.string(),
+  "twitter": zod.string()
+})
+
 
 /**
  * @summary Update the current organiser profile
  */
 export const UpdateOrganiserProfileBody = zod.object({
-  bio: zod.string(),
-  instagram: zod.string(),
-  twitter: zod.string(),
-});
+  "bio": zod.string(),
+  "instagram": zod.string(),
+  "twitter": zod.string()
+})
 
 export const UpdateOrganiserProfileResponse = zod.object({
-  bio: zod.string(),
-  instagram: zod.string(),
-  twitter: zod.string(),
-});
+  "bio": zod.string(),
+  "instagram": zod.string(),
+  "twitter": zod.string()
+})
+
+
+/**
+ * @summary Get the current user's profile banner
+ */
+export const getProfileBannerResponseRevisionMin = 0;
+
+
+
+export const GetProfileBannerResponse = zod.object({
+  "bannerPath": zod.string().nullable(),
+  "revision": zod.number().min(getProfileBannerResponseRevisionMin)
+})
+
+
+/**
+ * @summary Update the current user's profile banner
+ */
+export const updateProfileBannerBodyExpectedRevisionMin = 0;
+
+
+
+export const UpdateProfileBannerBody = zod.object({
+  "bannerPath": zod.string().nullable(),
+  "expectedRevision": zod.number().min(updateProfileBannerBodyExpectedRevisionMin)
+})
+
+export const updateProfileBannerResponseRevisionMin = 0;
+
+
+
+export const UpdateProfileBannerResponse = zod.object({
+  "bannerPath": zod.string().nullable(),
+  "revision": zod.number().min(updateProfileBannerResponseRevisionMin)
+})
+
+
+/**
+ * @summary Request a presigned profile banner upload URL
+ */
+export const requestUploadUrlBodyNameMax = 255;
+
+export const requestUploadUrlBodySizeMax = 2097152;
+
+export const requestUploadUrlBodyContentTypeRegExp = new RegExp('^image');
+
+
+export const RequestUploadUrlBody = zod.object({
+  "name": zod.string().min(1).max(requestUploadUrlBodyNameMax),
+  "size": zod.number().min(1).max(requestUploadUrlBodySizeMax),
+  "contentType": zod.string().regex(requestUploadUrlBodyContentTypeRegExp)
+})
+
+
+
+
+export const RequestUploadUrlResponse = zod.object({
+  "uploadURL": zod.string().min(1),
+  "objectPath": zod.string()
+})
+
+
+/**
+ * @summary Serve a saved profile banner
+ */
+export const GetStorageObjectParams = zod.object({
+  "objectPath": zod.coerce.string()
+})
+
+export const GetStorageObjectResponse = zod.unknown()
+
 
 /**
  * @summary Create an account and signed session
@@ -48,29 +122,26 @@ export const createAccountBodyPasswordMax = 72;
 export const createAccountBodyDisplayNameMin = 2;
 export const createAccountBodyDisplayNameMax = 120;
 
+
+
 export const CreateAccountBody = zod.object({
-  email: zod.string(),
-  password: zod
-    .string()
-    .min(createAccountBodyPasswordMin)
-    .max(createAccountBodyPasswordMax),
-  displayName: zod
-    .string()
-    .min(createAccountBodyDisplayNameMin)
-    .max(createAccountBodyDisplayNameMax),
-  role: zod.enum(["user", "organizer"]),
-});
+  "email": zod.string(),
+  "password": zod.string().min(createAccountBodyPasswordMin).max(createAccountBodyPasswordMax),
+  "displayName": zod.string().min(createAccountBodyDisplayNameMin).max(createAccountBodyDisplayNameMax),
+  "role": zod.enum(['user', 'organizer'])
+})
 
 export const CreateAccountResponse = zod.object({
-  id: zod.string(),
-  name: zod.string(),
-  email: zod.string(),
-  profilePicture: zod.string(),
-  isOrganizer: zod.boolean(),
-  isAdmin: zod.boolean(),
-  role: zod.enum(["user", "organizer"]),
-  isVerified: zod.boolean(),
-});
+  "id": zod.string(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "profilePicture": zod.string(),
+  "isOrganizer": zod.boolean(),
+  "isAdmin": zod.boolean(),
+  "role": zod.enum(['user', 'organizer']),
+  "isVerified": zod.boolean()
+})
+
 
 /**
  * @summary Sign in and create a signed session
@@ -78,26 +149,26 @@ export const CreateAccountResponse = zod.object({
 export const createSessionBodyPasswordMin = 8;
 export const createSessionBodyPasswordMax = 72;
 
+
+
 export const CreateSessionBody = zod.object({
-  email: zod.string(),
-  password: zod
-    .string()
-    .min(createSessionBodyPasswordMin)
-    .max(createSessionBodyPasswordMax),
-});
+  "email": zod.string(),
+  "password": zod.string().min(createSessionBodyPasswordMin).max(createSessionBodyPasswordMax)
+})
 
 export const CreateSessionResponse = zod.object({
-  id: zod.string(),
-  name: zod.string(),
-  email: zod.string(),
-  profilePicture: zod.string(),
-  isOrganizer: zod.boolean(),
-  isAdmin: zod.boolean(),
-  role: zod.enum(["user", "organizer"]),
-  isVerified: zod.boolean(),
-});
+  "id": zod.string(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "profilePicture": zod.string(),
+  "isOrganizer": zod.boolean(),
+  "isAdmin": zod.boolean(),
+  "role": zod.enum(['user', 'organizer']),
+  "isVerified": zod.boolean()
+})
+
 
 /**
  * @summary Clear the current session
  */
-export const DeleteSessionResponse = zod.void();
+export const DeleteSessionResponse = zod.void()

@@ -17,43 +17,79 @@ export interface OrganiserProfileInput {
 
 export type OrganiserProfile = OrganiserProfileInput;
 
+export interface ProfileBanner {
+  /** @nullable */
+  bannerPath: string | null;
+  /** @minimum 0 */
+  revision: number;
+}
+
+export interface ProfileBannerUpdate {
+  /** @nullable */
+  bannerPath: string | null;
+  /** @minimum 0 */
+  expectedRevision: number;
+}
+
+export interface UploadUrlRequest {
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 2097152
+     */
+  size: number;
+  /** @pattern ^image/ */
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  /** @minLength 1 */
+  uploadURL: string;
+  objectPath: string;
+}
+
 export interface SignInInput {
   email: string;
   /**
-   * @minLength 8
-   * @maxLength 72
-   */
+     * @minLength 8
+     * @maxLength 72
+     */
   password: string;
 }
 
-export type SignUpInputRole =
-  (typeof SignUpInputRole)[keyof typeof SignUpInputRole];
+export type SignUpInputRole = typeof SignUpInputRole[keyof typeof SignUpInputRole];
+
 
 export const SignUpInputRole = {
-  user: "user",
-  organizer: "organizer",
+  user: 'user',
+  organizer: 'organizer',
 } as const;
 
 export interface SignUpInput {
   email: string;
   /**
-   * @minLength 8
-   * @maxLength 72
-   */
+     * @minLength 8
+     * @maxLength 72
+     */
   password: string;
   /**
-   * @minLength 2
-   * @maxLength 120
-   */
+     * @minLength 2
+     * @maxLength 120
+     */
   displayName: string;
   role: SignUpInputRole;
 }
 
-export type AuthUserRole = (typeof AuthUserRole)[keyof typeof AuthUserRole];
+export type AuthUserRole = typeof AuthUserRole[keyof typeof AuthUserRole];
+
 
 export const AuthUserRole = {
-  user: "user",
-  organizer: "organizer",
+  user: 'user',
+  organizer: 'organizer',
 } as const;
 
 export interface AuthUser {

@@ -1,0 +1,1 @@
+- [App Storage provisioning](app-storage-provisioning.md) — retry one generic internal setup failure once; explicit suspension errors use budget handling.

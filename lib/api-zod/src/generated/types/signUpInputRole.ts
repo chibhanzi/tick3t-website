@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type SignUpInputRole =
-  (typeof SignUpInputRole)[keyof typeof SignUpInputRole];
+export type SignUpInputRole = typeof SignUpInputRole[keyof typeof SignUpInputRole];
+
 
 export const SignUpInputRole = {
-  user: "user",
-  organizer: "organizer",
+  user: 'user',
+  organizer: 'organizer',
 } as const;
