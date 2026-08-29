@@ -13,7 +13,6 @@ export interface TicketLivePreviewProps {
   selectedObjectId?: string;
   onSelectObject?: (objectId: string) => void;
   onMoveLayer?: (layerId: string, position: { x: number; y: number }) => void;
-  onMoveTicket?: (position: { x: number; y: number; width: number }) => void;
   onMoveContent?: (contentId: ContentId, position: { x: number; y: number }) => void;
 }
 
@@ -21,14 +20,13 @@ export const DEFAULT_TICKET_POSITION = { x: 7, y: 7, width: 86 };
 type ContentId = "title" | "date" | "location";
 
 type DragState = {
-  type: "ticket" | "layer" | "content";
+  type: "layer" | "content";
   id: string;
   pointerId: number;
   startClientX: number;
   startClientY: number;
   startX: number;
   startY: number;
-  startWidth?: number;
   minX?: number;
   maxX?: number;
   minY?: number;
@@ -103,10 +101,8 @@ const TicketLivePreview = ({
   selectedObjectId,
   onSelectObject,
   onMoveLayer,
-  onMoveTicket,
   onMoveContent,
 }: TicketLivePreviewProps) => {
-  const canvasRef = useRef<HTMLDivElement>(null);
   const ticketRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const template = design?.templateId
@@ -209,6 +205,9 @@ const TicketLivePreview = ({
       element.style.position = "relative";
       element.style.left = `${contentPositions[id].x}%`;
       element.style.top = `${contentPositions[id].y}%`;
+      element.style.width = "fit-content";
+      element.style.maxWidth = "100%";
+      element.style.height = "fit-content";
       element.style.cursor = "grab";
       element.style.touchAction = "none";
       element.style.outline = selectedObjectId === `content:${id}` ? "2px solid rgba(255,255,255,0.95)" : "";
@@ -221,15 +220,13 @@ const TicketLivePreview = ({
   }, [design, selectedObjectId, eventTitle, eventDate, eventLocation]);
 
   const beginDrag = (
-    type: DragState["type"],
+    type: "layer",
     id: string,
     event: React.PointerEvent<HTMLDivElement>,
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    const position = type === "ticket"
-      ? ticketPosition
-      : design?.layers?.find((layer: any) => layer.id === id)?.position ?? { x: 0, y: 0 };
+    const position = design?.layers?.find((layer: any) => layer.id === id)?.position ?? { x: 0, y: 0 };
 
     dragRef.current = {
       type,
@@ -239,7 +236,7 @@ const TicketLivePreview = ({
       startClientY: event.clientY,
       startX: position.x ?? 0,
       startY: position.y ?? 0,
-      startWidth: type === "ticket" ? ticketPosition.width : undefined,
+      target: event.currentTarget,
     };
     onSelectObject?.(id);
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -283,9 +280,7 @@ const TicketLivePreview = ({
     const contentTarget = findContentTarget(event.target, event.clientX, event.clientY);
     if (contentTarget) {
       beginContentDrag(contentTarget.id, contentTarget.element, event);
-      return;
     }
-    beginDrag("ticket", "ticket", event);
   };
 
   const moveDrag = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -293,21 +288,12 @@ const TicketLivePreview = ({
     if (!drag || event.pointerId !== drag.pointerId) return;
     event.preventDefault();
     event.stopPropagation();
-    const rect = drag.type === "ticket"
-      ? canvasRef.current?.getBoundingClientRect()
-      : ticketRef.current?.getBoundingClientRect();
+    const rect = ticketRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0 || rect.height === 0) return;
 
     const deltaX = ((event.clientX - drag.startClientX) / rect.width) * 100;
     const deltaY = ((event.clientY - drag.startClientY) / rect.height) * 100;
-    if (drag.type === "ticket") {
-      const width = drag.startWidth ?? DEFAULT_TICKET_POSITION.width;
-      onMoveTicket?.({
-        x: clamp(drag.startX + deltaX, 0, 100 - width),
-        y: clamp(drag.startY + deltaY, 0, 100 - width),
-        width,
-      });
-    } else if (drag.type === "content") {
+    if (drag.type === "content") {
       const contentId = drag.id.replace("content:", "") as ContentId;
       onMoveContent?.(contentId, {
         x: clamp(drag.startX + deltaX, drag.minX ?? -100, drag.maxX ?? 100),
@@ -315,8 +301,9 @@ const TicketLivePreview = ({
       });
     } else {
       const layer = design?.layers?.find((item: any) => item.id === drag.id);
-      const width = layer?.size?.width ?? 50;
-      const height = layer?.size?.height ?? 20;
+      const layerRect = drag.target?.getBoundingClientRect();
+      const width = layerRect ? (layerRect.width / rect.width) * 100 : (layer?.size?.width ?? 50);
+      const height = layerRect ? (layerRect.height / rect.height) * 100 : (layer?.size?.height ?? 20);
       onMoveLayer?.(drag.id, {
         x: clamp(drag.startX + deltaX, 0, 100 - width),
         y: clamp(drag.startY + deltaY, 0, 100 - height),
@@ -336,7 +323,6 @@ const TicketLivePreview = ({
 
   return (
     <div
-      ref={canvasRef}
       data-testid="ticket-live-preview-canvas"
       className={cn("relative overflow-hidden rounded-xl border-2 border-dashed border-border/70 bg-muted/20 shadow-inner", animClass, className)}
       style={{ aspectRatio: "7/3", touchAction: "pan-y" }}
@@ -346,15 +332,14 @@ const TicketLivePreview = ({
         data-testid="ticket-preview-object"
         className={cn(
           "absolute select-none",
-          selectedObjectId === "ticket" && "rounded-xl ring-2 ring-primary ring-offset-2 ring-offset-background",
         )}
         style={{
           left: `${ticketPosition.x}%`,
           top: `${ticketPosition.y}%`,
           width: `${ticketPosition.width}%`,
           aspectRatio: "7/3",
-          touchAction: "none",
-          cursor: "grab",
+          touchAction: "pan-y",
+          cursor: "default",
         }}
         onPointerDown={handleTicketPointerDown}
         onPointerMove={moveDrag}
@@ -455,7 +440,6 @@ const TicketLivePreview = ({
                 position: "absolute",
                 left:    `${layer.position?.x ?? 0}%`,
                 top:     `${layer.position?.y ?? 0}%`,
-                width:   `${layer.size?.width ?? 50}%`,
                 opacity: layer.style?.opacity ?? 1,
                 transform: `rotate(${layer.style?.rotation ?? 0}deg)`,
                 zIndex: (layer.zIndex ?? 1) + 20,
@@ -476,7 +460,11 @@ const TicketLivePreview = ({
                       color: layer.style?.color || "#ffffff",
                       fontSize: `${layer.style?.fontSize ?? 14}px`,
                       fontWeight: layer.style?.fontWeight || "normal",
+                      width: "fit-content",
+                      maxWidth: "100%",
+                      height: "fit-content",
                       whiteSpace: "pre-wrap",
+                      overflowWrap: "anywhere",
                       textShadow: "0 1px 3px rgba(0,0,0,0.4)",
                     }}
                     onPointerDown={(event) => beginDrag("layer", layer.id, event)}
@@ -496,9 +484,10 @@ const TicketLivePreview = ({
                     data-testid={`ticket-preview-layer-${layer.id}`}
                     style={{
                       ...baseStyle,
+                      width: `${layer.size?.width ?? 50}%`,
                       height: `${layer.size?.height ?? 20}%`,
                       backgroundColor: layer.style?.color || "rgba(255,255,255,0.2)",
-                      borderRadius: 4,
+                      borderRadius: layer.style?.borderRadius ?? 4,
                     }}
                     onPointerDown={(event) => beginDrag("layer", layer.id, event)}
                     onPointerMove={moveDrag}
@@ -512,7 +501,7 @@ const TicketLivePreview = ({
             })}
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[10px] font-medium text-muted-foreground">
-        Drag the ticket, its event details, or a layer to position it
+        Drag an event detail or layer to position it
       </div>
     </div>
   );

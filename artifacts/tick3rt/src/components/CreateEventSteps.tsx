@@ -108,43 +108,32 @@ function isDraftNonEmpty(eventData: EventData, currentStep: number): boolean {
 }
 
 const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
-  // Lazy-initialise all state from localStorage draft if present
-  const [currentStep, setCurrentStep] = useState<number>(() => {
-    const draft = loadDraft();
-    return draft?.currentStep ?? 1;
-  });
+  // Read one immutable snapshot so every state value is restored from the same draft.
+  const [initialDraft] = useState(() => loadDraft());
+  const [currentStep, setCurrentStep] = useState<number>(() => initialDraft?.currentStep ?? 1);
 
-  const [eventData, setEventData] = useState<EventData>(() => {
-    const draft = loadDraft();
-    return draft?.eventData ?? DEFAULT_EVENT_DATA;
-  });
+  const [eventData, setEventData] = useState<EventData>(() => initialDraft?.eventData ?? DEFAULT_EVENT_DATA);
 
-  const [ticketDesign, setTicketDesign] = useState<any>(() => {
-    const draft = loadDraft();
-    return draft?.ticketDesign ?? {};
-  });
+  const [ticketDesign, setTicketDesign] = useState<any>(() => initialDraft?.ticketDesign ?? {});
 
-  const [generationConfig, setGenerationConfig] = useState<TicketGenerationConfig>(() => {
-    const draft = loadDraft();
-    return draft?.generationConfig ?? DEFAULT_GENERATION_CONFIG;
-  });
+  const [generationConfig, setGenerationConfig] = useState<TicketGenerationConfig>(
+    () => initialDraft?.generationConfig ?? DEFAULT_GENERATION_CONFIG,
+  );
 
-  const [ticketFeatures, setTicketFeatures] = useState<TicketFeaturesConfig>(() => {
-    const draft = loadDraft();
-    return draft?.ticketFeatures ?? DEFAULT_TICKET_FEATURES;
-  });
+  const [ticketFeatures, setTicketFeatures] = useState<TicketFeaturesConfig>(
+    () => initialDraft?.ticketFeatures ?? DEFAULT_TICKET_FEATURES,
+  );
 
-  const [pricingData, setPricingData] = useState(() => {
-    const draft = loadDraft();
-    return draft?.pricingData ?? DEFAULT_PRICING_DATA;
-  });
+  const [pricingData, setPricingData] = useState(() => initialDraft?.pricingData ?? DEFAULT_PRICING_DATA);
 
   // Track whether we restored a non-empty draft on mount so we can show a banner
-  const [showRestoredBanner, setShowRestoredBanner] = useState<boolean>(() => {
-    const draft = loadDraft();
-    if (!draft) return false;
-    return (draft.currentStep ?? 1) > 1 || Object.values(draft.eventData ?? {}).some((v: unknown) => v !== "");
-  });
+  const [showRestoredBanner, setShowRestoredBanner] = useState<boolean>(
+    () => Boolean(
+      initialDraft
+      && ((initialDraft.currentStep ?? 1) > 1
+        || Object.values(initialDraft.eventData ?? {}).some((v: unknown) => v !== "")),
+    ),
+  );
 
   // Persist entire draft to localStorage whenever any piece changes
   useEffect(() => {

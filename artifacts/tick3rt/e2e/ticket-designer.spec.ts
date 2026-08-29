@@ -255,7 +255,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(page.getByText("Preview Title Check")).toBeVisible({ timeout: 5_000 });
   });
 
-  test("step 2 — preview objects can be dragged and restored from the draft", async ({ page }) => {
+  test("step 2 — preview layers are tightly bounded, editable, and restored from the draft", async ({ page }) => {
     await page.getByRole("button", { name: /next/i }).last().click();
     await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
 
@@ -266,25 +266,41 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     const layer = page.locator('[data-testid^="ticket-preview-layer-"]').last();
     await expect(layer).toBeVisible();
     const layerBox = await layer.boundingBox();
+    const ticket = page.getByTestId("ticket-preview-object");
+    const ticketBox = await ticket.boundingBox();
     expect(layerBox).not.toBeNull();
-    await page.mouse.move(layerBox!.x + layerBox!.width / 2, layerBox!.y + layerBox!.height / 2);
+    expect(ticketBox).not.toBeNull();
+    expect(layerBox!.width).toBeLessThan(ticketBox!.width * 0.4);
+
+    await layerBtn.click();
+    await expect(page.getByTestId("selected-layer-properties")).not.toBeVisible();
+    await layer.click();
+    await expect(page.getByTestId("selected-layer-properties")).toBeVisible();
+
+    await page.getByLabel("Layer colour hex").fill("#ff0000");
+    await expect(layer).toHaveCSS("color", "rgb(255, 0, 0)");
+    await page.getByLabel("Layer font size").fill("24");
+    await expect(layer).toHaveCSS("font-size", "24px");
+    await page.getByLabel("Rotation °").fill("12");
+    await expect(layer).toHaveCSS("transform", /matrix/);
+
+    const editableLayerBox = await layer.boundingBox();
+    expect(editableLayerBox).not.toBeNull();
+    await page.mouse.move(editableLayerBox!.x + editableLayerBox!.width / 2, editableLayerBox!.y + editableLayerBox!.height / 2);
     await page.mouse.down();
-    await page.mouse.move(layerBox!.x + layerBox!.width / 2 + 45, layerBox!.y + layerBox!.height / 2 + 15);
+    await page.mouse.move(editableLayerBox!.x + editableLayerBox!.width / 2 + 45, editableLayerBox!.y + editableLayerBox!.height / 2 + 15);
     await page.mouse.up();
 
     const xInput = page.getByText("X %").locator("..").getByRole("spinbutton");
     await expect(xInput).not.toHaveValue("10");
     const movedLayerX = await xInput.inputValue();
 
-    const ticket = page.getByTestId("ticket-preview-object");
-    const ticketBox = await ticket.boundingBox();
-    expect(ticketBox).not.toBeNull();
     const initialTicketLeft = await ticket.evaluate((element) => element.style.left);
     await page.mouse.move(ticketBox!.x + ticketBox!.width - 8, ticketBox!.y + ticketBox!.height - 8);
     await page.mouse.down();
     await page.mouse.move(ticketBox!.x + ticketBox!.width - 28, ticketBox!.y + ticketBox!.height - 18);
     await page.mouse.up();
-    await expect.poll(() => ticket.evaluate((element) => element.style.left)).not.toBe(initialTicketLeft);
+    await expect.poll(() => ticket.evaluate((element) => element.style.left)).toBe(initialTicketLeft);
 
     await expect.poll(async () =>
       page.evaluate((expectedX) => JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
@@ -298,6 +314,9 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(restoredLayer).toBeVisible();
     await restoredLayer.click();
     await expect(page.getByText("X %").locator("..").getByRole("spinbutton")).toHaveValue(movedLayerX);
+    await expect(page.getByLabel("Layer colour hex")).toHaveValue("#ff0000");
+    await expect(page.getByLabel("Layer font size")).toHaveValue("24");
+    await expect(page.getByLabel("Rotation °")).toHaveValue("12");
   });
 
   test("step 2 — template event details can be dragged and restored", async ({ page }) => {
@@ -314,7 +333,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await page.mouse.down();
     await page.mouse.move(ticketBox!.x + ticketBox!.width * 0.62 - 15, ticketBox!.y + ticketBox!.height * 0.8 - 5);
     await page.mouse.up();
-    await expect.poll(() => ticket.evaluate((element) => element.style.left)).not.toBe(initialTicketLeft);
+    await expect.poll(() => ticket.evaluate((element) => element.style.left)).toBe(initialTicketLeft);
 
     const title = page.getByTestId("ticket-preview-content-title");
     await expect(title).toBeVisible();

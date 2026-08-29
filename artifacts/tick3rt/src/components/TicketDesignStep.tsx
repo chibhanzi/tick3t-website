@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 interface TicketDesignStepProps {
   eventData: any;
   design: any;
-  onDesignChange: (design: any) => void;
+  onDesignChange: React.Dispatch<React.SetStateAction<any>>;
 }
 
 // ── Accordion section ─────────────────────────────────────────────────────────
@@ -80,12 +80,13 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
       position: { x: 0, y: 0 }, size: { width: 100, height: 100 }, style: { opacity: 1 } },
   ]);
   const [selectedLayer, setSelectedLayer] = useState<string>(layers[0]?.id || "");
-  const [selectedObject, setSelectedObject] = useState<string>("ticket");
+  const [selectedObject, setSelectedObject] = useState<string>("");
 
   const toggle = (id: string) =>
     setOpenSections((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
-  const patch = (updates: Record<string, unknown>) => onDesignChange({ ...design, ...updates });
+  const patch = (updates: Record<string, unknown>) =>
+    onDesignChange((currentDesign: any) => ({ ...currentDesign, ...updates }));
 
   // ── Template selection ──────────────────────────────────────────────────────
   const handleSelectTemplate = (template: EventTemplate) => {
@@ -137,7 +138,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
     if (layers.length <= 1) return;
     const next = layers.filter((l) => l.id !== layerId);
     setSelectedLayer(next[0]?.id || "");
-    setSelectedObject(next[0]?.id === "bg" ? "ticket" : next[0]?.id || "ticket");
+    setSelectedObject(next[0]?.id === "bg" ? "" : next[0]?.id || "");
     syncLayers(next);
   };
   const moveLayer = (layerId: string, dir: "up" | "down") => {
@@ -164,10 +165,11 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
   const selectedLayerData = layers.find((l) => l.id === selectedLayer);
   const selectPreviewObject = (objectId: string) => {
     setSelectedObject(objectId);
-    if (objectId !== "ticket") setSelectedLayer(objectId);
+    if (layers.some((layer) => layer.id === objectId)) {
+      setSelectedLayer(objectId);
+      setOpenSections((previous) => new Set([...previous, "layers"]));
+    }
   };
-  const updateTicketPosition = (position: { x: number; y: number; width: number }) =>
-    patch({ ticketPosition: position });
   const updateContentPosition = (contentId: "title" | "date" | "location", position: { x: number; y: number }) =>
     patch({
       contentPositions: {
@@ -483,7 +485,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
                   key={layer.id}
                   onClick={() => {
                     setSelectedLayer(layer.id);
-                    setSelectedObject(layer.id === "bg" ? "ticket" : layer.id);
+                    setSelectedObject(layer.id === "bg" ? "" : layer.id);
                   }}
                   className={cn(
                     "flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer text-xs transition-colors",
@@ -512,7 +514,10 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
 
             {/* Selected layer properties */}
             {selectedLayerData && (
-              <div className="rounded-xl border bg-muted/30 p-3 space-y-3">
+              <div
+                data-testid="selected-layer-properties"
+                className="rounded-xl border bg-muted/30 p-3 space-y-3"
+              >
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Layer Properties — {selectedLayerData.type}
                 </div>
@@ -528,49 +533,118 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
                   />
                 </div>
 
-                {/* Position */}
+                {/* Position + rotation */}
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { label: "X %", key: "x", val: selectedLayerData.position.x,
                       set: (v: number) => updateLayer(selectedLayer, { position: { ...selectedLayerData.position, x: v } }) },
                     { label: "Y %", key: "y", val: selectedLayerData.position.y,
                       set: (v: number) => updateLayer(selectedLayer, { position: { ...selectedLayerData.position, y: v } }) },
-                    { label: "W %", key: "w", val: selectedLayerData.size.width,
-                      set: (v: number) => updateLayer(selectedLayer, { size: { ...selectedLayerData.size, width: v } }) },
-                    { label: "H %", key: "h", val: selectedLayerData.size.height,
-                      set: (v: number) => updateLayer(selectedLayer, { size: { ...selectedLayerData.size, height: v } }) },
+                    ...(selectedLayerData.type === "text" ? [] : [
+                      { label: "W %", key: "w", val: selectedLayerData.size.width,
+                        set: (v: number) => updateLayer(selectedLayer, { size: { ...selectedLayerData.size, width: v } }) },
+                      { label: "H %", key: "h", val: selectedLayerData.size.height,
+                        set: (v: number) => updateLayer(selectedLayer, { size: { ...selectedLayerData.size, height: v } }) },
+                    ]),
+                    { label: "Rotation °", key: "rotation", val: selectedLayerData.style?.rotation ?? 0,
+                      set: (v: number) => updateLayer(selectedLayer, { style: { ...(selectedLayerData.style ?? {}), rotation: v } }) },
                   ].map(({ label, key, val, set }) => (
                     <div key={key} className="space-y-1">
                       <Label className="text-[10px]">{label}</Label>
-                      <Input type="number" value={val} onChange={(e) => set(Number(e.target.value))} className="h-7 text-xs" />
+                      <Input
+                        aria-label={label}
+                        type="number"
+                        value={val}
+                        onChange={(e) => set(Number(e.target.value))}
+                        className="h-7 text-xs"
+                      />
                     </div>
                   ))}
                 </div>
 
                 {/* Colour + opacity */}
                 <div className="grid grid-cols-2 gap-2">
-                  {(selectedLayerData.type === "text" || selectedLayerData.type === "shape") && (
+                  {["text", "shape", "pattern"].includes(selectedLayerData.type) && (
                     <div className="space-y-1">
                       <Label className="text-xs">Colour</Label>
                       <div className="flex gap-1">
-                        <input type="color" value={selectedLayerData.style.color || "#ffffff"}
-                          onChange={(e) => updateLayer(selectedLayer, { style: { ...selectedLayerData.style, color: e.target.value } })}
+                        <input
+                          aria-label="Layer colour"
+                          type="color" value={selectedLayerData.style?.color || "#ffffff"}
+                          onChange={(e) => updateLayer(selectedLayer, { style: { ...(selectedLayerData.style ?? {}), color: e.target.value } })}
                           className="h-7 w-7 rounded border border-input p-0.5" />
-                        <Input type="text" value={selectedLayerData.style.color || "#ffffff"}
-                          onChange={(e) => updateLayer(selectedLayer, { style: { ...selectedLayerData.style, color: e.target.value } })}
+                        <Input
+                          aria-label="Layer colour hex"
+                          type="text" value={selectedLayerData.style?.color || "#ffffff"}
+                          onChange={(e) => updateLayer(selectedLayer, { style: { ...(selectedLayerData.style ?? {}), color: e.target.value } })}
                           className="h-7 text-xs font-mono" />
                       </div>
                     </div>
                   )}
                   <div className="space-y-1">
-                    <Label className="text-xs">Opacity: {Math.round((selectedLayerData.style.opacity ?? 1) * 100)}%</Label>
+                    <Label className="text-xs">Opacity: {Math.round((selectedLayerData.style?.opacity ?? 1) * 100)}%</Label>
                     <Slider
-                      value={[selectedLayerData.style.opacity ?? 1]}
-                      onValueChange={([v]) => updateLayer(selectedLayer, { style: { ...selectedLayerData.style, opacity: v } })}
+                      value={[selectedLayerData.style?.opacity ?? 1]}
+                      onValueChange={([v]) => updateLayer(selectedLayer, { style: { ...(selectedLayerData.style ?? {}), opacity: v } })}
                       min={0} max={1} step={0.05}
                     />
                   </div>
                 </div>
+
+                {selectedLayerData.type === "text" && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Font size</Label>
+                      <Input
+                        aria-label="Layer font size"
+                        type="number"
+                        min={8}
+                        max={72}
+                        value={selectedLayerData.style?.fontSize ?? 16}
+                        onChange={(event) => updateLayer(selectedLayer, {
+                          style: { ...(selectedLayerData.style ?? {}), fontSize: Number(event.target.value) },
+                        })}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Font weight</Label>
+                      <Select
+                        value={selectedLayerData.style?.fontWeight || "normal"}
+                        onValueChange={(fontWeight) => updateLayer(selectedLayer, {
+                          style: { ...(selectedLayerData.style ?? {}), fontWeight },
+                        })}
+                      >
+                        <SelectTrigger aria-label="Layer font weight" className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="normal">Regular</SelectItem>
+                          <SelectItem value="500">Medium</SelectItem>
+                          <SelectItem value="600">Semibold</SelectItem>
+                          <SelectItem value="bold">Bold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                {(selectedLayerData.type === "shape" || selectedLayerData.type === "pattern") && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">Corner radius</Label>
+                    <Input
+                      aria-label="Layer corner radius"
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selectedLayerData.style?.borderRadius ?? 4}
+                      onChange={(event) => updateLayer(selectedLayer, {
+                        style: { ...(selectedLayerData.style ?? {}), borderRadius: Number(event.target.value) },
+                      })}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -598,7 +672,6 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               selectedObjectId={selectedObject}
               onSelectObject={selectPreviewObject}
               onMoveLayer={(layerId, position) => updateLayer(layerId, { position })}
-              onMoveTicket={updateTicketPosition}
               onMoveContent={updateContentPosition}
             />
 
