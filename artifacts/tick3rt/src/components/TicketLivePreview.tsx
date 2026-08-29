@@ -19,7 +19,7 @@ export interface TicketLivePreviewProps {
 
 export const DEFAULT_TICKET_POSITION = { x: 7, y: 7, width: 86 };
 type ContentId = "title" | "date" | "location";
-export type TemplateObjectId = "category" | "overlay";
+export type TemplateObjectId = string;
 
 type DragState = {
   type: "layer" | "content" | "template";
@@ -33,7 +33,7 @@ type DragState = {
   maxX?: number;
   minY?: number;
   maxY?: number;
-  target?: HTMLElement;
+  target?: HTMLElement | SVGElement;
 };
 
 function formatDate(raw: string): string {
@@ -132,25 +132,23 @@ const TicketLivePreview = ({
   const savedTemplateObjects = template
     ? design?.templateObjectsByTemplate?.[template.id] ?? {}
     : {};
-  const templateObjects = {
-    category: {
-      content: template?.category ?? "Event",
-      position: { x: 0, y: 0 },
-      scale: 1,
-      color: "",
-      opacity: 1,
-      ...(savedTemplateObjects.category ?? {}),
-    },
-    overlay: {
-      position: { x: 0, y: 0 },
-      scaleX: 1,
-      scaleY: 1,
-      color: "",
-      opacity: 1,
-      borderRadius: undefined as number | undefined,
-      ...(savedTemplateObjects.overlay ?? {}),
-    },
-  };
+  const templateObjects: Record<string, any> = Object.fromEntries(
+    (template?.editableObjects ?? []).map((object) => [
+      object.id,
+      {
+        content: template?.category ?? "Event",
+        position: { x: 0, y: 0 },
+        scale: 1,
+        scaleX: 1,
+        scaleY: 1,
+        color: "",
+        opacity: 1,
+        borderRadius: undefined as number | undefined,
+        rotation: 0,
+        ...(savedTemplateObjects[object.id] ?? {}),
+      },
+    ]),
+  );
   const contentStyles: Record<ContentId, { scale: number; color?: string; opacity: number }> = {
     title: { scale: 1, opacity: 1, ...(design?.contentStyles?.title ?? {}) },
     date: { scale: 1, opacity: 1, ...(design?.contentStyles?.date ?? {}) },
@@ -283,6 +281,45 @@ const TicketLivePreview = ({
         overlayElement.style.outline = selectedObjectId === "template:overlay" ? "2px solid rgba(255,255,255,0.95)" : "";
         overlayElement.style.outlineOffset = selectedObjectId === "template:overlay" ? "2px" : "";
       }
+
+      (template?.editableObjects ?? [])
+        .filter((object) => object.kind === "accent")
+        .forEach(({ id }) => {
+          const element = root.querySelector<HTMLElement | SVGElement>(`[data-ticket-template-object="${id}"]`);
+          if (!element) return;
+          const saved = savedTemplateObjects[id] ?? {};
+          const objectValues = templateObjects[id];
+          if (Object.keys(saved).some((key) => ["position", "scale", "rotation", "scaleX", "scaleY"].includes(key))) {
+            const originalTransform = element.dataset.ticketOriginalTransform ?? element.style.transform;
+            element.dataset.ticketOriginalTransform = originalTransform;
+            const translate = `translate(${objectValues.position.x}%, ${objectValues.position.y}%)`;
+            const scale = objectValues.scaleX !== 1 || objectValues.scaleY !== 1
+              ? `scale(${objectValues.scaleX}, ${objectValues.scaleY})`
+              : `scale(${objectValues.scale})`;
+            element.style.transform = `${originalTransform} ${translate} ${scale} rotate(${objectValues.rotation}deg)`.trim();
+            element.style.transformOrigin = "center";
+          }
+          if (saved.color) {
+            element.style.background = saved.color;
+            element.style.borderColor = saved.color;
+            element.style.color = saved.color;
+            element.querySelectorAll<SVGElement>("path, line, circle, rect").forEach((child) => {
+              child.style.stroke = saved.color;
+              child.style.fill = saved.color;
+            });
+          }
+          if (saved.opacity !== undefined) element.style.opacity = String(saved.opacity);
+          if (saved.borderRadius !== undefined) element.style.borderRadius = `${saved.borderRadius}px`;
+          element.dataset.testid = `ticket-preview-template-${id}`;
+          const originalZIndex = element.dataset.ticketOriginalZIndex ?? element.style.zIndex;
+          element.dataset.ticketOriginalZIndex = originalZIndex;
+          element.style.zIndex = selectedObjectId === `template:${id}` ? "30" : originalZIndex;
+          element.style.cursor = "grab";
+          element.style.touchAction = "none";
+          element.style.pointerEvents = "auto";
+          element.style.outline = selectedObjectId === `template:${id}` ? "2px solid rgba(255,255,255,0.95)" : "";
+          element.style.outlineOffset = selectedObjectId === `template:${id}` ? "2px" : "";
+        });
     }
   };
 
@@ -315,7 +352,7 @@ const TicketLivePreview = ({
 
   const beginContentDrag = (
     contentId: ContentId,
-    target: HTMLElement,
+    target: HTMLElement | SVGElement,
     event: React.PointerEvent<HTMLDivElement>,
   ) => {
     const ticketRect = ticketRef.current?.getBoundingClientRect();
@@ -349,7 +386,7 @@ const TicketLivePreview = ({
 
   const beginTemplateDrag = (
     objectId: TemplateObjectId,
-    target: HTMLElement,
+    target: HTMLElement | SVGElement,
     event: React.PointerEvent<HTMLDivElement>,
   ) => {
     const position = templateObjects[objectId].position;
@@ -375,14 +412,17 @@ const TicketLivePreview = ({
       beginContentDrag(contentTarget.id, contentTarget.element, event);
       return;
     }
-    if (event.target instanceof HTMLElement) {
+    if (event.target instanceof Element) {
       const category = event.target.closest<HTMLElement>('[data-testid="ticket-preview-template-category"]');
       if (category) {
         beginTemplateDrag("category", category, event);
         return;
       }
-      const overlay = event.target.closest<HTMLElement>('[data-ticket-template-object="overlay"]');
-      if (overlay) beginTemplateDrag("overlay", overlay, event);
+      const templateObject = event.target.closest<HTMLElement | SVGElement>("[data-ticket-template-object]");
+      const objectId = templateObject?.dataset.ticketTemplateObject;
+      if (templateObject && objectId && templateObjects[objectId]) {
+        beginTemplateDrag(objectId, templateObject, event);
+      }
     }
   };
 

@@ -97,6 +97,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
       accentColor: template.accentColor,
       customLayout: undefined, // clear custom mode
     });
+    setSelectedObject("");
     setOpenSections(new Set(["colours", "effects", "background"]));
   };
 
@@ -169,11 +170,14 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
   const selectedContentId = selectedObject.startsWith("content:")
     ? selectedObject.replace("content:", "") as "title" | "date" | "location"
     : null;
-  const hasTemplateOverlay = selectedTemplate?.editableObjects?.includes("overlay") ?? false;
+  const editableTemplateObjects = selectedTemplate?.editableObjects ?? [];
   const savedTemplateObjects = selectedTemplate
     ? design?.templateObjectsByTemplate?.[selectedTemplate.id] ?? {}
     : {};
-  const selectedTemplateObject = selectedTemplateObjectId
+  const selectedTemplateObjectDefinition = selectedTemplateObjectId
+    ? editableTemplateObjects.find((object) => object.id === selectedTemplateObjectId)
+    : undefined;
+  const selectedTemplateObject = selectedTemplateObjectDefinition
     ? {
         content: selectedTemplate?.category ?? "Event",
         position: { x: 0, y: 0 },
@@ -183,7 +187,8 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
         color: "",
         opacity: 1,
         borderRadius: 8,
-        ...(savedTemplateObjects[selectedTemplateObjectId] ?? {}),
+        rotation: 0,
+        ...(savedTemplateObjects[selectedTemplateObjectDefinition.id] ?? {}),
       }
     : null;
   const selectedContentStyle = selectedContentId
@@ -521,15 +526,14 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
           >
             <div className="space-y-4">
               <p className="text-xs text-muted-foreground">
-                Select template text and translucent artwork here or directly in the preview.
+                Select safe template accents here or directly in the preview. Unedited artwork keeps its original styling.
               </p>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { id: "template:category", label: "Category tag" },
+                  ...editableTemplateObjects.map((object) => ({ id: `template:${object.id}`, label: object.label })),
                   { id: "content:title", label: "Event title" },
                   { id: "content:date", label: "Event date" },
                   { id: "content:location", label: "Location" },
-                  ...(hasTemplateOverlay ? [{ id: "template:overlay", label: "Translucent layer" }] : []),
                 ].map((item) => (
                   <Button
                     key={item.id}
@@ -547,7 +551,7 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
               {selectedTemplateObjectId && selectedTemplateObject && (
                 <div data-testid="selected-template-object-properties" className="rounded-xl border bg-muted/30 p-3 space-y-3">
                   <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {selectedTemplateObjectId === "category" ? "Category tag" : "Translucent layer"} properties
+                    {selectedTemplateObjectDefinition?.label ?? selectedTemplateObjectId} properties
                   </div>
 
                   {selectedTemplateObjectId === "category" && (
@@ -566,12 +570,18 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
                     {[
                       { label: "Object X %", value: selectedTemplateObject.position.x, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { position: { ...selectedTemplateObject.position, x: value } }) },
                       { label: "Object Y %", value: selectedTemplateObject.position.y, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { position: { ...selectedTemplateObject.position, y: value } }) },
-                      ...(selectedTemplateObjectId === "category"
-                        ? [{ label: "Object scale", value: selectedTemplateObject.scale, change: (value: number) => updateTemplateObject("category", { scale: value }) }]
-                        : [
-                            { label: "Width scale", value: selectedTemplateObject.scaleX, change: (value: number) => updateTemplateObject("overlay", { scaleX: value }) },
-                            { label: "Height scale", value: selectedTemplateObject.scaleY, change: (value: number) => updateTemplateObject("overlay", { scaleY: value }) },
-                          ]),
+                      ...(selectedTemplateObjectDefinition?.controls?.includes("scaleXY")
+                        ? [
+                            { label: "Width scale", value: selectedTemplateObject.scaleX, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { scaleX: value }) },
+                            { label: "Height scale", value: selectedTemplateObject.scaleY, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { scaleY: value }) },
+                          ]
+                        : []),
+                      ...(selectedTemplateObjectDefinition?.controls?.includes("scale")
+                        ? [{ label: "Object scale", value: selectedTemplateObject.scale, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { scale: value }) }]
+                        : []),
+                      ...(selectedTemplateObjectDefinition?.controls?.includes("rotation")
+                        ? [{ label: "Rotation °", value: selectedTemplateObject.rotation, change: (value: number) => updateTemplateObject(selectedTemplateObjectId, { rotation: value }) }]
+                        : []),
                     ].map((field) => (
                       <div key={field.label} className="space-y-1">
                         <Label className="text-[10px]">{field.label}</Label>
@@ -621,16 +631,16 @@ const TicketDesignStep = ({ eventData, design, onDesignChange }: TicketDesignSte
                     </div>
                   </div>
 
-                  {selectedTemplateObjectId === "overlay" && (
+                  {selectedTemplateObjectDefinition?.controls?.includes("radius") && (
                     <div className="space-y-1">
                       <Label className="text-xs">Corner radius</Label>
                       <Input
-                        aria-label="Template overlay corner radius"
+                        aria-label={selectedTemplateObjectId === "overlay" ? "Template overlay corner radius" : "Template object corner radius"}
                         type="number"
                         min={0}
                         max={100}
                         value={selectedTemplateObject.borderRadius}
-                        onChange={(event) => updateTemplateObject("overlay", { borderRadius: Number(event.target.value) })}
+                        onChange={(event) => updateTemplateObject(selectedTemplateObjectId, { borderRadius: Number(event.target.value) })}
                         className="h-8 text-xs"
                       />
                     </div>

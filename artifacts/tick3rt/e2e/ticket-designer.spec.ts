@@ -435,4 +435,51 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(page.getByTestId("selected-template-object-properties")).toBeVisible();
     await expect(page.getByTestId("ticket-preview-template-overlay")).toBeVisible();
   });
+
+  test("step 2 — decorative accents are editable on desktop and mobile without leaking between templates", async ({ page }) => {
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+
+    await page.getByRole("button", { name: /use this template/i }).first().click();
+    const objectsButton = page.getByRole("button").filter({ hasText: /Template Objects/i });
+    await objectsButton.click();
+    await page.getByRole("button", { name: "Glow orb" }).click();
+
+    const glowOrb = page.getByTestId("ticket-preview-template-glow-orb");
+    await expect(glowOrb).toBeVisible();
+    await expect(glowOrb).toHaveCSS("opacity", "0.3");
+    await page.getByLabel("Object X %").fill("12");
+    await page.getByLabel("Object scale").fill("1.4");
+    await page.getByLabel("Rotation °").fill("18");
+    await page.getByLabel("Template object colour hex").fill("#123456");
+    await expect(glowOrb).toHaveCSS("background-color", "rgb(18, 52, 86)");
+    await expect(glowOrb).toHaveCSS("transform", /matrix/);
+
+    await objectsButton.click();
+    await glowOrb.click();
+    await expect(page.getByTestId("selected-template-object-properties")).toBeVisible();
+    await expect(page.getByLabel("Object X %")).toHaveValue("12");
+
+    await page.getByRole("button", { name: "Change" }).click();
+    await page.getByPlaceholder("Search templates…").fill("Cybercore");
+    await page.getByRole("button", { name: /use this template/i }).click();
+    await expect(page.getByTestId("ticket-preview-template-glow-orb")).toHaveCount(0);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole("button").filter({ hasText: /Template Objects/i }).click();
+    await page.getByRole("button", { name: "Scan bar" }).click();
+    const scanBar = page.getByTestId("ticket-preview-template-scan-bar");
+    await expect(scanBar).toBeVisible();
+    await page.getByLabel("Object Y %").fill("10");
+    await page.getByLabel("Object scale").fill("1.2");
+    await page.getByLabel("Rotation °").fill("-8");
+    await page.getByLabel("Template object colour hex").fill("#ff00aa");
+    await expect(scanBar).toHaveCSS("background-color", "rgb(255, 0, 170)");
+    await expect(page.getByTestId("selected-template-object-properties")).toBeVisible();
+
+    await expect.poll(() =>
+      page.evaluate(() => JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+        .ticketDesign?.templateObjectsByTemplate?.cybercore?.["scan-bar"]?.rotation)
+    ).toBe(-8);
+  });
 });
