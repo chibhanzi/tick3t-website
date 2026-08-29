@@ -4,12 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { HistoryIcon, ArrowRight, X } from "lucide-react";
 
-const DRAFT_KEY = "tick3rt_create_event_draft";
-const DISMISSED_KEY = "tick3rt_draft_banner_dismissed";
+const DRAFT_KEY = "tick3t_create_event_draft";
+const LEGACY_DRAFT_KEY = "tick3rt_create_event_draft";
+const DISMISSED_KEY = "tick3t_draft_banner_dismissed";
+const LEGACY_DISMISSED_KEY = "tick3rt_draft_banner_dismissed";
+
+function getDraftRaw(): string | null {
+  return localStorage.getItem(DRAFT_KEY) ?? localStorage.getItem(LEGACY_DRAFT_KEY);
+}
 
 function hasMeaningfulDraft(): boolean {
   try {
-    const raw = localStorage.getItem(DRAFT_KEY);
+    const raw = getDraftRaw();
     if (!raw) return false;
     const draft = JSON.parse(raw);
     if (!draft) return false;
@@ -23,7 +29,7 @@ function hasMeaningfulDraft(): boolean {
 
 function getDraftEventTitle(): string | null {
   try {
-    const raw = localStorage.getItem(DRAFT_KEY);
+    const raw = getDraftRaw();
     if (!raw) return null;
     const draft = JSON.parse(raw);
     return draft?.eventData?.title || null;
@@ -39,7 +45,9 @@ export default function DraftEventBanner() {
 
   useEffect(() => {
     // Re-evaluate every time the component mounts (e.g. navigation back)
-    const dismissed = sessionStorage.getItem(DISMISSED_KEY) === "true";
+    const dismissed =
+      sessionStorage.getItem(DISMISSED_KEY) === "true"
+      || sessionStorage.getItem(LEGACY_DISMISSED_KEY) === "true";
     if (!dismissed && hasMeaningfulDraft()) {
       setVisible(true);
       setDraftTitle(getDraftEventTitle());
@@ -51,6 +59,7 @@ export default function DraftEventBanner() {
   const handleDismiss = () => {
     // Only hide the banner for this session; do NOT clear the draft
     sessionStorage.setItem(DISMISSED_KEY, "true");
+    sessionStorage.removeItem(LEGACY_DISMISSED_KEY);
     setVisible(false);
   };
 

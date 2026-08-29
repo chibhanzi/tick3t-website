@@ -260,7 +260,7 @@ const EnhancedTicketDesigner = ({
           <div className="flex justify-between items-end">
             <div className="flex items-center space-x-1 sm:space-x-2">
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="text-xs sm:text-sm font-medium">Tick3rt</span>
+              <span className="text-xs sm:text-sm font-medium">Tick3t</span>
             </div>
             <div className="text-right">
               <p className="text-sm sm:text-lg font-bold">0.05 ETH</p>

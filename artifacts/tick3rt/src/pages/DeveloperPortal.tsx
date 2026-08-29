@@ -145,10 +145,10 @@ const DeveloperPortal = () => {
                 <CodeBlock lang="bash" code={`npm install @tick3t/sdk`} />
                 <CodeBlock lang="typescript" code={`import { Tick3t } from '@tick3t/sdk';
 
-const tick3rt = new Tick3t({ apiKey: process.env.TICK3T_API_KEY });
+const tick3t = new Tick3t({ apiKey: process.env.TICK3T_API_KEY });
 
 // Verify a fan holds a valid ticket before granting stream access
-const access = await tick3rt.gates.verify({
+const access = await tick3t.gates.verify({
   eventId: 'evt_9k2n',
   wallet: '0xAbc...',           // or userId / email
   platform: 'instagram_live',

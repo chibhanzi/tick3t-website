@@ -1,12 +1,17 @@
 import { useState, useCallback } from "react";
 
-const STORAGE_KEY = "tick3rt:event-goals";
+const STORAGE_KEY = "tick3t:event-goals";
+const LEGACY_STORAGE_KEY = "tick3rt:event-goals";
 
 type GoalMap = Record<string, number>;
 
 const readGoals = (): GoalMap => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (raw && !localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, raw);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+    }
     return raw ? (JSON.parse(raw) as GoalMap) : {};
   } catch {
     return {};

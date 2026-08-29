@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import { execSync } from "child_process";
 
 /**
- * Playwright config for Tick3rt e2e tests.
+ * Playwright config for Tick3t e2e tests.
  * The app runs via the dev workflow on localhost:80 (base path "/").
  * We inject mock auth via localStorage so tests never hit the /auth redirect.
  *
@@ -39,7 +39,7 @@ export default defineConfig({
       },
     },
     {
-      command: "pnpm --filter @workspace/tick3rt run dev",
+      command: "pnpm --filter @workspace/tick3t run dev",
       port: 24122,
       timeout: 60_000,
       reuseExistingServer: true,
@@ -51,7 +51,7 @@ export default defineConfig({
   ],
 
   use: {
-    /* The tick3rt dev server runs on port 24122; the Replit proxy exposes it on 80 */
+    /* The tick3t dev server runs on port 24122; the Replit proxy exposes it on 80 */
     baseURL: "http://localhost:24122",
     trace: "on-first-retry",
     screenshot: "only-on-failure",

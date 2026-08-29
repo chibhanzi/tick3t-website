@@ -96,7 +96,7 @@ const Auth = () => {
       setConfirmationSent(true);
       return;
     }
-    toast({ title: "Account created", description: "Welcome to Tick3rt!" });
+    toast({ title: "Account created", description: "Welcome to Tick3t!" });
   };
 
   const handleOAuth = async (provider: "google" | "apple") => {

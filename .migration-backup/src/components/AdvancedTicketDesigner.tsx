@@ -248,7 +248,7 @@ const AdvancedTicketDesigner = ({
                 <div className="border-t border-white/20 pt-3">
                   <div className="flex justify-between text-xs">
                     <span>Ticket #001</span>
-                    <span>Tick3rt</span>
+                    <span>Tick3t</span>
                   </div>
                 </div>
               </div>

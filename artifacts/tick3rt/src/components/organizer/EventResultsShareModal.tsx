@@ -204,7 +204,7 @@ export function EventResultsShareModal({
                   letterSpacing: "-0.3px",
                 }}
               >
-                Tick3rt
+                Tick3t
               </span>
             </div>
             <span
@@ -473,7 +473,7 @@ export function EventResultsShareModal({
                 fontStyle: "italic",
               }}
             >
-              Powered by Tick3rt
+              Powered by Tick3t
             </span>
             <span
               style={{
@@ -481,7 +481,7 @@ export function EventResultsShareModal({
                 color: "rgba(255,255,255,0.35)",
               }}
             >
-              tick3rt.app
+              tick3t.app
             </span>
           </div>
         </div>

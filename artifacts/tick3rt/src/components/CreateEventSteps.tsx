@@ -24,7 +24,8 @@ interface CreateEventStepsProps {
   onComplete: (eventData: EventData) => void;
 }
 
-const DRAFT_KEY = "tick3rt_create_event_draft";
+const DRAFT_KEY = "tick3t_create_event_draft";
+const LEGACY_DRAFT_KEY = "tick3rt_create_event_draft";
 
 const DEFAULT_EVENT_DATA: EventData = {
   title: "",
@@ -77,10 +78,18 @@ const DEFAULT_PRICING_DATA = {
   acceptedPayments: ['ETH', 'USDC', 'Credit Card']
 };
 
+function getDraftRaw(): string | null {
+  return localStorage.getItem(DRAFT_KEY) ?? localStorage.getItem(LEGACY_DRAFT_KEY);
+}
+
 function loadDraft() {
   try {
-    const raw = localStorage.getItem(DRAFT_KEY);
+    const raw = getDraftRaw();
     if (!raw) return null;
+    if (!localStorage.getItem(DRAFT_KEY)) {
+      localStorage.setItem(DRAFT_KEY, raw);
+      localStorage.removeItem(LEGACY_DRAFT_KEY);
+    }
     return JSON.parse(raw);
   } catch {
     return null;
@@ -98,6 +107,7 @@ function saveDraft(draft: object) {
 function clearDraft() {
   try {
     localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(LEGACY_DRAFT_KEY);
   } catch {
     // Ignore
   }

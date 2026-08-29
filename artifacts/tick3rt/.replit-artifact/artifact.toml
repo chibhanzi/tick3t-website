@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Tick3rt"
+title = "Tick3t"
 description = "Event ticketing platform with NFT tickets and template gallery"
 version = "1.0.0"
 id = "artifacts/tick3rt"
@@ -12,10 +12,10 @@ paths = [ "/" ]
 localPort = 24122
 
 [services.development]
-run = "pnpm --filter @workspace/tick3rt run dev"
+run = "pnpm --filter @workspace/tick3t run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/tick3rt", "run", "build" ]
+build = [ "pnpm", "--filter", "@workspace/tick3t", "run", "build" ]
 serve = "static"
 publicDir = "artifacts/tick3rt/dist/public"
 

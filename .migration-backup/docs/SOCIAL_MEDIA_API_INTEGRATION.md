@@ -2,7 +2,7 @@
 # Social Media Platform API Integration Guide
 
 ## Overview
-This document outlines the technical requirements and implementation details for integrating Tick3rt with major social media platforms to enable live event monetization.
+This document outlines the technical requirements and implementation details for integrating Tick3t with major social media platforms to enable live event monetization.
 
 ---
 
@@ -19,7 +19,7 @@ This document outlines the technical requirements and implementation details for
 const instagramAuth = {
   clientId: process.env.INSTAGRAM_CLIENT_ID,
   clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-  redirectUri: 'https://tick3rt.com/auth/instagram/callback',
+  redirectUri: 'https://tick3t.com/auth/instagram/callback',
   scopes: ['user_profile', 'user_media', 'instagram_basic']
 }
 
@@ -101,7 +101,7 @@ app.post('/webhooks/instagram', (req, res) => {
 const tiktokAuth = {
   clientKey: process.env.TIKTOK_CLIENT_KEY,
   clientSecret: process.env.TIKTOK_CLIENT_SECRET,
-  redirectUri: 'https://tick3rt.com/auth/tiktok/callback',
+  redirectUri: 'https://tick3t.com/auth/tiktok/callback',
   scopes: ['user.info.basic', 'video.list', 'video.publish']
 }
 
@@ -172,7 +172,7 @@ async function getTwitterAccessToken(code, codeVerifier) {
       code: code,
       grant_type: 'authorization_code',
       client_id: twitterAuth.clientId,
-      redirect_uri: 'https://tick3rt.com/auth/twitter/callback',
+      redirect_uri: 'https://tick3t.com/auth/twitter/callback',
       code_verifier: codeVerifier
     })
   });
@@ -391,7 +391,7 @@ class InstagramWebhookHandler {
 class LiveEventMonitor {
   constructor() {
     this.activeEvents = new Map();
-    this.websocket = new WebSocket('wss://tick3rt.com/live');
+    this.websocket = new WebSocket('wss://tick3t.com/live');
   }
   
   async startMonitoring(eventId, platform) {
@@ -643,4 +643,4 @@ class PrivacyManager {
 }
 ```
 
-This comprehensive integration guide provides the technical foundation for connecting Tick3rt with major social media platforms, enabling creators to monetize their live content through blockchain-secured ticketing.
+This comprehensive integration guide provides the technical foundation for connecting Tick3t with major social media platforms, enabling creators to monetize their live content through blockchain-secured ticketing.

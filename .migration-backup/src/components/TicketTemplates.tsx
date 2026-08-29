@@ -113,7 +113,7 @@ export const TICKET_TEMPLATES: TicketTemplate[] = [
       bg("linear-gradient(135deg, #667eea 0%, #764ba2 100%)"),
       shape("glow", 55, -10, 60, 70, "#ffffff", 0.12, 2, 999),
       text("title", "Event Title", 8, 16, 24, "#ffffff"),
-      text("sub", "Presented by Tick3rt", 8, 34, 11, "#ffffff", "normal"),
+      text("sub", "Presented by Tick3t", 8, 34, 11, "#ffffff", "normal"),
     ],
   },
   {

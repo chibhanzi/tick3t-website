@@ -52,7 +52,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
             <span className="relative inline-block h-8 w-[110px]">
-              <img src={logoLight} alt="Tick3rt" className={`absolute inset-0 h-8 w-auto transition-opacity duration-500 ${theme === "dark" ? "opacity-0" : "opacity-100"}`} />
+              <img src={logoLight} alt="Tick3t" className={`absolute inset-0 h-8 w-auto transition-opacity duration-500 ${theme === "dark" ? "opacity-0" : "opacity-100"}`} />
               <img src={logoDark} alt="" aria-hidden className={`absolute inset-0 h-8 w-auto transition-opacity duration-500 ${theme === "dark" ? "opacity-100" : "opacity-0"}`} />
             </span>
           </Link>
@@ -139,7 +139,7 @@ const Header = () => {
                 {/* Drawer Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
                   <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2">
-                    <img src={logoSrc} alt="Tick3rt" className="h-7 w-auto" />
+                    <img src={logoSrc} alt="Tick3t" className="h-7 w-auto" />
                   </Link>
                 </div>
 

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * End-to-end tests for the Tick3rt ticket designer flow.
+ * End-to-end tests for the Tick3t ticket designer flow.
  *
  * These tests cover the full organiser journey:
  *   1. Navigating to Create Event
@@ -308,7 +308,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect.poll(() => ticket.evaluate((element) => element.style.left)).toBe(initialTicketLeft);
 
     await expect.poll(async () =>
-      page.evaluate((expectedX) => JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+      page.evaluate((expectedX) => JSON.parse(localStorage.getItem("tick3t_create_event_draft") || "{}")
         .ticketDesign?.layers?.some((item: any) => String(item.position?.x) === String(Number(expectedX))), movedLayerX)
     ).toBe(true);
 
@@ -354,7 +354,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     const movedLeft = await title.evaluate((element) => element.style.left);
     expect(movedLeft).not.toBe(initialLeft);
     await expect.poll(() =>
-      page.evaluate(() => Math.abs(JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+      page.evaluate(() => Math.abs(JSON.parse(localStorage.getItem("tick3t_create_event_draft") || "{}")
         .ticketDesign?.contentPositions?.title?.x ?? 0))
     ).toBeGreaterThan(0);
 
@@ -416,7 +416,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(page.getByLabel("Object X %")).not.toHaveValue("0");
 
     await expect.poll(() =>
-      page.evaluate(() => JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+      page.evaluate(() => JSON.parse(localStorage.getItem("tick3t_create_event_draft") || "{}")
         .ticketDesign?.templateObjectsByTemplate?.holographic?.category?.content)
     ).toBe("Outdoor Field Day");
 
@@ -483,7 +483,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(page.getByTestId("selected-template-object-properties")).toBeVisible();
 
     await expect.poll(() =>
-      page.evaluate(() => JSON.parse(localStorage.getItem("tick3rt_create_event_draft") || "{}")
+      page.evaluate(() => JSON.parse(localStorage.getItem("tick3t_create_event_draft") || "{}")
         .ticketDesign?.templateObjectsByTemplate?.cybercore?.["scan-bar"]?.rotation)
     ).toBe(-8);
   });

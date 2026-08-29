@@ -1,8 +1,8 @@
 
-# Tick3rt Platform - Technical Specification
+# Tick3t Platform - Technical Specification
 
 ## Overview
-Tick3rt is a blockchain-powered ticketing platform that enables event organizers to create NFT tickets and allows social media platforms to monetize live content through secure, fraud-proof ticketing.
+Tick3t is a blockchain-powered ticketing platform that enables event organizers to create NFT tickets and allows social media platforms to monetize live content through secure, fraud-proof ticketing.
 
 ## Core Technologies
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS
@@ -1279,4 +1279,4 @@ Tick3rt is a blockchain-powered ticketing platform that enables event organizers
 - Bulk operations and automation
 - Enterprise security features
 
-This technical specification provides a comprehensive foundation for developing the Tick3rt platform backend. Each section can be expanded based on specific implementation requirements and feedback from the development team.
+This technical specification provides a comprehensive foundation for developing the Tick3t platform backend. Each section can be expanded based on specific implementation requirements and feedback from the development team.
