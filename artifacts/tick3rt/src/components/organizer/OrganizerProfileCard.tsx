@@ -10,6 +10,12 @@ import {
   saveOrganizerProfile,
   type OrganizerProfile,
 } from "./OrganizerSettings";
+import ProfileBanner from "@/components/profile/ProfileBanner";
+import {
+  loadProfileBanner,
+  PROFILE_BANNER_UPDATED_EVENT,
+  saveProfileBanner,
+} from "@/lib/profileBanners";
 
 interface OrganizerProfileCardProps {
   name: string;
@@ -50,6 +56,7 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
   const abbr = initials(name || "Organiser");
 
   const [profile, setProfile] = useState<OrganizerProfile>({ bio: "", instagram: "", twitter: "" });
+  const [bannerUrl, setBannerUrl] = useState("");
 
   useEffect(() => {
     if (!userId) return;
@@ -89,6 +96,38 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
     };
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId) {
+      setBannerUrl("");
+      return;
+    }
+
+    setBannerUrl(loadProfileBanner(userId));
+
+    const onSameWindow = (event: Event) => {
+      const detail = (event as CustomEvent<{ userId: string; bannerUrl: string }>).detail;
+      if (detail?.userId === userId) setBannerUrl(detail.bannerUrl);
+    };
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === `tick3t.profile-banner.${userId}`) {
+        setBannerUrl(loadProfileBanner(userId));
+      }
+    };
+
+    window.addEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [userId]);
+
+  const handleBannerChange = (nextBannerUrl: string) => {
+    const saved = saveProfileBanner(userId, nextBannerUrl);
+    if (saved) setBannerUrl(nextBannerUrl);
+    return saved;
+  };
+
   const handle = email?.split("@")[0]?.replace(/[^a-zA-Z0-9_]/g, "") || "organiser";
   const displayBio =
     profile.bio.trim() ||
@@ -98,37 +137,42 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
     <div className="rounded-2xl overflow-hidden border border-border/60 bg-card shadow-sm mb-6">
 
       {/* ── Cover banner ─────────────────────────────────────────────── */}
-      <div
-        className="relative w-full"
+      <ProfileBanner
+        bannerUrl={bannerUrl}
+        editable={Boolean(userId)}
+        onBannerChange={handleBannerChange}
+        inputId={`organizer-profile-banner-${userId || "guest"}`}
+        controlPosition="left"
+        className="w-full"
         style={{ height: "clamp(100px, 18vw, 160px)" }}
+        fallback={
+          <>
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `
+                  radial-gradient(ellipse at 20% 50%, ${accent}55 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, #6366f155 0%, transparent 55%),
+                  radial-gradient(ellipse at 60% 80%, #ec489955 0%, transparent 50%),
+                  linear-gradient(135deg, #0f0c29, #302b63, #24243e)
+                `,
+              }}
+            />
+            <div
+              className="absolute inset-0 opacity-[0.06]"
+              style={{
+                backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)",
+                backgroundSize: "24px 24px",
+              }}
+            />
+          </>
+        }
       >
-        {/* Mesh gradient */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(ellipse at 20% 50%, ${accent}55 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, #6366f155 0%, transparent 55%),
-              radial-gradient(ellipse at 60% 80%, #ec489955 0%, transparent 50%),
-              linear-gradient(135deg, #0f0c29, #302b63, #24243e)
-            `,
-          }}
-        />
-        {/* Subtle dot grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-
-        {/* Create Event — top right of banner */}
         <div className="absolute top-3 right-3 flex items-center gap-2">
           <Button
             asChild
             size="sm"
-            className="h-8 gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm shadow-sm text-xs"
+            className="h-8 gap-1.5 border border-white/30 bg-white/90 text-xs text-slate-900 shadow-sm hover:bg-white hover:text-slate-900"
           >
             <Link to="/create-event">
               <Plus className="h-3.5 w-3.5" />
@@ -136,7 +180,7 @@ export const OrganizerProfileCard = ({ name, email, userId, stats }: OrganizerPr
             </Link>
           </Button>
         </div>
-      </div>
+      </ProfileBanner>
 
       {/* ── Identity row ─────────────────────────────────────────────── */}
       <div className="px-5 pb-5">

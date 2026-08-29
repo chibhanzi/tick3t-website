@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -15,6 +15,12 @@ import { useWaitlist } from "@/contexts/WaitlistContext";
 import { useToast } from "@/hooks/use-toast";
 import { MOCK_ORGANIZERS } from "@/data/mockOrganizers";
 import FollowButton from "@/components/FollowButton";
+import ProfileBanner from "@/components/profile/ProfileBanner";
+import {
+  loadProfileBanner,
+  PROFILE_BANNER_UPDATED_EVENT,
+  saveProfileBanner,
+} from "@/lib/profileBanners";
 import {
   Calendar, BadgeCheck, Users, ListOrdered, MapPin,
   ChevronRight, Ticket, Instagram, Twitter,
@@ -52,6 +58,7 @@ const UserDashboard = () => {
 
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name ?? "");
+  const [bannerUrl, setBannerUrl] = useState("");
   const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
   const [selectedOrganizerId, setSelectedOrganizerId] = useState<string | null>(null);
   const selectedOrganizer = selectedOrganizerId ? MOCK_ORGANIZERS[selectedOrganizerId] : null;
@@ -62,6 +69,39 @@ const UserDashboard = () => {
     .map((orgId) => MOCK_ORGANIZERS[orgId])
     .filter((org): org is (typeof MOCK_ORGANIZERS)[string] => Boolean(org));
 
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId) {
+      setBannerUrl("");
+      return;
+    }
+
+    setBannerUrl(loadProfileBanner(userId));
+
+    const onSameWindow = (event: Event) => {
+      const detail = (event as CustomEvent<{ userId: string; bannerUrl: string }>).detail;
+      if (detail?.userId === userId) setBannerUrl(detail.bannerUrl);
+    };
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === `tick3t.profile-banner.${userId}`) {
+        setBannerUrl(loadProfileBanner(userId));
+      }
+    };
+
+    window.addEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(PROFILE_BANNER_UPDATED_EVENT, onSameWindow);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [user?.id]);
+
+  const handleBannerChange = (nextBannerUrl: string) => {
+    const saved = saveProfileBanner(user?.id ?? "", nextBannerUrl);
+    if (saved) setBannerUrl(nextBannerUrl);
+    return saved;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -69,47 +109,74 @@ const UserDashboard = () => {
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         {/* ── Profile header ─────────────────────────────────────────── */}
-        <div className="flex items-start gap-5 mb-8">
-          <div className="relative shrink-0">
-            <div className="w-[72px] h-[72px] rounded-full ring-2 ring-primary/30 ring-offset-2 ring-offset-background flex items-center justify-center bg-primary/10">
-              <span className="text-2xl font-black text-primary">{initials}</span>
+        <div className="mb-8 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+          <ProfileBanner
+            bannerUrl={bannerUrl}
+            editable={editing && Boolean(user?.id)}
+            onBannerChange={handleBannerChange}
+            inputId={`attendee-profile-banner-${user?.id || "guest"}`}
+            className="w-full"
+            style={{ height: "clamp(112px, 22vw, 160px)" }}
+            fallback={
+              <>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-violet-500/80 to-fuchsia-500/75" />
+                <div
+                  className="absolute inset-0 opacity-15"
+                  style={{
+                    backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)",
+                    backgroundSize: "24px 24px",
+                  }}
+                />
+              </>
+            }
+          />
+
+          <div className="px-5 pb-5">
+            <div className="flex items-end justify-between gap-4 -mt-9 mb-3">
+              <div className="w-[72px] h-[72px] rounded-full ring-4 ring-card flex items-center justify-center bg-primary/10 shadow-sm">
+                <span className="text-2xl font-black text-primary">{initials}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setEditing(v => !v)}
+                className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  editing
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-muted-foreground hover:border-foreground/40"
+                }`}
+              >
+                {editing ? "Save" : "Edit"}
+              </button>
+            </div>
+
+            <div className="min-w-0">
+              {editing ? (
+                <div className="space-y-2 max-w-xs">
+                  <Input
+                    value={editName}
+                    onChange={e => setEditName(e.target.value)}
+                    placeholder="Display name"
+                    className="h-8 text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Add a banner to personalise your profile.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-xl font-black tracking-tight leading-tight">{displayName}</h1>
+                  <p className="text-sm text-muted-foreground">{user?.email}</p>
+                  <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                      🎟 Attendee
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">Member since 2024</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-
-          <div className="flex-1 min-w-0">
-            {editing ? (
-              <div className="space-y-2 max-w-xs">
-                <Input
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  placeholder="Display name"
-                  className="h-8 text-sm"
-                />
-              </div>
-            ) : (
-              <>
-                <h1 className="text-xl font-black tracking-tight leading-tight">{displayName}</h1>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
-                <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                    🎟 Attendee
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">Member since 2024</span>
-                </div>
-              </>
-            )}
-          </div>
-
-          <button
-            onClick={() => setEditing(v => !v)}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-              editing
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted-foreground hover:border-foreground/40"
-            }`}
-          >
-            {editing ? "Save" : "Edit"}
-          </button>
         </div>
 
         {/* ── Following – story rings ─────────────────────────────────── */}
