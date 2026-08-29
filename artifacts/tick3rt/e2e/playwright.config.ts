@@ -34,6 +34,9 @@ export default defineConfig({
       url: "http://localhost:8080/api/healthz",
       timeout: 60_000,
       reuseExistingServer: true,
+      env: {
+        PORT: "8080",
+      },
     },
     {
       command: "pnpm --filter @workspace/tick3rt run dev",

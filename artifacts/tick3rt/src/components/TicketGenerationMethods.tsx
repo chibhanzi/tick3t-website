@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Clock, Users, Zap, Info, Shield, QrCode, Fingerprint } from "lucide-react";
+import { AlertTriangle, Check, Clock, Fingerprint, Info, Lightbulb, QrCode, Shield, Ticket, Users, Zap } from "lucide-react";
 
 export interface TicketGenerationConfig {
   method: 'batch' | 'realtime' | 'limited';
@@ -87,8 +87,8 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
       <Card className="border-slate-200 dark:border-slate-700">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Zap className="h-5 w-5 text-blue-500" />
-            🎫 Ticket Generation Method
+            <Ticket className="h-5 w-5 text-blue-500" />
+            Ticket Generation Method
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -117,18 +117,30 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                         <div>
-                          <div className="text-xs font-medium text-green-600 dark:text-green-400 mb-1">✅ Pros</div>
+                          <div className="mb-1 flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
+                            <Check className="h-3.5 w-3.5" />
+                            Pros
+                          </div>
                           <ul className="text-xs text-muted-foreground space-y-1">
                             {method.pros.map((pro, index) => (
-                              <li key={index}>• {pro}</li>
+                              <li key={index} className="flex items-start gap-1.5">
+                                <Check className="mt-0.5 h-3 w-3 shrink-0 text-green-600 dark:text-green-400" />
+                                <span>{pro}</span>
+                              </li>
                             ))}
                           </ul>
                         </div>
                         <div>
-                          <div className="text-xs font-medium text-orange-600 dark:text-orange-400 mb-1">⚠️ Cons</div>
+                          <div className="mb-1 flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400">
+                            <AlertTriangle className="h-3.5 w-3.5" />
+                            Cons
+                          </div>
                           <ul className="text-xs text-muted-foreground space-y-1">
                             {method.cons.map((con, index) => (
-                              <li key={index}>• {con}</li>
+                              <li key={index} className="flex items-start gap-1.5">
+                                <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0 text-orange-600 dark:text-orange-400" />
+                                <span>{con}</span>
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -203,7 +215,7 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Shield className="h-5 w-5 text-blue-500" />
-            🛡️ Vouch Scanner Integration
+            Vouch Scanner Integration
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             Configure advanced ticket validation with your Vouch scanner system
@@ -296,7 +308,7 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Shield className="h-5 w-5 text-green-500" />
-            🔐 Advanced Blockchain Security
+            Advanced Blockchain Security
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -340,10 +352,13 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
         <div className="flex items-start gap-2">
           <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
           <div className="text-sm">
-            <div className="font-medium mb-1">💡 Vouch Integration Benefits</div>
+            <div className="mb-1 flex items-center gap-2 font-medium">
+              <Lightbulb className="h-4 w-4 text-blue-500" />
+              Vouch Integration Benefits
+            </div>
             <div className="text-muted-foreground">
               {config.vouchIntegration.enabled ? (
-                "✅ Your tickets will be fully compatible with Vouch scanners, providing secure blockchain validation, anti-fraud protection, and seamless entry management."
+                "Your tickets will be fully compatible with Vouch scanners, providing secure blockchain validation, anti-fraud protection, and seamless entry management."
               ) : (
                 "Enable Vouch integration for advanced ticket validation, fraud prevention, and professional event management capabilities."
               )}

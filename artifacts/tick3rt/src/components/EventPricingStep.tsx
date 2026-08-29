@@ -131,7 +131,10 @@ const EventPricingStep = ({ pricingData, onPricingChange, generationConfig }: Ev
 
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg">
           <div className="text-sm">
-            <div className="font-medium mb-2">💰 Revenue Summary</div>
+            <div className="mb-2 flex items-center gap-2 font-medium">
+              <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+              Revenue Summary
+            </div>
             <div className="space-y-1 text-muted-foreground">
               <div>Base price: {getCurrencySymbol(pricingData.currency || 'USD')}{pricingData.price || '0.00'}</div>
               {pricingData.earlyBirdPrice && (

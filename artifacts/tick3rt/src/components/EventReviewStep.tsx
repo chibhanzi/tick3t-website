@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Calendar, MapPin, DollarSign, Palette, Zap, Users } from "lucide-react";
+import PaymentMethodMark from "./pricing/PaymentMethodMark";
 
 interface EventReviewStepProps {
   eventData: any;
@@ -94,8 +95,9 @@ const EventReviewStep = ({
               <span className="text-muted-foreground text-sm">Payment Methods:</span>
               <div className="flex flex-wrap gap-2 mt-1">
                 {pricingData.acceptedPayments.map((method: string) => (
-                  <Badge key={method} variant="secondary" className="text-xs">
-                    {method}
+                  <Badge key={method} variant="secondary" className="gap-1.5 text-xs">
+                    <PaymentMethodMark methodId={method} className="h-3.5 w-3.5" compact />
+                    {method === "Credit Card" ? "Credit/Debit Card" : method}
                   </Badge>
                 ))}
               </div>

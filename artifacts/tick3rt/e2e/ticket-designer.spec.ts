@@ -18,8 +18,8 @@ import { test, expect } from "@playwright/test";
  * CSS-hidden on certain viewports):
  *   Step 1 → input#title  ("Amazing Conference 2024" placeholder)
  *   Step 2 → "LIVE PREVIEW" heading + "Template Gallery" tab
- *   Step 3 → "🎫 Ticket Generation Method" CardTitle
- *   Step 4 → "🎫 Ticket Features & Security" CardTitle
+ *   Step 3 → "Ticket Generation Method" CardTitle
+ *   Step 4 → "Ticket Features & Security" CardTitle
  *   Step 5 → "Pricing & Payment Options" CardTitle
  *   Step 6 → "Review Your Event" CardTitle
  */
@@ -166,15 +166,18 @@ test.describe("Ticket Designer — end-to-end flow", () => {
 
     // → Step 3
     await page.getByRole("button", { name: /next/i }).last().click();
-    await expect(page.getByText("🎫 Ticket Generation Method")).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText("Ticket Generation Method")).toBeVisible({ timeout: 8_000 });
 
     // → Step 4
     await page.getByRole("button", { name: /next/i }).last().click();
-    await expect(page.getByText("🎫 Ticket Features & Security")).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText("Ticket Features & Security")).toBeVisible({ timeout: 8_000 });
 
     // → Step 5
     await page.getByRole("button", { name: /next/i }).last().click();
     await expect(page.getByText("Pricing & Payment Options")).toBeVisible({ timeout: 8_000 });
+    for (const method of ["paynow", "ecocash", "onemoney", "credit-card", "bank-transfer", "ton"]) {
+      await expect(page.getByTestId(`payment-method-mark-${method}`)).toBeVisible();
+    }
 
     // → Step 6
     await page.getByRole("button", { name: /next/i }).last().click();

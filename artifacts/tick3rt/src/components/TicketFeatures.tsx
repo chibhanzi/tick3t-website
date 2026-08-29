@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, Shield, Clock, MapPin, Users, Star, Gift, Zap } from "lucide-react";
+import { Check, Clock, DollarSign, Gift, Lightbulb, MapPin, QrCode, Shield, Star, Users, Zap } from "lucide-react";
 
 export interface TicketFeaturesConfig {
   hasQrCode: boolean;
@@ -38,7 +38,7 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Zap className="h-5 w-5 text-blue-500" />
-          🎫 Ticket Features & Security
+          Ticket Features & Security
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -58,7 +58,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
             </div>
             {features.hasQrCode && (
               <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                ✅ Unique QR codes for entry verification
+                <span className="inline-flex items-center gap-1">
+                  <Check className="h-3 w-3" />
+                  Unique QR codes for entry verification
+                </span>
               </Badge>
             )}
           </div>
@@ -78,7 +81,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
             </div>
             {features.hasTransferProtection && (
               <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                🛡️ Prevents unauthorized transfers
+                <span className="inline-flex items-center gap-1">
+                  <Shield className="h-3 w-3" />
+                  Prevents unauthorized transfers
+                </span>
               </Badge>
             )}
           </div>
@@ -106,7 +112,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
                   className="h-8"
                 />
                 <Badge variant="secondary" className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
-                  ⏰ {features.timelockHours}h cooldown before transfers
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {features.timelockHours}h cooldown before transfers
+                  </span>
                 </Badge>
               </div>
             )}
@@ -127,7 +136,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
             </div>
             {features.hasLocationVerification && (
               <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-                📍 GPS verification required for entry
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  GPS verification required for entry
+                </span>
               </Badge>
             )}
           </div>
@@ -155,7 +167,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
                   className="h-8"
                 />
                 <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
-                  👥 Max {features.capacityLimit} tickets per wallet
+                  <span className="inline-flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    Max {features.capacityLimit} tickets per wallet
+                  </span>
                 </Badge>
               </div>
             )}
@@ -186,7 +201,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
                   step="0.5"
                 />
                 <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                  💰 {features.royaltyPercentage}% royalty on resales
+                  <span className="inline-flex items-center gap-1">
+                    <DollarSign className="h-3 w-3" />
+                    {features.royaltyPercentage}% royalty on resales
+                  </span>
                 </Badge>
               </div>
             )}
@@ -207,7 +225,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
             </div>
             {features.hasBonusRewards && (
               <Badge variant="secondary" className="bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300">
-                🎁 Loyalty rewards for attendees
+                <span className="inline-flex items-center gap-1">
+                  <Gift className="h-3 w-3" />
+                  Loyalty rewards for attendees
+                </span>
               </Badge>
             )}
           </div>
@@ -235,7 +256,10 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
                   className="h-8"
                 />
                 <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
-                  ⚡ {features.earlyAccessHours}h early access for VIPs
+                  <span className="inline-flex items-center gap-1">
+                    <Zap className="h-3 w-3" />
+                    {features.earlyAccessHours}h early access for VIPs
+                  </span>
                 </Badge>
               </div>
             )}
@@ -243,23 +267,29 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
         </div>
 
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 p-4 rounded-lg">
-          <h4 className="font-semibold mb-2 text-foreground">💡 Feature Summary</h4>
+          <h4 className="mb-2 flex items-center gap-2 font-semibold text-foreground">
+            <Lightbulb className="h-4 w-4 text-blue-500" />
+            Feature Summary
+          </h4>
           <div className="flex flex-wrap gap-2">
             {Object.entries(features).map(([key, value]) => {
               if (typeof value === 'boolean' && value) {
                 const labels = {
-                  hasQrCode: '🔍 QR Verification',
-                  hasTransferProtection: '🛡️ Transfer Protection',
-                  hasTimelock: '⏰ Time Lock',
-                  hasLocationVerification: '📍 Location Check',
-                  hasCapacityLimit: '👥 Capacity Control',
-                  hasRoyalties: '💰 Royalties',
-                  hasBonusRewards: '🎁 Rewards',
-                  hasEarlyAccess: '⚡ Early Access'
+                  hasQrCode: { label: 'QR Verification', icon: QrCode },
+                  hasTransferProtection: { label: 'Transfer Protection', icon: Shield },
+                  hasTimelock: { label: 'Time Lock', icon: Clock },
+                  hasLocationVerification: { label: 'Location Check', icon: MapPin },
+                  hasCapacityLimit: { label: 'Capacity Control', icon: Users },
+                  hasRoyalties: { label: 'Royalties', icon: DollarSign },
+                  hasBonusRewards: { label: 'Rewards', icon: Gift },
+                  hasEarlyAccess: { label: 'Early Access', icon: Zap }
                 };
+                const feature = labels[key as keyof typeof labels];
+                const FeatureIcon = feature.icon;
                 return (
                   <Badge key={key} variant="outline" className="text-xs">
-                    {labels[key as keyof typeof labels]}
+                    <FeatureIcon className="mr-1 h-3 w-3" />
+                    {feature.label}
                   </Badge>
                 );
               }

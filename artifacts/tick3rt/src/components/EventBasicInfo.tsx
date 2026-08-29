@@ -119,7 +119,10 @@ const EventBasicInfo = ({ eventData, onEventDataChange }: EventBasicInfoProps) =
 
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 p-4 rounded-lg">
           <div className="text-sm">
-            <div className="font-medium mb-1">💡 Pro Tip</div>
+            <div className="mb-1 flex items-center gap-2 font-medium">
+              <Info className="h-4 w-4 text-blue-500" />
+              Pro Tip
+            </div>
             <div className="text-muted-foreground">
               A compelling event description helps increase ticket sales. Include key speakers, agenda highlights, and unique value propositions.
             </div>
