@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { AlertTriangle, Check, Clock, Fingerprint, Info, Lightbulb, QrCode, Shield, Ticket, Users, Zap } from "lucide-react";
+import { AlertTriangle, Check, Clock, Fingerprint, Info, Lightbulb, QrCode, Shield, Users, Zap } from "lucide-react";
+import Tick3tMark from "./Tick3tMark";
 
 export interface TicketGenerationConfig {
   method: 'batch' | 'realtime' | 'limited';
@@ -87,7 +88,7 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
       <Card className="border-slate-200 dark:border-slate-700">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Ticket className="h-5 w-5 text-blue-500" />
+            <Tick3tMark className="h-5 w-5" />
             Ticket Generation Method
           </CardTitle>
         </CardHeader>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Clock, DollarSign, Gift, Lightbulb, MapPin, QrCode, Shield, Star, Users, Zap } from "lucide-react";
+import Tick3tMark from "./Tick3tMark";
 
 export interface TicketFeaturesConfig {
   hasQrCode: boolean;
@@ -37,7 +38,7 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
     <Card className="border-slate-200 dark:border-slate-700">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Zap className="h-5 w-5 text-blue-500" />
+          <Tick3tMark className="h-5 w-5" />
           Ticket Features & Security
         </CardTitle>
       </CardHeader>

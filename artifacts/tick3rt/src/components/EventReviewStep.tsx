@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Calendar, MapPin, DollarSign, Palette, Zap, Users } from "lucide-react";
+import { CheckCircle, Calendar, MapPin, DollarSign, Palette, Users } from "lucide-react";
 import PaymentMethodMark from "./pricing/PaymentMethodMark";
+import Tick3tMark from "./Tick3tMark";
 
 interface EventReviewStepProps {
   eventData: any;
@@ -109,7 +110,7 @@ const EventReviewStep = ({
           {/* Generation Method */}
           <div>
             <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Zap className="h-4 w-4" />
+              <Tick3tMark className="h-4 w-4" />
               Ticket Generation
             </h3>
             <div className="text-sm">

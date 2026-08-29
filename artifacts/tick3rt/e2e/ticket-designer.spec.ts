@@ -167,6 +167,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     // → Step 3
     await page.getByRole("button", { name: /next/i }).last().click();
     await expect(page.getByText("Ticket Generation Method")).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByTestId("tick3t-logo-mark")).toBeVisible();
 
     // → Step 4
     await page.getByRole("button", { name: /next/i }).last().click();
@@ -182,6 +183,7 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     // → Step 6
     await page.getByRole("button", { name: /next/i }).last().click();
     await expect(page.getByText("Review Your Event")).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByTestId("tick3t-logo-mark")).toBeVisible();
 
     // Event title appears in review
     await expect(page.getByText("E2E Summer Festival")).toBeVisible();
