@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -145,15 +144,16 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
             )}
           </div>
 
-          {/* Capacity Limit */}
+          {/* Per-account purchase limit */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-indigo-500" />
-                <Label htmlFor="capacity-limit">Capacity Limit Control</Label>
+                <Label htmlFor="capacity-limit">Tickets per account</Label>
               </div>
               <Switch
                 id="capacity-limit"
+                aria-label="Limit tickets per account"
                 checked={features.hasCapacityLimit}
                 onCheckedChange={(checked) => updateFeature('hasCapacityLimit', checked)}
               />
@@ -161,16 +161,26 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
             {features.hasCapacityLimit && (
               <div className="space-y-2">
                 <Input
+                  id="account-ticket-limit"
                   type="number"
-                  placeholder="Max tickets per wallet"
+                  min="1"
+                  step="1"
+                  aria-label="Maximum tickets per account"
+                  placeholder="Maximum tickets per account"
                   value={features.capacityLimit}
-                  onChange={(e) => updateFeature('capacityLimit', parseInt(e.target.value) || 1)}
+                  onChange={(e) => {
+                    const value = Number.parseInt(e.target.value, 10);
+                    updateFeature('capacityLimit', Number.isInteger(value) && value > 0 ? value : 1);
+                  }}
                   className="h-8"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Applies across all purchases made by the same Tick3t account for this event.
+                </p>
                 <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
                   <span className="inline-flex items-center gap-1">
                     <Users className="h-3 w-3" />
-                    Max {features.capacityLimit} tickets per wallet
+                    Max {features.capacityLimit} ticket{features.capacityLimit === 1 ? "" : "s"} per account
                   </span>
                 </Badge>
               </div>
@@ -280,7 +290,7 @@ const TicketFeatures = ({ features, onFeaturesChange }: TicketFeaturesProps) => 
                   hasTransferProtection: { label: 'Transfer Protection', icon: Shield },
                   hasTimelock: { label: 'Time Lock', icon: Clock },
                   hasLocationVerification: { label: 'Location Check', icon: MapPin },
-                  hasCapacityLimit: { label: 'Capacity Control', icon: Users },
+                  hasCapacityLimit: { label: `Limit: ${features.capacityLimit} per account`, icon: Users },
                   hasRoyalties: { label: 'Royalties', icon: DollarSign },
                   hasBonusRewards: { label: 'Rewards', icon: Gift },
                   hasEarlyAccess: { label: 'Early Access', icon: Zap }

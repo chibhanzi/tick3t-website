@@ -203,6 +203,80 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(page.getByText("Event Created Successfully!")).toBeVisible({ timeout: 10_000 });
   });
 
+  test("organiser ticket limit survives refresh and appears in event review", async ({ page }) => {
+    await page.locator("#title").fill("Limited Release Event");
+
+    // Steps 2 and 3
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("LIVE PREVIEW")).toBeVisible({ timeout: 10_000 });
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("Ticket Generation Method")).toBeVisible({ timeout: 8_000 });
+
+    // Step 4: configure an account-level purchase limit.
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("Ticket Features & Security")).toBeVisible({ timeout: 8_000 });
+    await page.getByRole("switch", { name: "Limit tickets per account" }).click();
+    await page.getByLabel("Maximum tickets per account").fill("3");
+    await expect(page.getByText("Max 3 tickets per account")).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByText("Ticket Features & Security")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("switch", { name: "Limit tickets per account" })).toBeChecked();
+    await expect(page.getByLabel("Maximum tickets per account")).toHaveValue("3");
+
+    // Steps 5 and 6
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("Pricing & Payment Options")).toBeVisible({ timeout: 8_000 });
+    await page.getByRole("button", { name: /next/i }).last().click();
+    await expect(page.getByText("Review Your Event")).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByTestId("review-account-ticket-limit")).toHaveText("3 tickets");
+
+    await page.getByRole("button", { name: "Publish Event" }).last().click();
+    await expect(page.getByText("Event Created Successfully!")).toBeVisible({ timeout: 10_000 });
+
+    const eventLink = page.getByRole("link", { name: "View published event" });
+    const eventHref = await eventLink.getAttribute("href");
+    expect(eventHref).toMatch(/^\/event\/created-/);
+
+    const publishedEvent = await page.evaluate(() => {
+      const events = JSON.parse(localStorage.getItem("tick3t.published-events") ?? "[]");
+      return events[0];
+    });
+    expect(publishedEvent.title).toBe("Limited Release Event");
+    expect(publishedEvent.purchaseLimitPerAccount).toBe(3);
+
+    await page.evaluate(() => {
+      localStorage.setItem("tick3t.mock-auth.user", JSON.stringify({
+        id: "published-limit-attendee",
+        email: "published-limit-attendee@example.com",
+        name: "Published Limit Attendee",
+        role: "user",
+        isOrganizer: false,
+        isAdmin: false,
+        profilePicture: "",
+        isVerified: true,
+      }));
+      localStorage.removeItem("tick3t.ticket-purchases");
+    });
+    await page.goto(eventHref!);
+
+    await expect(page.getByRole("heading", { name: "Limited Release Event" })).toBeVisible();
+    await expect(page.getByText("3 tickets per account · 3 remaining for you")).toBeVisible();
+    const increase = page.getByRole("button", { name: "Increase ticket quantity" });
+    await increase.click();
+    await increase.click();
+    await expect(page.getByTestId("ticket-quantity")).toHaveText("3");
+    await expect(increase).toBeDisabled();
+
+    await page.getByRole("button", { name: "Get Tickets" }).click();
+    await page.getByRole("button", { name: "Skip for now" }).click();
+    await expect(page.getByText("You have reached this event's 3-ticket account limit.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Account ticket limit reached" })).toBeDisabled();
+
+    await page.reload();
+    await expect(page.getByText("You have reached this event's 3-ticket account limit.")).toBeVisible();
+  });
+
   // ─── Draft persistence: data survives a page refresh ─────────────────────
   test("draft — event data and step are restored after a page refresh", async ({ page }) => {
     // Fill in event details on step 1

@@ -6,11 +6,13 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Calendar, MapPin, DollarSign, Palette, Users } from "lucide-react";
 import PaymentMethodMark from "./pricing/PaymentMethodMark";
 import Tick3tMark from "./Tick3tMark";
+import type { TicketFeaturesConfig } from "./TicketFeatures";
 
 interface EventReviewStepProps {
   eventData: any;
   ticketDesign: any;
   generationConfig: any;
+  ticketFeatures: TicketFeaturesConfig;
   pricingData: any;
   onComplete: () => void;
 }
@@ -19,6 +21,7 @@ const EventReviewStep = ({
   eventData, 
   ticketDesign, 
   generationConfig, 
+  ticketFeatures,
   pricingData, 
   onComplete 
 }: EventReviewStepProps) => {
@@ -125,6 +128,24 @@ const EventReviewStep = ({
               {generationConfig.method === 'limited' && (
                 <p className="text-muted-foreground text-xs mt-1">Initial release: {generationConfig.limitedQuantity || 50} tickets</p>
               )}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Purchase limits */}
+          <div>
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Purchase Limit
+            </h3>
+            <div className="text-sm">
+              <span className="text-muted-foreground">Maximum per attendee account:</span>
+              <p className="font-medium" data-testid="review-account-ticket-limit">
+                {ticketFeatures.hasCapacityLimit
+                  ? `${ticketFeatures.capacityLimit} ticket${ticketFeatures.capacityLimit === 1 ? "" : "s"}`
+                  : "Unlimited"}
+              </p>
             </div>
           </div>
 

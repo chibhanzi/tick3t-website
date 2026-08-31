@@ -5,23 +5,23 @@ import Footer from "@/components/Footer";
 import CreateEventSteps from "@/components/CreateEventSteps";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-
-interface EventData {
-  title: string;
-  date: string;
-  location: string;
-  description: string;
-  price: string;
-  totalTickets: string;
-  category: string;
-}
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { publishEvent, type PublishableEventData } from "@/lib/publishedEvents";
 
 const CreateEvent = () => {
   const [isCompleted, setIsCompleted] = useState(false);
+  const [publishedEventId, setPublishedEventId] = useState<string | null>(null);
+  const { user } = useAuth();
 
-  const handleEventComplete = (eventData: EventData) => {
-    console.log("Event Data:", eventData);
-    // Here we would integrate with blockchain to create the event
+  const handleEventComplete = (eventData: PublishableEventData) => {
+    const publishedEvent = publishEvent(eventData, {
+      id: user?.id || "organizer",
+      name: user?.name || "Organiser",
+      isVerified: user?.isVerified ?? false,
+    });
+    setPublishedEventId(publishedEvent.id);
     setIsCompleted(true);
   };
 
@@ -53,9 +53,14 @@ const CreateEvent = () => {
               </p>
               <div className="bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-lg">
                 <p className="text-xs sm:text-sm text-green-700 dark:text-green-300">
-                  Your event will appear on the events page within a few minutes.
+                  Your event is live on the events page now.
                 </p>
               </div>
+              {publishedEventId && (
+                <Button asChild className="mt-5">
+                  <Link to={`/event/${publishedEventId}`}>View published event</Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}

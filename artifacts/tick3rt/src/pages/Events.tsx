@@ -12,6 +12,7 @@ import { Search, Calendar, MapPin, Users, TrendingUp, SlidersHorizontal, X, Chev
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollow } from "@/contexts/FollowContext";
 import { MOCK_ORGANIZERS } from "@/data/mockOrganizers";
+import { getPublishedEvents } from "@/lib/publishedEvents";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +21,21 @@ const Events = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { user } = useAuth();
   const { following, clearUnread } = useFollow();
+  const [publishedEvents] = useState(() =>
+    getPublishedEvents().map((event) => ({
+      id: event.id,
+      organizerId: event.organizerId,
+      title: event.title,
+      date: `${event.date} • ${event.time}`,
+      location: event.location,
+      price: `${event.currency === "USD" ? "$" : `${event.currency} `}${event.price}`,
+      image: event.image,
+      attendees: event.attendees,
+      category: event.category,
+      available: event.available,
+      total: event.total,
+    })),
+  );
 
   // Clear unread notification when user lands on events page with follows
   useEffect(() => {
@@ -27,6 +43,7 @@ const Events = () => {
   }, []);
 
   const events = [
+    ...publishedEvents,
     {
       id: "1",
       organizerId: "org-bass",

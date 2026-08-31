@@ -2,15 +2,16 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, ArrowRight, ArrowLeft, Sparkles, RotateCcw, X, HistoryIcon } from "lucide-react";
+import { CheckCircle, ArrowRight, ArrowLeft, RotateCcw, X, HistoryIcon } from "lucide-react";
 import EventBasicInfo from "./EventBasicInfo";
 import TicketDesignStep from "./TicketDesignStep";
 import TicketGenerationMethods, { TicketGenerationConfig } from "./TicketGenerationMethods";
 import TicketFeatures, { TicketFeaturesConfig } from "./TicketFeatures";
 import EventPricingStep from "./EventPricingStep";
 import EventReviewStep from "./EventReviewStep";
+import type { PublishableEventData } from "@/lib/publishedEvents";
 
-interface EventData {
+export interface EventData {
   title: string;
   date: string;
   location: string;
@@ -21,7 +22,7 @@ interface EventData {
 }
 
 interface CreateEventStepsProps {
-  onComplete: (eventData: EventData) => void;
+  onComplete: (eventData: PublishableEventData) => void;
 }
 
 const DRAFT_KEY = "tick3t_create_event_draft";
@@ -136,6 +137,27 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
 
   const [pricingData, setPricingData] = useState(() => initialDraft?.pricingData ?? DEFAULT_PRICING_DATA);
 
+  const persistDraft = (
+    overrides: Partial<{
+      currentStep: number;
+      eventData: EventData;
+      ticketDesign: any;
+      generationConfig: TicketGenerationConfig;
+      ticketFeatures: TicketFeaturesConfig;
+      pricingData: typeof DEFAULT_PRICING_DATA;
+    }> = {},
+  ) => {
+    saveDraft({
+      currentStep,
+      eventData,
+      ticketDesign,
+      generationConfig,
+      ticketFeatures,
+      pricingData,
+      ...overrides,
+    });
+  };
+
   // Track whether we restored a non-empty draft on mount so we can show a banner
   const [showRestoredBanner, setShowRestoredBanner] = useState<boolean>(
     () => Boolean(
@@ -153,6 +175,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
   // Warn before tab close when there is unsaved draft data
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
+      persistDraft();
       if (isDraftNonEmpty(eventData, currentStep)) {
         e.preventDefault();
         e.returnValue = "";
@@ -160,7 +183,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [eventData, currentStep]);
+  }, [currentStep, eventData, ticketDesign, generationConfig, ticketFeatures, pricingData]);
 
   const handleStartOver = () => {
     clearDraft();
@@ -184,14 +207,23 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
 
   const nextStep = () => {
     if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
+      const next = currentStep + 1;
+      persistDraft({ currentStep: next });
+      setCurrentStep(next);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      const previous = currentStep - 1;
+      persistDraft({ currentStep: previous });
+      setCurrentStep(previous);
     }
+  };
+
+  const handleTicketFeaturesChange = (features: TicketFeaturesConfig) => {
+    persistDraft({ ticketFeatures: features });
+    setTicketFeatures(features);
   };
 
   const handleComplete = () => {
@@ -199,7 +231,8 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       ...eventData,
       ...pricingData,
       ticketDesign,
-      generationConfig
+      generationConfig,
+      ticketFeatures,
     };
     clearDraft();
     onComplete(finalEventData);
@@ -233,7 +266,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
         return (
           <TicketFeatures
             features={ticketFeatures}
-            onFeaturesChange={setTicketFeatures}
+            onFeaturesChange={handleTicketFeaturesChange}
           />
         );
       case 5:
@@ -250,6 +283,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
             eventData={eventData}
             ticketDesign={ticketDesign}
             generationConfig={generationConfig}
+            ticketFeatures={ticketFeatures}
             pricingData={pricingData}
             onComplete={handleComplete}
           />
@@ -383,7 +417,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
             className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-xs sm:text-sm"
             size="sm"
           >
-            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Publish Event</span>
             <span className="sm:hidden">Publish</span>
           </Button>

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWaitlist } from "@/contexts/WaitlistContext";
+import { getPurchasedTicketQuantity, recordTicketPurchase } from "@/lib/ticketPurchases";
+import { getPublishedEvent } from "@/lib/publishedEvents";
 
 /* ------------------------------------------------------------------ */
 /*  Mock events — keyed by id so we can demo sold-out (id=2) vs not   */
@@ -24,6 +26,9 @@ const MOCK_EVENTS: Record<string, {
   category: string; available: number; total: number; organizer: string;
   organizerId: string; isVerifiedOrganizer: boolean; tags: string[]; amenities: string[];
   resaleAvailable?: number; resaleFromPrice?: number;
+  purchaseLimitPerAccount?: number;
+  price?: number;
+  currency?: string;
 }> = {
   "1": {
     id: "1",
@@ -45,6 +50,7 @@ const MOCK_EVENTS: Record<string, {
     amenities: ["Food Trucks", "Premium Bar", "Valet Parking", "Free WiFi", "24/7 Security"],
     resaleAvailable: 7,
     resaleFromPrice: 110,
+    purchaseLimitPerAccount: 4,
   },
   "2": {
     id: "2",
@@ -67,6 +73,25 @@ const MOCK_EVENTS: Record<string, {
     resaleAvailable: 0,
     resaleFromPrice: 0,
   },
+  "3": {
+    id: "3",
+    title: "Tech Innovation Summit",
+    date: "March 28, 2024",
+    time: "9:00 AM",
+    location: "Silicon Valley Convention Center",
+    fullAddress: "5001 Great America Pkwy, Santa Clara, CA 95054",
+    description: "Meet the founders, engineers, and investors shaping the next generation of technology. This full-day summit features practical talks, product demos, and focused networking sessions.",
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=600&fit=crop",
+    attendees: 1200,
+    category: "Tech & Networking",
+    available: 300,
+    total: 400,
+    organizer: "Tech Events Network",
+    organizerId: "org-techevents",
+    isVerifiedOrganizer: true,
+    tags: ["Technology", "Startups", "Networking", "Innovation"],
+    amenities: ["Coffee & Lunch", "Founder Lounge", "Fast WiFi", "Demo Hall"],
+  },
 };
 
 const DEFAULT_EVENT = MOCK_EVENTS["1"];
@@ -78,7 +103,7 @@ const EventDetail = () => {
   const { user } = useAuth();
   const { isOnWaitlist, join, leave, position, displayCount } = useWaitlist();
 
-  const event = MOCK_EVENTS[id ?? ""] ?? DEFAULT_EVENT;
+  const event = (id ? getPublishedEvent(id) : null) ?? MOCK_EVENTS[id ?? ""] ?? DEFAULT_EVENT;
   const resaleAvailable = event.resaleAvailable ?? 0;
   const resaleFromPrice = event.resaleFromPrice ?? 0;
 
@@ -87,6 +112,30 @@ const EventDetail = () => {
   const [liked, setLiked] = useState(false);
   const [isAttending, setIsAttending] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [purchasedQuantity, setPurchasedQuantity] = useState(() =>
+    user ? getPurchasedTicketQuantity(user.id, event.id) : 0
+  );
+  const [lastPurchaseQuantity, setLastPurchaseQuantity] = useState(0);
+
+  const accountLimit = Number.isInteger(event.purchaseLimitPerAccount) && event.purchaseLimitPerAccount! > 0
+    ? event.purchaseLimitPerAccount!
+    : null;
+  const remainingAccountAllowance = accountLimit === null
+    ? null
+    : Math.max(0, accountLimit - purchasedQuantity);
+  const maxPurchaseQuantity = Math.min(10, event.available, remainingAccountAllowance ?? 10);
+  const hasReachedAccountLimit = remainingAccountAllowance === 0;
+
+  useEffect(() => {
+    setPurchasedQuantity(user ? getPurchasedTicketQuantity(user.id, event.id) : 0);
+    setQuantity(1);
+  }, [event.id, user?.id]);
+
+  useEffect(() => {
+    if (maxPurchaseQuantity > 0 && quantity > maxPurchaseQuantity) {
+      setQuantity(maxPurchaseQuantity);
+    }
+  }, [maxPurchaseQuantity, quantity]);
 
   const handleJoinWaitlist = () => {
     if (!user) {
@@ -106,10 +155,11 @@ const EventDetail = () => {
     });
   };
 
+  const basePrice = event.price ?? 89;
   const tiers = [
-    { id: "general", name: "General Admission", price: 89, perks: ["Event access", "Standing area"] },
-    { id: "vip", name: "VIP", price: 189, perks: ["Priority entry", "VIP lounge", "Complimentary drink"] },
-    { id: "backstage", name: "Backstage Pass", price: 349, perks: ["All VIP perks", "Meet & greet", "Backstage access"] },
+    { id: "general", name: "General Admission", price: basePrice, perks: ["Event access", "Standing area"] },
+    { id: "vip", name: "VIP", price: Math.round(basePrice * 2.1), perks: ["Priority entry", "VIP lounge", "Complimentary drink"] },
+    { id: "backstage", name: "Backstage Pass", price: Math.round(basePrice * 3.9), perks: ["All VIP perks", "Meet & greet", "Backstage access"] },
   ];
 
   const selectedTierData = tiers.find(t => t.id === selectedTier)!;
@@ -119,6 +169,45 @@ const EventDetail = () => {
   const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`🎉 Check out ${event.title} on ${event.date} at ${event.location}! Get tickets: ${window.location.href}`)}`;
 
   const handleBuy = () => {
+    if (!user) {
+      toast({
+        title: "Sign in to get tickets",
+        description: "Ticket limits are linked to your Tick3t account.",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    const currentPurchasedQuantity = getPurchasedTicketQuantity(user.id, event.id);
+    const currentRemainingAllowance = accountLimit === null
+      ? null
+      : Math.max(0, accountLimit - currentPurchasedQuantity);
+
+    if (currentRemainingAllowance !== null && quantity > currentRemainingAllowance) {
+      setPurchasedQuantity(currentPurchasedQuantity);
+      toast({
+        variant: "destructive",
+        title: "Ticket limit reached",
+        description: currentRemainingAllowance === 0
+          ? `This event allows ${accountLimit} ticket${accountLimit === 1 ? "" : "s"} per account.`
+          : `You can purchase ${currentRemainingAllowance} more ticket${currentRemainingAllowance === 1 ? "" : "s"} for this event.`,
+      });
+      return;
+    }
+
+    let nextPurchasedQuantity: number;
+    try {
+      nextPurchasedQuantity = recordTicketPurchase(user.id, event.id, quantity);
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Could not reserve tickets",
+        description: "Your purchase could not be saved on this device. Please try again.",
+      });
+      return;
+    }
+    setPurchasedQuantity(nextPurchasedQuantity);
+    setLastPurchaseQuantity(quantity);
     setIsAttending(true);
     setShowShareModal(true);
     toast({
@@ -139,8 +228,8 @@ const EventDetail = () => {
         eventLocation={event.location}
         eventImage={event.image}
         tierName={selectedTierData.name}
-        quantity={quantity}
-        totalPrice={totalPrice}
+        quantity={lastPurchaseQuantity || quantity}
+        totalPrice={selectedTierData.price * (lastPurchaseQuantity || quantity)}
       />
 
       <main>
@@ -242,7 +331,7 @@ const EventDetail = () => {
                         <div>
                           <p className="text-sm font-semibold leading-tight">You're going! 🎉</p>
                           <p className="text-xs text-muted-foreground">
-                            {quantity}× {selectedTierData.name}
+                             {lastPurchaseQuantity || quantity}× {selectedTierData.name}
                           </p>
                         </div>
                       </div>
@@ -284,15 +373,43 @@ const EventDetail = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Quantity</span>
                     <div className="flex items-center gap-3">
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        aria-label="Decrease ticket quantity"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        disabled={quantity <= 1}
+                      >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="font-bold w-6 text-center">{quantity}</span>
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.min(10, quantity + 1))} disabled={quantity >= 10}>
+                      <span className="font-bold w-6 text-center" data-testid="ticket-quantity">{quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        aria-label="Increase ticket quantity"
+                        onClick={() => setQuantity(Math.min(maxPurchaseQuantity, quantity + 1))}
+                        disabled={maxPurchaseQuantity === 0 || quantity >= maxPurchaseQuantity}
+                      >
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
+                  {accountLimit !== null && (
+                    <div
+                      className={`rounded-lg border px-3 py-2 text-xs ${
+                        hasReachedAccountLimit
+                          ? "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                          : "border-primary/20 bg-primary/5 text-muted-foreground"
+                      }`}
+                      role={hasReachedAccountLimit ? "alert" : undefined}
+                    >
+                      {hasReachedAccountLimit
+                        ? `You have reached this event's ${accountLimit}-ticket account limit.`
+                        : `${accountLimit} ticket${accountLimit === 1 ? "" : "s"} per account · ${remainingAccountAllowance} remaining for you`}
+                    </div>
+                  )}
 
                   <div className="border-t border-border" />
 
@@ -343,8 +460,13 @@ const EventDetail = () => {
                     )
                   ) : (
                     /* ── Tickets available ── */
-                    <Button className="w-full h-12 text-base font-semibold" onClick={handleBuy}>
-                      <Ticket className="h-4 w-4 mr-2" /> Get Tickets
+                    <Button
+                      className="w-full h-12 text-base font-semibold"
+                      onClick={handleBuy}
+                      disabled={hasReachedAccountLimit}
+                    >
+                      <Ticket className="h-4 w-4 mr-2" />
+                      {hasReachedAccountLimit ? "Account ticket limit reached" : "Get Tickets"}
                     </Button>
                   )}
 
