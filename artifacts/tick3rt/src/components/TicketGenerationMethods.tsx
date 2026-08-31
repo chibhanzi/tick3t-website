@@ -5,8 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { AlertTriangle, Check, Clock, Fingerprint, Info, Lightbulb, QrCode, Shield, Users, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, Check, Clock, ExternalLink, Fingerprint, Info, Lightbulb, QrCode, Shield, Users, Zap } from "lucide-react";
+import { useTheme } from "next-themes";
 import Tick3tMark from "./Tick3tMark";
+import vouchLight from "@/assets/vouch_light.png";
+import vouchDark from "@/assets/vouch_dark.png";
+import { VOUCH_PLAY_STORE_URL } from "@/lib/vouch";
 
 export interface TicketGenerationConfig {
   method: 'batch' | 'realtime' | 'limited';
@@ -35,6 +40,7 @@ interface TicketGenerationMethodsProps {
 }
 
 const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMethodsProps) => {
+  const { theme } = useTheme();
   const updateConfig = (updates: Partial<TicketGenerationConfig>) => {
     onConfigChange({ ...config, ...updates });
   };
@@ -82,6 +88,7 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
       recommended: 'Exclusive events'
     }
   ];
+  const vouchLogo = theme === "dark" ? vouchDark : vouchLight;
 
   return (
     <div className="space-y-6">
@@ -223,6 +230,29 @@ const TicketGenerationMethods = ({ config, onConfigChange }: TicketGenerationMet
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex flex-col gap-3 rounded-lg border border-blue-200 bg-white/70 p-3 dark:border-blue-800 dark:bg-slate-900/50 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <img src={vouchLogo} alt="Vouch" className="h-8 w-auto max-w-[7rem] shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Secure event check-in with Vouch</p>
+                <p className="text-xs text-muted-foreground">
+                  Scan and validate tickets quickly, even when your venue is offline.
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
+              <a
+                href={VOUCH_PLAY_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get Vouch on Google Play"
+              >
+                <ExternalLink className="mr-1 h-3 w-3" />
+                Get Vouch on Google Play
+              </a>
+            </Button>
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Label htmlFor="vouch-enabled" className="font-medium">Enable Vouch Integration</Label>

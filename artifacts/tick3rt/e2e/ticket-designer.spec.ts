@@ -168,6 +168,13 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await page.getByRole("button", { name: /next/i }).last().click();
     await expect(page.getByText("Ticket Generation Method")).toBeVisible({ timeout: 8_000 });
     await expect(page.getByTestId("tick3t-logo-mark")).toBeVisible();
+    await expect(page.getByRole("img", { name: "Vouch" })).toBeVisible();
+    const playStoreLink = page.getByRole("link", { name: "Get Vouch on Google Play" });
+    await expect(playStoreLink).toHaveAttribute(
+      "href",
+      "https://play.google.com/store/apps/details?id=com.kaliholding.vouch",
+    );
+    await expect(playStoreLink).toHaveAttribute("target", "_blank");
 
     // → Step 4
     await page.getByRole("button", { name: /next/i }).last().click();

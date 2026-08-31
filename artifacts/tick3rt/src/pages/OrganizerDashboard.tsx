@@ -21,8 +21,7 @@ import RevenuePayouts from "@/components/organizer/RevenuePayouts";
 import OrganizerSettings from "@/components/organizer/OrganizerSettings";
 import vouchLight from "@/assets/vouch_light.png";
 import vouchDark from "@/assets/vouch_dark.png";
-
-const VOUCH_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.kaliholding.vouch";
+import { VOUCH_PLAY_STORE_URL } from "@/lib/vouch";
 
 const OrganizerDashboard = () => {
   const { user } = useAuth();
