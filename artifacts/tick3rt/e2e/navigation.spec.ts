@@ -40,6 +40,22 @@ const openMobileDrawer = async (page: Parameters<typeof test>[0]["page"]) => {
 };
 
 test.describe("Role-specific navigation", () => {
+  test("organisers can see Vouch and open its Google Play listing directly", async ({ page }) => {
+    await setMockUser(page, "organizer");
+    await page.goto("/organizer-dashboard");
+
+    await expect(page.getByRole("img", { name: "Vouch" })).toBeVisible();
+    await expect(page.getByText("Powered by Vouch")).toBeVisible();
+
+    const playStoreLink = page.getByRole("link", { name: "Get Vouch on Google Play" });
+    await expect(playStoreLink).toBeVisible();
+    await expect(playStoreLink).toHaveAttribute(
+      "href",
+      "https://play.google.com/store/apps/details?id=com.kaliholding.vouch",
+    );
+    await expect(playStoreLink).toHaveAttribute("target", "_blank");
+  });
+
   test("organisers see organiser navigation, not attendee browse links", async ({ page }) => {
     await setMockUser(page, "organizer");
     await page.goto("/organizer-dashboard");

@@ -22,6 +22,8 @@ import OrganizerSettings from "@/components/organizer/OrganizerSettings";
 import vouchLight from "@/assets/vouch_light.png";
 import vouchDark from "@/assets/vouch_dark.png";
 
+const VOUCH_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.kaliholding.vouch";
+
 const OrganizerDashboard = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -81,6 +83,37 @@ const OrganizerDashboard = () => {
               <QuickAnalytics />
             </div>
 
+            {/* Vouch Scanner Integration Card */}
+            <Card className="border-border/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  Check-in Scanner
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <img src={vouchLogo} alt="Vouch" className="h-10 w-auto" />
+                  <div className="flex-1 text-center sm:text-left">
+                    <p className="text-sm font-medium">Powered by Vouch</p>
+                    <p className="text-xs text-muted-foreground">
+                      Use the Vouch app to scan and validate tickets at your events. Fast, reliable, and works offline.
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" size="sm" className="shrink-0">
+                    <a
+                      href={VOUCH_PLAY_STORE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Get Vouch on Google Play"
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Get Vouch on Google Play
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Waitlist Demand — social proof + nudge card */}
             {(() => {
               const waitlistEvents = [
@@ -127,29 +160,6 @@ const OrganizerDashboard = () => {
               );
             })()}
 
-            {/* Vouch Scanner Integration Card */}
-            <Card className="border-border/50">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  Check-in Scanner
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <img src={vouchLogo} alt="Vouch" className="h-10 w-auto" />
-                  <div className="flex-1 text-center sm:text-left">
-                    <p className="text-sm font-medium">Powered by Vouch</p>
-                    <p className="text-xs text-muted-foreground">
-                      Use the Vouch app to scan and validate tickets at your events. Fast, reliable, and works offline.
-                    </p>
-                  </div>
-                  <Button variant="outline" size="sm" className="shrink-0">
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    Open Vouch
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="events">
