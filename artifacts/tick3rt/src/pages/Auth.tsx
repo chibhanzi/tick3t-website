@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { Eye, EyeOff, ArrowLeft, Apple, Loader2, Mail, CheckCircle2 } from "lucide-react";
@@ -212,13 +211,7 @@ const Auth = () => {
                   <Separator className="flex-1" />
                 </div>
 
-                <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="signin">Sign In</TabsTrigger>
-                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="signin" className="mt-6">
+                {mode === "signin" ? (
                     <form onSubmit={handleSignIn} className="space-y-4">
                       <div className="space-y-2">
                         <Label className="text-xs uppercase tracking-wider text-muted-foreground">Sign in as</Label>
@@ -244,19 +237,20 @@ const Auth = () => {
                         <Input id="signin-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
                       </div>
                       <PasswordField id="signin-pass" value={password} onChange={setPassword} show={showPassword} toggle={() => setShowPassword(!showPassword)} autoComplete="current-password" />
-                      <div className="flex justify-end">
+                      <div className="flex items-center justify-between gap-3 text-xs">
                         <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => { setResetSent(false); setMode("forgot"); }}>
                           Forgot password?
+                        </button>
+                        <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setMode("signup")}>
+                          Sign up instead
                         </button>
                       </div>
                       <Button type="submit" className="h-11 w-full" disabled={loading}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : accountType === "organizer" ? "Sign in as Organizer" : "Sign in as Attendee"}
                       </Button>
                     </form>
-                  </TabsContent>
-
-
-                  <TabsContent value="signup" className="mt-6 space-y-4">
+                ) : (
+                  <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
                       <button
                         type="button"
@@ -291,6 +285,14 @@ const Auth = () => {
                         <Input id="signup-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
                       </div>
                       <PasswordField id="signup-pass" value={password} onChange={setPassword} show={showPassword} toggle={() => setShowPassword(!showPassword)} placeholder="At least 8 characters" autoComplete="new-password" />
+                      <div className="flex items-center justify-between gap-3 text-xs">
+                        <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => { setResetSent(false); setMode("forgot"); }}>
+                          Forgot password?
+                        </button>
+                        <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setMode("signin")}>
+                          Sign in instead
+                        </button>
+                      </div>
                       <Button type="submit" className="h-11 w-full" disabled={loading}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isOrg ? "Create organizer account" : "Create account"}
                       </Button>
@@ -298,8 +300,8 @@ const Auth = () => {
                         By continuing you agree to the Terms and Privacy Policy.
                       </p>
                     </form>
-                  </TabsContent>
-                </Tabs>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
