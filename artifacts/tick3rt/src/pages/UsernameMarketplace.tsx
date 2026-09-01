@@ -529,7 +529,19 @@ const UsernameMarketplace = () => {
       <Header />
       <Ticker />
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="absolute inset-0 z-30 flex items-start justify-center bg-background/80 px-4 pt-24 backdrop-blur-sm sm:pt-32">
+          <div className="w-full max-w-xl rounded-3xl border border-border/60 bg-card p-8 text-center shadow-2xl sm:p-10">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Clock className="h-7 w-7" />
+            </div>
+            <Badge variant="secondary" className="mb-3">Coming soon</Badge>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Username marketplace</h1>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+              We’re putting the finishing touches on this marketplace. Your place is saved, and you can continue where you left off when it’s ready.
+            </p>
+          </div>
+        </div>
 
         {/* Hero */}
         <section className="relative overflow-hidden rounded-3xl border border-border/50 bg-card p-6 sm:p-8">

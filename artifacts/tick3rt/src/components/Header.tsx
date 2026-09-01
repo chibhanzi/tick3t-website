@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
-  Menu, User, Calendar, ShoppingBag, LayoutDashboard, Plus, LogOut,
+  Menu, User, Calendar, ShoppingBag, Gift, LayoutDashboard, Plus, LogOut,
   Ticket, AtSign, ChevronDown, Home, Bell, Archive, Settings, X,
 } from "lucide-react";
 import {
@@ -52,8 +52,9 @@ const Header = () => {
       ];
 
   const marketplaceItems = [
-    { href: "/marketplace", label: "Ticket Resale", description: "Verified resale market", icon: ShoppingBag },
-    { href: "/marketplace/usernames", label: "Usernames", description: "Own your @handle", icon: AtSign },
+    { href: "/marketplace", label: "Ticket Resale", description: "Verified resale market", icon: ShoppingBag, disabled: false },
+    { href: "/marketplace/usernames", label: "Usernames", description: "Own your @handle", icon: AtSign, disabled: false },
+    { href: "/marketplace/gift-cards-vouchers", label: "Gift cards & vouchers", description: "Coming soon", icon: Gift, disabled: true },
   ];
 
   const logoClass = theme === "dark" ? "" : "invert";
@@ -118,7 +119,7 @@ const Header = () => {
                   Browse
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {marketplaceItems.map((m) => (
+                {marketplaceItems.filter((m) => !m.disabled).map((m) => (
                   <DropdownMenuItem key={m.href} asChild>
                     <Link to={m.href} className="flex items-start gap-3 py-2 cursor-pointer">
                       <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary shrink-0">
@@ -352,6 +353,28 @@ const Header = () => {
                       <div className="space-y-1">
                         {marketplaceItems.map((m) => {
                           const isActive = location.pathname === m.href;
+                          if (m.disabled) {
+                            return (
+                              <button
+                                key={m.href}
+                                type="button"
+                                disabled
+                                aria-disabled="true"
+                                className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground/50 opacity-70"
+                              >
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground/60">
+                                  <m.icon className="h-4 w-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="leading-tight">{m.label}</p>
+                                  <p className="text-[11px] text-muted-foreground/60">{m.description}</p>
+                                </div>
+                                <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                                  Coming soon
+                                </span>
+                              </button>
+                            );
+                          }
                           return (
                             <Link
                               key={m.href}
