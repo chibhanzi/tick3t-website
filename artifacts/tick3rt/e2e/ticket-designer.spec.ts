@@ -282,6 +282,20 @@ test.describe("Ticket Designer — end-to-end flow", () => {
     await expect(page.getByText(/3-ticket account limit · 0 remaining for you/)).toBeVisible();
   });
 
+  test("step 6 progress rail stays inside the viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 900 });
+
+    for (let step = 1; step < 6; step += 1) {
+      await page.getByRole("button", { name: /next/i }).last().click();
+    }
+
+    await expect(page.getByText("Review Your Event")).toBeVisible({ timeout: 8_000 });
+    const hasHorizontalOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(hasHorizontalOverflow).toBe(false);
+  });
+
   // ─── Draft persistence: data survives a page refresh ─────────────────────
   test("draft — event data and step are restored after a page refresh", async ({ page }) => {
     // Fill in event details on step 1

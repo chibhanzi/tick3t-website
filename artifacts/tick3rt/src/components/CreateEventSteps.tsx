@@ -334,11 +334,11 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
           </div>
 
           {/* Desktop Progress - Full */}
-          <div className="hidden sm:flex items-center justify-between">
+          <div className="hidden sm:flex w-full min-w-0 items-center justify-between">
             {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className="flex items-center">
-                  <div className={`flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 transition-all duration-300 ${
+              <div key={step.id} className="flex min-w-0 flex-1 items-center">
+                <div className="flex min-w-0 flex-1 items-center">
+                  <div className={`flex shrink-0 items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 transition-all duration-300 ${
                     currentStep > step.id 
                       ? 'bg-green-500 border-green-500 text-white' 
                       : currentStep === step.id
@@ -351,17 +351,17 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
                       <span className="text-xs lg:text-sm font-medium">{step.id}</span>
                     )}
                   </div>
-                  <div className="ml-2 lg:ml-3 text-left">
+                  <div className="ml-2 lg:ml-3 min-w-0 text-left">
                     <p className={`text-xs lg:text-sm font-medium ${
                       currentStep >= step.id ? 'text-foreground' : 'text-muted-foreground'
-                    }`}>
+                    } truncate`}>
                       {step.title}
                     </p>
-                    <p className="text-xs text-muted-foreground hidden lg:block">{step.description}</p>
+                    <p className="hidden truncate text-xs text-muted-foreground lg:block">{step.description}</p>
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <ArrowRight className="h-3 w-3 lg:h-4 lg:w-4 text-gray-400 mx-2 lg:mx-4" />
+                  <ArrowRight className="mx-2 h-3 w-3 shrink-0 text-gray-400 lg:mx-4 lg:h-4 lg:w-4" />
                 )}
               </div>
             ))}
