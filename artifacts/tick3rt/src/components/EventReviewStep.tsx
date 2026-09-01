@@ -14,7 +14,7 @@ interface EventReviewStepProps {
   generationConfig: any;
   ticketFeatures: TicketFeaturesConfig;
   pricingData: any;
-  onComplete: () => void;
+  onComplete: () => void | Promise<void>;
 }
 
 const EventReviewStep = ({ 

@@ -102,3 +102,57 @@ export interface AuthUser {
   role: AuthUserRole;
   isVerified: boolean;
 }
+
+export interface PublishedEventInput {
+  /** @minLength 1 */
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  fullAddress: string;
+  description: string;
+  image: string;
+  category: string;
+  /** @minimum 1 */
+  total: number;
+  /** @minimum 0 */
+  price: number;
+  /**
+     * @minLength 1
+     * @maxLength 10
+     */
+  currency: string;
+  /** @minimum 1 */
+  purchaseLimitPerAccount?: number;
+  tags: string[];
+  amenities: string[];
+}
+
+export type PublishedEvent = PublishedEventInput & {
+  id: string;
+  attendees: number;
+  available: number;
+  organizer: string;
+  organizerId: string;
+  isVerifiedOrganizer: boolean;
+};
+
+export interface PurchaseTicketsInput {
+  /**
+     * @minimum 1
+     * @maximum 10
+     */
+  quantity: number;
+}
+
+export interface EventPurchaseStatus {
+  eventId: string;
+  purchasedQuantity: number;
+  /** @nullable */
+  remainingAccountAllowance: number | null;
+  /** @nullable */
+  accountLimit: number | null;
+  available: number;
+  total: number;
+}
+

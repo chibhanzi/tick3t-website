@@ -1,31 +1,16 @@
 import type { TicketFeaturesConfig } from "@/components/TicketFeatures";
+import {
+  createEvent,
+  getEvent,
+  getEvents,
+  type PublishedEvent,
+  type PublishedEventInput,
+} from "@workspace/api-client-react";
 
-const PUBLISHED_EVENTS_KEY = "tick3t.published-events";
-
-export interface PublishedEventRecord {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  fullAddress: string;
-  description: string;
-  image: string;
-  attendees: number;
-  category: string;
-  available: number;
-  total: number;
-  organizer: string;
-  organizerId: string;
-  isVerifiedOrganizer: boolean;
-  tags: string[];
-  amenities: string[];
-  price: number;
-  currency: string;
-  purchaseLimitPerAccount?: number;
+export type PublishedEventRecord = PublishedEvent & {
   resaleAvailable?: number;
   resaleFromPrice?: number;
-}
+};
 
 export interface PublishableEventData {
   title: string;
@@ -45,21 +30,6 @@ export interface PublishableEventData {
   ticketFeatures: TicketFeaturesConfig;
 }
 
-interface OrganizerIdentity {
-  id: string;
-  name: string;
-  isVerified: boolean;
-}
-
-function readPublishedEvents(): PublishedEventRecord[] {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(PUBLISHED_EVENTS_KEY) ?? "[]");
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
 function formatPublishedDate(value: string) {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return { date: "Date to be announced", time: "Time to be announced" };
@@ -77,10 +47,9 @@ function formatPublishedDate(value: string) {
   };
 }
 
-export function publishEvent(
+export async function publishEvent(
   eventData: PublishableEventData,
-  organizer: OrganizerIdentity,
-): PublishedEventRecord {
+): Promise<PublishedEventRecord> {
   const { date, time } = formatPublishedDate(eventData.date);
   const configuredTotal = Number.parseInt(eventData.totalTickets, 10);
   const fallbackTotal = eventData.generationConfig?.limitedQuantity ?? 100;
@@ -90,8 +59,7 @@ export function publishEvent(
     ? Math.max(1, Math.trunc(eventData.ticketFeatures.capacityLimit))
     : undefined;
 
-  const record: PublishedEventRecord = {
-    id: `created-${Date.now().toString(36)}`,
+  const input: PublishedEventInput = {
     title: eventData.title.trim() || "Untitled event",
     date,
     time,
@@ -100,13 +68,8 @@ export function publishEvent(
     description: eventData.description.trim() || "More event details are coming soon.",
     image: eventData.ticketDesign?.backgroundImage
       || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&h=600&fit=crop",
-    attendees: 0,
     category: eventData.category || "Event",
-    available: total,
     total,
-    organizer: organizer.name,
-    organizerId: organizer.id,
-    isVerifiedOrganizer: organizer.isVerified,
     tags: [],
     amenities: ["Secure digital ticket", "Vouch check-in"],
     price: Number.isFinite(configuredPrice) && configuredPrice >= 0 ? configuredPrice : 0,
@@ -114,15 +77,19 @@ export function publishEvent(
     purchaseLimitPerAccount: purchaseLimit,
   };
 
-  const existing = readPublishedEvents();
-  localStorage.setItem(PUBLISHED_EVENTS_KEY, JSON.stringify([record, ...existing]));
-  return record;
+  return createEvent(input);
 }
 
-export function getPublishedEvents(): PublishedEventRecord[] {
-  return readPublishedEvents();
+export function getPublishedEvents(): Promise<PublishedEventRecord[]> {
+  return getEvents();
 }
 
-export function getPublishedEvent(eventId: string): PublishedEventRecord | null {
-  return readPublishedEvents().find((event) => event.id === eventId) ?? null;
+export async function getPublishedEvent(
+  eventId: string,
+): Promise<PublishedEventRecord | null> {
+  try {
+    return await getEvent(eventId);
+  } catch {
+    return null;
+  }
 }

@@ -172,3 +172,189 @@ export const CreateSessionResponse = zod.object({
  * @summary Clear the current session
  */
 export const DeleteSessionResponse = zod.void()
+
+
+/**
+ * @summary List published events
+ */
+
+
+export const getEventsResponseOnePriceMin = 0;
+
+export const getEventsResponseOneCurrencyMax = 10;
+
+
+
+
+export const GetEventsResponseItem = zod.object({
+  "title": zod.string().min(1),
+  "date": zod.string(),
+  "time": zod.string(),
+  "location": zod.string(),
+  "fullAddress": zod.string(),
+  "description": zod.string(),
+  "image": zod.string(),
+  "category": zod.string(),
+  "total": zod.number().min(1),
+  "price": zod.number().min(getEventsResponseOnePriceMin),
+  "currency": zod.string().min(1).max(getEventsResponseOneCurrencyMax),
+  "purchaseLimitPerAccount": zod.number().min(1).optional(),
+  "tags": zod.array(zod.string()),
+  "amenities": zod.array(zod.string())
+}).and(zod.object({
+  "id": zod.string(),
+  "attendees": zod.number(),
+  "available": zod.number(),
+  "organizer": zod.string(),
+  "organizerId": zod.string(),
+  "isVerifiedOrganizer": zod.boolean()
+}))
+export const GetEventsResponse = zod.array(GetEventsResponseItem)
+
+
+/**
+ * @summary Publish an event for the current organiser
+ */
+
+
+export const createEventBodyPriceMin = 0;
+
+export const createEventBodyCurrencyMax = 10;
+
+
+
+
+export const CreateEventBody = zod.object({
+  "title": zod.string().min(1),
+  "date": zod.string(),
+  "time": zod.string(),
+  "location": zod.string(),
+  "fullAddress": zod.string(),
+  "description": zod.string(),
+  "image": zod.string(),
+  "category": zod.string(),
+  "total": zod.number().min(1),
+  "price": zod.number().min(createEventBodyPriceMin),
+  "currency": zod.string().min(1).max(createEventBodyCurrencyMax),
+  "purchaseLimitPerAccount": zod.number().min(1).optional(),
+  "tags": zod.array(zod.string()),
+  "amenities": zod.array(zod.string())
+})
+
+
+
+export const createEventResponseOnePriceMin = 0;
+
+export const createEventResponseOneCurrencyMax = 10;
+
+
+
+
+export const CreateEventResponse = zod.object({
+  "title": zod.string().min(1),
+  "date": zod.string(),
+  "time": zod.string(),
+  "location": zod.string(),
+  "fullAddress": zod.string(),
+  "description": zod.string(),
+  "image": zod.string(),
+  "category": zod.string(),
+  "total": zod.number().min(1),
+  "price": zod.number().min(createEventResponseOnePriceMin),
+  "currency": zod.string().min(1).max(createEventResponseOneCurrencyMax),
+  "purchaseLimitPerAccount": zod.number().min(1).optional(),
+  "tags": zod.array(zod.string()),
+  "amenities": zod.array(zod.string())
+}).and(zod.object({
+  "id": zod.string(),
+  "attendees": zod.number(),
+  "available": zod.number(),
+  "organizer": zod.string(),
+  "organizerId": zod.string(),
+  "isVerifiedOrganizer": zod.boolean()
+}))
+
+
+/**
+ * @summary Get a published event
+ */
+export const GetEventParams = zod.object({
+  "eventId": zod.coerce.string()
+})
+
+
+
+export const getEventResponseOnePriceMin = 0;
+
+export const getEventResponseOneCurrencyMax = 10;
+
+
+
+
+export const GetEventResponse = zod.object({
+  "title": zod.string().min(1),
+  "date": zod.string(),
+  "time": zod.string(),
+  "location": zod.string(),
+  "fullAddress": zod.string(),
+  "description": zod.string(),
+  "image": zod.string(),
+  "category": zod.string(),
+  "total": zod.number().min(1),
+  "price": zod.number().min(getEventResponseOnePriceMin),
+  "currency": zod.string().min(1).max(getEventResponseOneCurrencyMax),
+  "purchaseLimitPerAccount": zod.number().min(1).optional(),
+  "tags": zod.array(zod.string()),
+  "amenities": zod.array(zod.string())
+}).and(zod.object({
+  "id": zod.string(),
+  "attendees": zod.number(),
+  "available": zod.number(),
+  "organizer": zod.string(),
+  "organizerId": zod.string(),
+  "isVerifiedOrganizer": zod.boolean()
+}))
+
+
+/**
+ * @summary Get the current account's event purchase status
+ */
+export const GetEventPurchaseStatusParams = zod.object({
+  "eventId": zod.coerce.string()
+})
+
+export const GetEventPurchaseStatusResponse = zod.object({
+  "eventId": zod.string(),
+  "purchasedQuantity": zod.number(),
+  "remainingAccountAllowance": zod.number().nullable(),
+  "accountLimit": zod.number().nullable(),
+  "available": zod.number(),
+  "total": zod.number()
+})
+
+
+/**
+ * @summary Atomically reserve tickets for the current account
+ */
+export const PurchaseTicketsParams = zod.object({
+  "eventId": zod.coerce.string()
+})
+
+export const purchaseTicketsBodyQuantityMax = 10;
+
+
+
+export const PurchaseTicketsBody = zod.object({
+  "quantity": zod.number().min(1).max(purchaseTicketsBodyQuantityMax)
+})
+
+export const PurchaseTicketsResponse = zod.object({
+  "eventId": zod.string(),
+  "purchasedQuantity": zod.number(),
+  "remainingAccountAllowance": zod.number().nullable(),
+  "accountLimit": zod.number().nullable(),
+  "available": zod.number(),
+  "total": zod.number()
+})
+
+

@@ -8,11 +8,15 @@
 
 export * from './authUser';
 export * from './authUserRole';
+export * from './eventPurchaseStatus';
 export * from './healthStatus';
 export * from './organiserProfile';
 export * from './organiserProfileInput';
 export * from './profileBanner';
 export * from './profileBannerUpdate';
+export * from './publishedEvent';
+export * from './publishedEventInput';
+export * from './purchaseTicketsInput';
 export * from './signInInput';
 export * from './signUpInput';
 export * from './signUpInputRole';

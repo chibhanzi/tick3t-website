@@ -236,28 +236,33 @@ test.describe("Ticket Designer — end-to-end flow", () => {
 
     const eventLink = page.getByRole("link", { name: "View published event" });
     const eventHref = await eventLink.getAttribute("href");
-    expect(eventHref).toMatch(/^\/event\/created-/);
+    expect(eventHref).toMatch(/^\/event\/[^/]+$/);
 
-    const publishedEvent = await page.evaluate(() => {
-      const events = JSON.parse(localStorage.getItem("tick3t.published-events") ?? "[]");
-      return events[0];
-    });
+    const publishedEventResponse = await page.request.get(
+      `/api/events/${eventHref!.split("/").at(-1)}`,
+    );
+    expect(publishedEventResponse.ok()).toBe(true);
+    const publishedEvent = await publishedEventResponse.json();
     expect(publishedEvent.title).toBe("Limited Release Event");
     expect(publishedEvent.purchaseLimitPerAccount).toBe(3);
 
-    await page.evaluate(() => {
-      localStorage.setItem("tick3t.mock-auth.user", JSON.stringify({
-        id: "published-limit-attendee",
-        email: "published-limit-attendee@example.com",
-        name: "Published Limit Attendee",
+    const attendeeEmail = `published-limit-${Date.now()}@example.com`;
+    const attendeeResponse = await page.request.post("/api/auth/sign-up", {
+      data: {
+        email: attendeeEmail,
+        password: "password123",
+        displayName: "Published Limit Attendee",
         role: "user",
-        isOrganizer: false,
-        isAdmin: false,
-        profilePicture: "",
-        isVerified: true,
-      }));
-      localStorage.removeItem("tick3t.ticket-purchases");
+      },
     });
+    expect(attendeeResponse.status()).toBe(201);
+    const attendee = await attendeeResponse.json();
+    await page.evaluate(
+      ({ user }) => {
+        localStorage.setItem("tick3t.mock-auth.user", JSON.stringify(user));
+      },
+      { user: attendee },
+    );
     await page.goto(eventHref!);
 
     await expect(page.getByRole("heading", { name: "Limited Release Event" })).toBeVisible();
@@ -270,11 +275,11 @@ test.describe("Ticket Designer — end-to-end flow", () => {
 
     await page.getByRole("button", { name: "Get Tickets" }).click();
     await page.getByRole("button", { name: "Skip for now" }).click();
-    await expect(page.getByText("You have reached this event's 3-ticket account limit.")).toBeVisible();
+    await expect(page.getByText(/3-ticket account limit · 0 remaining for you/)).toBeVisible();
     await expect(page.getByRole("button", { name: "Account ticket limit reached" })).toBeDisabled();
 
     await page.reload();
-    await expect(page.getByText("You have reached this event's 3-ticket account limit.")).toBeVisible();
+    await expect(page.getByText(/3-ticket account limit · 0 remaining for you/)).toBeVisible();
   });
 
   // ─── Draft persistence: data survives a page refresh ─────────────────────

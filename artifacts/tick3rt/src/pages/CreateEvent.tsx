@@ -9,20 +9,30 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { publishEvent, type PublishableEventData } from "@/lib/publishedEvents";
+import { useToast } from "@/hooks/use-toast";
 
 const CreateEvent = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [publishedEventId, setPublishedEventId] = useState<string | null>(null);
   const { user } = useAuth();
+  const { toast } = useToast();
 
-  const handleEventComplete = (eventData: PublishableEventData) => {
-    const publishedEvent = publishEvent(eventData, {
-      id: user?.id || "organizer",
-      name: user?.name || "Organiser",
-      isVerified: user?.isVerified ?? false,
-    });
-    setPublishedEventId(publishedEvent.id);
-    setIsCompleted(true);
+  const handleEventComplete = async (eventData: PublishableEventData) => {
+    if (!user) return false;
+    try {
+      const publishedEvent = await publishEvent(eventData);
+      setPublishedEventId(publishedEvent.id);
+      setIsCompleted(true);
+      return true;
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Could not publish event",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
+      return false;
+    }
   };
 
   return (

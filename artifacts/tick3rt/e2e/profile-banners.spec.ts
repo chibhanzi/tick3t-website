@@ -6,6 +6,7 @@ const smallPng = Buffer.from(
   "base64",
 );
 const smallPngDataUrl = `data:image/png;base64,${smallPng.toString("base64")}`;
+const password = "BannerTest123!";
 
 type MockUser = {
   id: string;
@@ -25,14 +26,54 @@ const setMockUser = async (page: Page, user: MockUser) => {
   );
 };
 
-test("organiser can add, persist, replace, and remove a dashboard banner", async ({ page }) => {
-  const storageKey = "tick3t.profile-banner.test-organizer-001";
-  await page.goto("/organizer-dashboard");
-  await page.evaluate((key) => localStorage.removeItem(key), storageKey);
-  await page.reload();
+const createAttendee = async (page: Page, label: string) => {
+  const emailLabel = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const email = `${emailLabel}-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
+  const response = await page.request.post("/api/auth/sign-up", {
+    data: {
+      email,
+      password,
+      displayName: label,
+      role: "user",
+    },
+  });
+  expect(response.status()).toBe(201);
+  const user = await response.json() as MockUser;
+  await setMockUser(page, user);
+  return { email, user };
+};
 
-  await expect(page.getByRole("button", { name: "Add banner" })).toBeVisible();
-  const input = page.locator("#organizer-profile-banner-test-organizer-001");
+const signInAttendee = async (page: Page, email: string) => {
+  const response = await page.request.post("/api/auth/sign-in", {
+    data: { email, password },
+  });
+  expect(response.ok()).toBe(true);
+  const user = await response.json() as MockUser;
+  await setMockUser(page, user);
+  return user;
+};
+
+test("organiser can add, persist, replace, and remove a dashboard banner", async ({ page }) => {
+  const email = `banner-organizer-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
+  const signUpResponse = await page.request.post("/api/auth/sign-up", {
+    data: {
+      email,
+      password,
+      displayName: "Banner Organizer",
+      role: "organizer",
+    },
+  });
+  expect(signUpResponse.status()).toBe(201);
+  const organizer = await signUpResponse.json() as MockUser;
+  await page.goto("/");
+  await setMockUser(page, organizer);
+  await page.goto("/organizer-dashboard");
+  const storageKey = `tick3t.profile-banner.${organizer.id}`;
+
+  await expect(page.getByRole("button", { name: "Add banner" })).toBeVisible({
+    timeout: 20_000,
+  });
+  const input = page.locator(`#organizer-profile-banner-${organizer.id}`);
   await input.setInputFiles({ name: "organiser-banner.png", mimeType: "image/png", buffer: smallPng });
 
   await expect(page.getByAltText("Profile banner")).toBeVisible();
@@ -52,34 +93,11 @@ test("organiser can add, persist, replace, and remove a dashboard banner", async
 });
 
 test("attendee banner validates uploads, survives refresh, and stays account-specific", async ({ page }) => {
-  const attendeeA: MockUser = {
-    id: "profile-banner-attendee-a",
-    email: "banner-a@example.com",
-    name: "Banner Attendee A",
-    role: "user",
-    isOrganizer: false,
-    isAdmin: false,
-    profilePicture: "",
-    isVerified: true,
-  };
-  const attendeeB: MockUser = {
-    ...attendeeA,
-    id: "profile-banner-attendee-b",
-    email: "banner-b@example.com",
-    name: "Banner Attendee B",
-  };
-  const attendeeAStorageKey = `tick3t.profile-banner.${attendeeA.id}`;
-  const attendeeBStorageKey = `tick3t.profile-banner.${attendeeB.id}`;
-
   await page.goto("/");
-  await page.evaluate(
-    ({ keyA, keyB }) => {
-      localStorage.removeItem(keyA);
-      localStorage.removeItem(keyB);
-    },
-    { keyA: attendeeAStorageKey, keyB: attendeeBStorageKey },
-  );
-  await setMockUser(page, attendeeA);
+  const attendeeAAccount = await createAttendee(page, "Banner Attendee A");
+  const attendeeA = attendeeAAccount.user;
+  const attendeeAStorageKey = `tick3t.profile-banner.${attendeeA.id}`;
+
   await page.goto("/dashboard");
 
   await expect(page.getByRole("button", { name: "Add banner" })).toHaveCount(0);
@@ -110,12 +128,13 @@ test("attendee banner validates uploads, survives refresh, and stays account-spe
   await page.reload();
   await expect(page.getByAltText("Profile banner")).toBeVisible();
 
-  await setMockUser(page, attendeeB);
+  const attendeeBAccount = await createAttendee(page, "Banner Attendee B");
+  const attendeeB = attendeeBAccount.user;
   await page.reload();
   await expect(page.getByText(attendeeB.name)).toBeVisible();
   await expect(page.getByAltText("Profile banner")).toHaveCount(0);
 
-  await setMockUser(page, attendeeA);
+  await signInAttendee(page, attendeeAAccount.email);
   await page.reload();
   await expect(page.getByText(attendeeA.name)).toBeVisible();
   await expect(page.getByAltText("Profile banner")).toBeVisible();

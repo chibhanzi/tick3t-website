@@ -14,8 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWaitlist } from "@/contexts/WaitlistContext";
-import { getPurchasedTicketQuantity, recordTicketPurchase } from "@/lib/ticketPurchases";
-import { getPublishedEvent } from "@/lib/publishedEvents";
+import { getPurchasedTicketStatus, recordTicketPurchase } from "@/lib/ticketPurchases";
+import { getPublishedEvent, type PublishedEventRecord } from "@/lib/publishedEvents";
 
 /* ------------------------------------------------------------------ */
 /*  Mock events — keyed by id so we can demo sold-out (id=2) vs not   */
@@ -103,7 +103,13 @@ const EventDetail = () => {
   const { user } = useAuth();
   const { isOnWaitlist, join, leave, position, displayCount } = useWaitlist();
 
-  const event = (id ? getPublishedEvent(id) : null) ?? MOCK_EVENTS[id ?? ""] ?? DEFAULT_EVENT;
+  const [publishedEvent, setPublishedEvent] = useState<PublishedEventRecord | null>(null);
+  const [serverAvailable, setServerAvailable] = useState<number | null>(null);
+  const fallbackEvent = MOCK_EVENTS[id ?? ""] ?? DEFAULT_EVENT;
+  const event = {
+    ...(publishedEvent ?? fallbackEvent),
+    ...(serverAvailable === null ? {} : { available: serverAvailable }),
+  };
   const resaleAvailable = event.resaleAvailable ?? 0;
   const resaleFromPrice = event.resaleFromPrice ?? 0;
 
@@ -112,10 +118,9 @@ const EventDetail = () => {
   const [liked, setLiked] = useState(false);
   const [isAttending, setIsAttending] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [purchasedQuantity, setPurchasedQuantity] = useState(() =>
-    user ? getPurchasedTicketQuantity(user.id, event.id) : 0
-  );
+  const [purchasedQuantity, setPurchasedQuantity] = useState(0);
   const [lastPurchaseQuantity, setLastPurchaseQuantity] = useState(0);
+  const [isBuying, setIsBuying] = useState(false);
 
   const accountLimit = Number.isInteger(event.purchaseLimitPerAccount) && event.purchaseLimitPerAccount! > 0
     ? event.purchaseLimitPerAccount!
@@ -127,9 +132,43 @@ const EventDetail = () => {
   const hasReachedAccountLimit = remainingAccountAllowance === 0;
 
   useEffect(() => {
-    setPurchasedQuantity(user ? getPurchasedTicketQuantity(user.id, event.id) : 0);
+    let active = true;
+    setPublishedEvent(null);
+    setServerAvailable(null);
+    if (id) {
+      void getPublishedEvent(id).then((serverEvent) => {
+        if (!active || !serverEvent) return;
+        setPublishedEvent(serverEvent);
+        setServerAvailable(serverEvent.available);
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    let active = true;
+    setPurchasedQuantity(0);
+    if (user && id) {
+      void getPurchasedTicketStatus(id)
+        .then((status) => {
+          if (!active) return;
+          setPurchasedQuantity(status.purchasedQuantity);
+          setServerAvailable(status.available);
+        })
+        .catch(() => {
+          if (active) setPurchasedQuantity(0);
+        });
+    }
+    return () => {
+      active = false;
+    };
+  }, [id, user?.id]);
+
+  useEffect(() => {
     setQuantity(1);
-  }, [event.id, user?.id]);
+  }, [id, user?.id]);
 
   useEffect(() => {
     if (maxPurchaseQuantity > 0 && quantity > maxPurchaseQuantity) {
@@ -168,7 +207,7 @@ const EventDetail = () => {
 
   const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`🎉 Check out ${event.title} on ${event.date} at ${event.location}! Get tickets: ${window.location.href}`)}`;
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
     if (!user) {
       toast({
         title: "Sign in to get tickets",
@@ -178,35 +217,54 @@ const EventDetail = () => {
       return;
     }
 
-    const currentPurchasedQuantity = getPurchasedTicketQuantity(user.id, event.id);
-    const currentRemainingAllowance = accountLimit === null
-      ? null
-      : Math.max(0, accountLimit - currentPurchasedQuantity);
-
-    if (currentRemainingAllowance !== null && quantity > currentRemainingAllowance) {
-      setPurchasedQuantity(currentPurchasedQuantity);
+    if (remainingAccountAllowance !== null && quantity > remainingAccountAllowance) {
       toast({
         variant: "destructive",
         title: "Ticket limit reached",
-        description: currentRemainingAllowance === 0
+        description: remainingAccountAllowance === 0
           ? `This event allows ${accountLimit} ticket${accountLimit === 1 ? "" : "s"} per account.`
-          : `You can purchase ${currentRemainingAllowance} more ticket${currentRemainingAllowance === 1 ? "" : "s"} for this event.`,
+          : `You can purchase ${remainingAccountAllowance} more ticket${remainingAccountAllowance === 1 ? "" : "s"} for this event.`,
       });
       return;
     }
 
-    let nextPurchasedQuantity: number;
+    setIsBuying(true);
     try {
-      nextPurchasedQuantity = recordTicketPurchase(user.id, event.id, quantity);
-    } catch {
+      const status = await recordTicketPurchase(event.id, quantity);
+      setPurchasedQuantity(status.purchasedQuantity);
+      setServerAvailable(status.available);
+    } catch (error) {
+      const errorData =
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof error.data === "object" &&
+        error.data !== null
+          ? error.data as Record<string, unknown>
+          : null;
+      if (typeof errorData?.purchasedQuantity === "number") {
+        setPurchasedQuantity(errorData.purchasedQuantity);
+      }
+      if (typeof errorData?.available === "number") {
+        setServerAvailable(errorData.available);
+      }
       toast({
         variant: "destructive",
-        title: "Could not reserve tickets",
-        description: "Your purchase could not be saved on this device. Please try again.",
+        title:
+          typeof errorData?.accountLimit === "number"
+            ? "Ticket limit reached"
+            : "Could not reserve tickets",
+        description:
+          typeof errorData?.error === "string"
+            ? errorData.error
+            : error instanceof Error
+              ? error.message
+              : "Please try again.",
       });
       return;
+    } finally {
+      setIsBuying(false);
     }
-    setPurchasedQuantity(nextPurchasedQuantity);
     setLastPurchaseQuantity(quantity);
     setIsAttending(true);
     setShowShareModal(true);
@@ -406,7 +464,7 @@ const EventDetail = () => {
                       role={hasReachedAccountLimit ? "alert" : undefined}
                     >
                       {hasReachedAccountLimit
-                        ? `You have reached this event's ${accountLimit}-ticket account limit.`
+                        ? `You have reached this event's ${accountLimit}-ticket account limit · 0 remaining for you.`
                         : `${accountLimit} ticket${accountLimit === 1 ? "" : "s"} per account · ${remainingAccountAllowance} remaining for you`}
                     </div>
                   )}
@@ -463,10 +521,14 @@ const EventDetail = () => {
                     <Button
                       className="w-full h-12 text-base font-semibold"
                       onClick={handleBuy}
-                      disabled={hasReachedAccountLimit}
+                      disabled={hasReachedAccountLimit || isBuying}
                     >
                       <Ticket className="h-4 w-4 mr-2" />
-                      {hasReachedAccountLimit ? "Account ticket limit reached" : "Get Tickets"}
+                      {hasReachedAccountLimit
+                        ? "Account ticket limit reached"
+                        : isBuying
+                          ? "Reserving tickets…"
+                          : "Get Tickets"}
                     </Button>
                   )}
 

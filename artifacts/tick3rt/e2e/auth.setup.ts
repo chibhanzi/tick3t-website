@@ -5,30 +5,38 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/**
- * Auth setup: inject a mock organizer session into localStorage so every
- * test skips the /auth page. The mock auth system (AuthContext.tsx) reads
- * from the "tick3t.mock-auth.user" localStorage key.
- */
 const AUTH_FILE = path.join(__dirname, "auth-state.json");
+const API_BASE_URL = "http://localhost:80";
+const organizerCredentials = {
+  email: "test-organizer@example.com",
+  password: "password123",
+};
 
 setup("authenticate as organizer", async ({ page }) => {
-  await page.goto("/");
-
-  // Inject the mock organizer session into localStorage
-  await page.evaluate(() => {
-    const mockUser = {
-      id: "test-organizer-001",
-      email: "test-organizer@example.com",
-      name: "Test Organizer",
-      role: "organizer",
-      avatar: null,
-      isOrganizer: true,
-      createdAt: new Date().toISOString(),
-    };
-    localStorage.setItem("tick3t.mock-auth.user", JSON.stringify(mockUser));
+  let response = await page.request.post(`${API_BASE_URL}/api/auth/sign-in`, {
+    data: organizerCredentials,
   });
+  if (response.status() === 401) {
+    response = await page.request.post(`${API_BASE_URL}/api/auth/sign-up`, {
+      data: {
+        ...organizerCredentials,
+        displayName: "Test Organizer",
+        role: "organizer",
+      },
+    });
+  }
+  if (!response.ok()) {
+    throw new Error(`Could not create organiser test session: ${response.status()}`);
+  }
+  const organizer = await response.json();
 
-  // Save the storage state (localStorage) for subsequent tests
+  await page.goto("/");
+  await page.evaluate(
+    ({ user }) => {
+      localStorage.setItem("tick3t.mock-auth.user", JSON.stringify(user));
+    },
+    { user: organizer },
+  );
+
   await page.context().storageState({ path: AUTH_FILE });
 });

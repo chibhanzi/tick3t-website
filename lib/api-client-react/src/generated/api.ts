@@ -21,11 +21,15 @@ import type {
 
 import type {
   AuthUser,
+  EventPurchaseStatus,
   HealthStatus,
   OrganiserProfile,
   OrganiserProfileInput,
   ProfileBanner,
   ProfileBannerUpdate,
+  PublishedEvent,
+  PublishedEventInput,
+  PurchaseTicketsInput,
   SignInInput,
   SignUpInput,
   UploadUrlRequest,
@@ -793,3 +797,378 @@ export const useDeleteSession = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getDeleteSessionMutationOptions(options));
     }
+
+export const getGetEventsUrl = () => {
+
+
+
+
+  return `/api/events`
+}
+
+/**
+ * @summary List published events
+ */
+export const getEvents = async ( options?: RequestInit): Promise<PublishedEvent[]> => {
+
+  return customFetch<PublishedEvent[]>(getGetEventsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEventsQueryKey = () => {
+    return [
+    `/api/events`
+    ] as const;
+    }
+
+
+export const getGetEventsQueryOptions = <TData = Awaited<ReturnType<typeof getEvents>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEvents>>> = ({ signal }) => getEvents({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEventsQueryResult = NonNullable<Awaited<ReturnType<typeof getEvents>>>
+export type GetEventsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List published events
+ */
+
+export function useGetEvents<TData = Awaited<ReturnType<typeof getEvents>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEvents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEventsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateEventUrl = () => {
+
+
+
+
+  return `/api/events`
+}
+
+/**
+ * @summary Publish an event for the current organiser
+ */
+export const createEvent = async (publishedEventInput: PublishedEventInput, options?: RequestInit): Promise<PublishedEvent> => {
+
+  return customFetch<PublishedEvent>(getCreateEventUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(publishedEventInput)
+  }
+);}
+
+
+
+
+
+export const getCreateEventMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: BodyType<PublishedEventInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: BodyType<PublishedEventInput>}, TContext> => {
+
+const mutationKey = ['createEvent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEvent>>, {data: BodyType<PublishedEventInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEvent(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEventMutationResult = NonNullable<Awaited<ReturnType<typeof createEvent>>>
+    export type CreateEventMutationBody = BodyType<PublishedEventInput>
+    export type CreateEventMutationError = ErrorType<void>
+
+    /**
+ * @summary Publish an event for the current organiser
+ */
+export const useCreateEvent = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: BodyType<PublishedEventInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createEvent>>,
+        TError,
+        {data: BodyType<PublishedEventInput>},
+        TContext
+      > => {
+      return useMutation(getCreateEventMutationOptions(options));
+    }
+
+export const getGetEventUrl = (eventId: string,) => {
+
+
+
+
+  return `/api/events/${eventId}`
+}
+
+/**
+ * @summary Get a published event
+ */
+export const getEvent = async (eventId: string, options?: RequestInit): Promise<PublishedEvent> => {
+
+  return customFetch<PublishedEvent>(getGetEventUrl(eventId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEventQueryKey = (eventId: string,) => {
+    return [
+    `/api/events/${eventId}`
+    ] as const;
+    }
+
+
+export const getGetEventQueryOptions = <TData = Awaited<ReturnType<typeof getEvent>>, TError = ErrorType<void>>(eventId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventQueryKey(eventId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEvent>>> = ({ signal }) => getEvent(eventId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: eventId !== null && eventId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEventQueryResult = NonNullable<Awaited<ReturnType<typeof getEvent>>>
+export type GetEventQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a published event
+ */
+
+export function useGetEvent<TData = Awaited<ReturnType<typeof getEvent>>, TError = ErrorType<void>>(
+ eventId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEventQueryOptions(eventId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEventPurchaseStatusUrl = (eventId: string,) => {
+
+
+
+
+  return `/api/events/${eventId}/purchase-status`
+}
+
+/**
+ * @summary Get the current account's event purchase status
+ */
+export const getEventPurchaseStatus = async (eventId: string, options?: RequestInit): Promise<EventPurchaseStatus> => {
+
+  return customFetch<EventPurchaseStatus>(getGetEventPurchaseStatusUrl(eventId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEventPurchaseStatusQueryKey = (eventId: string,) => {
+    return [
+    `/api/events/${eventId}/purchase-status`
+    ] as const;
+    }
+
+
+export const getGetEventPurchaseStatusQueryOptions = <TData = Awaited<ReturnType<typeof getEventPurchaseStatus>>, TError = ErrorType<void>>(eventId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEventPurchaseStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventPurchaseStatusQueryKey(eventId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEventPurchaseStatus>>> = ({ signal }) => getEventPurchaseStatus(eventId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: eventId !== null && eventId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEventPurchaseStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEventPurchaseStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getEventPurchaseStatus>>>
+export type GetEventPurchaseStatusQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the current account's event purchase status
+ */
+
+export function useGetEventPurchaseStatus<TData = Awaited<ReturnType<typeof getEventPurchaseStatus>>, TError = ErrorType<void>>(
+ eventId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEventPurchaseStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEventPurchaseStatusQueryOptions(eventId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPurchaseTicketsUrl = (eventId: string,) => {
+
+
+
+
+  return `/api/events/${eventId}/purchase`
+}
+
+/**
+ * @summary Atomically reserve tickets for the current account
+ */
+export const purchaseTickets = async (eventId: string,
+    purchaseTicketsInput: PurchaseTicketsInput, options?: RequestInit): Promise<EventPurchaseStatus> => {
+
+  return customFetch<EventPurchaseStatus>(getPurchaseTicketsUrl(eventId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(purchaseTicketsInput)
+  }
+);}
+
+
+
+
+
+export const getPurchaseTicketsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof purchaseTickets>>, TError,{eventId: string;data: BodyType<PurchaseTicketsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof purchaseTickets>>, TError,{eventId: string;data: BodyType<PurchaseTicketsInput>}, TContext> => {
+
+const mutationKey = ['purchaseTickets'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof purchaseTickets>>, {eventId: string;data: BodyType<PurchaseTicketsInput>}> = (props) => {
+          const {eventId,data} = props ?? {};
+
+          return  purchaseTickets(eventId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PurchaseTicketsMutationResult = NonNullable<Awaited<ReturnType<typeof purchaseTickets>>>
+    export type PurchaseTicketsMutationBody = BodyType<PurchaseTicketsInput>
+    export type PurchaseTicketsMutationError = ErrorType<void>
+
+    /**
+ * @summary Atomically reserve tickets for the current account
+ */
+export const usePurchaseTickets = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof purchaseTickets>>, TError,{eventId: string;data: BodyType<PurchaseTicketsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof purchaseTickets>>,
+        TError,
+        {eventId: string;data: BodyType<PurchaseTicketsInput>},
+        TContext
+      > => {
+      return useMutation(getPurchaseTicketsMutationOptions(options));
+    }
+

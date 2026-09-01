@@ -22,7 +22,7 @@ export interface EventData {
 }
 
 interface CreateEventStepsProps {
-  onComplete: (eventData: PublishableEventData) => void;
+  onComplete: (eventData: PublishableEventData) => Promise<boolean>;
 }
 
 const DRAFT_KEY = "tick3t_create_event_draft";
@@ -226,7 +226,7 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
     setTicketFeatures(features);
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     const finalEventData = {
       ...eventData,
       ...pricingData,
@@ -234,8 +234,8 @@ const CreateEventSteps = ({ onComplete }: CreateEventStepsProps) => {
       generationConfig,
       ticketFeatures,
     };
-    clearDraft();
-    onComplete(finalEventData);
+    const published = await onComplete(finalEventData);
+    if (published) clearDraft();
   };
 
   const renderStepContent = () => {

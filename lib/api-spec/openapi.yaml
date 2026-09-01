@@ -18,6 +18,8 @@ tags:
     description: Authenticated user profile operations
   - name: storage
     description: Persistent object upload and serving operations
+  - name: events
+    description: Published event and ticket purchase operations
 paths:
   /healthz:
     get:
@@ -205,7 +207,127 @@ paths:
       responses:
         "204":
           description: Signed out
+  /events:
+    get:
+      operationId: getEvents
+      tags: [events]
+      summary: List published events
+      responses:
+        "200":
+          description: Published events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublishedEvent"
+    post:
+      operationId: createEvent
+      tags: [events]
+      summary: Publish an event for the current organiser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublishedEventInput"
+      responses:
+        "201":
+          description: Published event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishedEvent"
+        "400":
+          description: Invalid event
+        "401":
+          description: Authentication required
+        "403":
+          description: Organiser access required
+  /events/{eventId}:
+    get:
+      operationId: getEvent
+      tags: [events]
+      summary: Get a published event
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Published event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishedEvent"
+        "404":
+          description: Event not found
+  /events/{eventId}/purchase-status:
+    get:
+      operationId: getEventPurchaseStatus
+      tags: [events]
+      summary: Get the current account's event purchase status
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Account purchase status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventPurchaseStatus"
+        "401":
+          description: Authentication required
+        "404":
+          description: Event not found
+  /events/{eventId}/purchase:
+    post:
+      operationId: purchaseTickets
+      tags: [events]
+      summary: Atomically reserve tickets for the current account
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PurchaseTicketsInput"
+      responses:
+        "200":
+          description: Tickets reserved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventPurchaseStatus"
+        "400":
+          description: Invalid quantity
+        "401":
+          description: Authentication required
+        "404":
+          description: Event not found
+        "409":
+          description: Account limit or inventory exceeded
 components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: tick3t.session
   schemas:
     HealthStatus:
       type: object
@@ -341,4 +463,118 @@ components:
         - isAdmin
         - role
         - isVerified
+    PublishedEventInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        date:
+          type: string
+        time:
+          type: string
+        location:
+          type: string
+        fullAddress:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        category:
+          type: string
+        total:
+          type: integer
+          minimum: 1
+        price:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 10
+        purchaseLimitPerAccount:
+          type: integer
+          minimum: 1
+        tags:
+          type: array
+          items:
+            type: string
+        amenities:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - date
+        - time
+        - location
+        - fullAddress
+        - description
+        - image
+        - category
+        - total
+        - price
+        - currency
+        - tags
+        - amenities
+    PublishedEvent:
+      allOf:
+        - $ref: "#/components/schemas/PublishedEventInput"
+        - type: object
+          properties:
+            id:
+              type: string
+            attendees:
+              type: integer
+            available:
+              type: integer
+            organizer:
+              type: string
+            organizerId:
+              type: string
+            isVerifiedOrganizer:
+              type: boolean
+          required:
+            - id
+            - attendees
+            - available
+            - organizer
+            - organizerId
+            - isVerifiedOrganizer
+    PurchaseTicketsInput:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 10
+      required:
+        - quantity
+    EventPurchaseStatus:
+      type: object
+      properties:
+        eventId:
+          type: string
+        purchasedQuantity:
+          type: integer
+        remainingAccountAllowance:
+          type:
+            - integer
+            - "null"
+        accountLimit:
+          type:
+            - integer
+            - "null"
+        available:
+          type: integer
+        total:
+          type: integer
+      required:
+        - eventId
+        - purchasedQuantity
+        - remainingAccountAllowance
+        - accountLimit
+        - available
+        - total
 

@@ -21,8 +21,25 @@ const Events = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { user } = useAuth();
   const { following, clearUnread } = useFollow();
-  const [publishedEvents] = useState(() =>
-    getPublishedEvents().map((event) => ({
+  const [publishedEvents, setPublishedEvents] = useState<Array<{
+    id: string;
+    organizerId: string;
+    title: string;
+    date: string;
+    location: string;
+    price: string;
+    image: string;
+    attendees: number;
+    category: string;
+    available: number;
+    total: number;
+  }>>([]);
+
+  useEffect(() => {
+    let active = true;
+    void getPublishedEvents().then((serverEvents) => {
+      if (!active) return;
+      setPublishedEvents(serverEvents.map((event) => ({
       id: event.id,
       organizerId: event.organizerId,
       title: event.title,
@@ -34,16 +51,21 @@ const Events = () => {
       category: event.category,
       available: event.available,
       total: event.total,
-    })),
-  );
+      })));
+    }).catch(() => {
+      if (active) setPublishedEvents([]);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Clear unread notification when user lands on events page with follows
   useEffect(() => {
     if (following.length > 0) clearUnread();
   }, []);
 
-  const events = [
-    ...publishedEvents,
+  const mockEvents = [
     {
       id: "1",
       organizerId: "org-bass",
@@ -122,6 +144,12 @@ const Events = () => {
       available: 25,
       total: 100
     }
+  ];
+  const events = [
+    ...publishedEvents,
+    ...mockEvents.filter(
+      (mockEvent) => !publishedEvents.some((event) => event.id === mockEvent.id),
+    ),
   ];
 
   // Events from organisers the current user follows

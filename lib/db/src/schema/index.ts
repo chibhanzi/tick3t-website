@@ -19,3 +19,5 @@
 
 export * from "./organizer-profiles";
 export * from "./users";
+export * from "./published-events";
+export * from "./ticket-purchases";
